@@ -397,6 +397,8 @@ p {
     radial-gradient(circle at 46% 48%, rgba(94, 161, 255, 0.24), transparent 32rem),
     linear-gradient(180deg, rgba(7, 11, 18, 0.76), rgba(8, 12, 19, 0.74)),
     #080b12;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .work-bg {
@@ -504,6 +506,8 @@ p {
   --z: 0px;
   --ry: 0deg;
   --scale: 1;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
   aspect-ratio: 16 / 9;
   background:
     radial-gradient(circle at 78% 22%, rgba(255, 77, 141, 0.24), transparent 18rem),
@@ -525,6 +529,7 @@ p {
     filter 520ms ease,
     box-shadow 520ms ease,
     transform 640ms cubic-bezier(0.2, 0.72, 0.16, 1);
+  user-select: none;
   width: clamp(21rem, 58vw, 58rem);
   will-change: transform, opacity, filter;
 }
@@ -589,9 +594,12 @@ p {
 }
 
 .work-card-media {
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
   filter: brightness(1.08) contrast(1.04) saturate(1.12);
   height: 100%;
   object-fit: cover;
+  user-select: none;
   width: 100%;
 }
 
