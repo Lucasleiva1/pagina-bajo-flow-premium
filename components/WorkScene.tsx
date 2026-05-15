@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { type PointerEvent, useRef, useState } from "react";
 import { SceneShell } from "@/components/SceneShell";
 import { WorkGallery3D } from "@/components/three/WorkGallery3D";
 import { ChevronIcon } from "@/components/ui/Icons";
@@ -8,17 +8,22 @@ import { projects } from "@/data/site";
 
 export function WorkScene() {
   const [active, setActive] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
   const dragStart = useRef<number | null>(null);
-  const activeProject = projects[active];
 
   function move(direction: number) {
     setActive((current) => (current + direction + projects.length) % projects.length);
+  }
+
+  function stopStagePointer(event: PointerEvent<HTMLElement>) {
+    event.stopPropagation();
   }
 
   function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
     if (dragStart.current === null) return;
     const delta = event.clientX - dragStart.current;
     dragStart.current = null;
+    setDragOffset(0);
     if (Math.abs(delta) < 38) return;
     move(delta < 0 ? 1 : -1);
   }
@@ -30,8 +35,8 @@ export function WorkScene() {
         <p className="kicker">Selected work</p>
         <h2>Stories, Cut to Perfection</h2>
         <p>
-          Una galeria preparada para reemplazar cada placeholder por proyectos reales, con
-          profundidad WebGL, camara y luz cinematografica.
+          Una seleccion de piezas donde edicion, ritmo, imagen y sonido se sienten como una
+          escena cinematografica.
         </p>
       </div>
 
@@ -39,17 +44,37 @@ export function WorkScene() {
         className="work-stage"
         onPointerDown={(event) => {
           dragStart.current = event.clientX;
+          setDragOffset(0);
+          event.currentTarget.setPointerCapture(event.pointerId);
         }}
-        onPointerLeave={() => {
+        onPointerMove={(event) => {
+          if (dragStart.current === null) return;
+          const delta = event.clientX - dragStart.current;
+          const clamped = Math.max(-220, Math.min(220, delta));
+          setDragOffset(clamped);
+        }}
+        onPointerUp={(event) => {
+          handlePointerUp(event);
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        }}
+        onPointerCancel={(event) => {
           dragStart.current = null;
+          setDragOffset(0);
+          event.currentTarget.releasePointerCapture(event.pointerId);
         }}
-        onPointerUp={handlePointerUp}
+        style={{ touchAction: "pan-y" }}
       >
-        <WorkGallery3D active={active} projects={projects} setActive={setActive} />
+        <WorkGallery3D
+          active={active}
+          dragOffset={dragOffset}
+          projects={projects}
+          setActive={setActive}
+        />
         <button
           aria-label="Trabajo anterior"
           className="gallery-arrow left"
           onClick={() => move(-1)}
+          onPointerDown={stopStagePointer}
           type="button"
         >
           <ChevronIcon />
@@ -58,23 +83,12 @@ export function WorkScene() {
           aria-label="Trabajo siguiente"
           className="gallery-arrow right"
           onClick={() => move(1)}
+          onPointerDown={stopStagePointer}
           type="button"
         >
           <ChevronIcon />
         </button>
       </div>
-
-      <aside className="work-panel" data-depth-card>
-        <span>{String(active + 1).padStart(2, "0")}</span>
-        <h3>{activeProject.title}</h3>
-        <p className="project-category">{activeProject.category}</p>
-        <p>{activeProject.description}</p>
-        <div className="tool-list">
-          {activeProject.tools.map((tool) => (
-            <small key={tool}>{tool}</small>
-          ))}
-        </div>
-      </aside>
 
       <div className="gallery-progress" aria-label="Progreso de trabajos">
         <span>{String(active + 1).padStart(2, "0")}</span>

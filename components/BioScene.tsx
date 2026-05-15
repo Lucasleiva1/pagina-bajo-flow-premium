@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { SceneShell } from "@/components/SceneShell";
 
 const tags = ["Video editing", "Color grading", "Post audio", "Social media", "Institucionales"];
@@ -7,13 +6,9 @@ export function BioScene() {
   return (
     <SceneShell className="bio-scene" id="bio">
       <div className="bio-portrait" data-depth-card>
-        <Image
-          alt="Retrato de Lucas Leiva"
-          height={1200}
-          priority={false}
-          src="/assets/bio-lucas.png"
-          width={1200}
-        />
+        <div className="bio-mark" aria-hidden="true">
+          BF
+        </div>
       </div>
 
       <div className="bio-copy" data-scene-copy>

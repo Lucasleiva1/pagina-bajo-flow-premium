@@ -1,47 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { SceneShell } from "@/components/SceneShell";
 import { HeroWorld } from "@/components/three/HeroWorld";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { MagneticButton } from "@/components/ui/MagneticButton";
-import { stats } from "@/data/site";
 
 export function HeroScene() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          void video.play().catch(() => undefined);
-          return;
-        }
-
-        video.pause();
-      },
-      { threshold: 0.35 },
-    );
-
-    observer.observe(video);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <SceneShell className="hero-scene" id="intro">
       <video
-        aria-label="Reel Bajo Flow"
         autoPlay
         className="hero-video"
         loop
         muted
         playsInline
-        poster="/assets/hero-poster.png"
-        preload="metadata"
-        ref={videoRef}
+        preload="auto"
         src="/assets/reel.mp4"
       />
       <div className="hero-video-vignette" aria-hidden="true" />
@@ -69,11 +42,6 @@ export function HeroScene() {
         </div>
       </div>
 
-      <div className="hero-stats" data-depth-card>
-        {stats.map((stat) => (
-          <span key={stat}>{stat}</span>
-        ))}
-      </div>
     </SceneShell>
   );
 }

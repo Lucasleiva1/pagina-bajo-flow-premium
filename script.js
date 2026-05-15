@@ -5,7 +5,7 @@ const projects = [
     type: "Contenido principal",
     description: "Proyecto base para un video principal: narrativa, ritmo, retencion, color y entrega lista para publicar.",
     runtime: "Formato vertical / horizontal",
-    image: "assets/work-reference.png",
+    href: "https://www.youtube.com/@bajoflow",
   },
   {
     number: "02",
@@ -13,7 +13,7 @@ const projects = [
     type: "Redes sociales",
     description: "Piezas cortas para captar atencion rapido: cortes precisos, subtitulos, energia y foco en retencion.",
     runtime: "Shorts / Reels / TikTok",
-    image: "assets/hero-poster.png",
+    href: "https://www.youtube.com/@bajoflow",
   },
   {
     number: "03",
@@ -21,7 +21,7 @@ const projects = [
     type: "Marca / institucional",
     description: "Videos para marca o institucion con tono profesional, atmosfera cuidada, audio limpio y entrega final solida.",
     runtime: "Campana / Institucional",
-    image: "assets/visual-palette.png",
+    href: "https://www.youtube.com/@bajoflow",
   },
 ];
 

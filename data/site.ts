@@ -8,8 +8,6 @@ export const navItems = [
 
 export type NavItem = (typeof navItems)[number];
 
-export const stats = ["+50 proyectos", "DaVinci Resolve", "Color / Fairlight"];
-
 export const projects = [
   {
     title: "YouTube Launch",
@@ -18,8 +16,8 @@ export const projects = [
     description:
       "Proyecto base para un video principal: narrativa, ritmo, retencion, color y entrega lista para publicar.",
     tools: ["DaV", "Color", "Fair", "Cut", "AI"],
-    image: "/assets/work-reference.png",
-    video: "/assets/reel.mp4",
+    video: "/assets/video_center.mp4",
+    href: "https://www.youtube.com/@bajoflow",
   },
   {
     title: "Social Impact",
@@ -28,7 +26,8 @@ export const projects = [
     description:
       "Piezas cortas para captar atencion rapido: cortes precisos, subtitulos, energia y foco en retencion.",
     tools: ["Cut", "Sub", "Sound", "Color"],
-    image: "/assets/hero-poster.png",
+    video: "/assets/video_left.mp4",
+    href: "https://www.youtube.com/@bajoflow",
   },
   {
     title: "Brand Film",
@@ -37,11 +36,12 @@ export const projects = [
     description:
       "Videos para marca o institucion con tono profesional, atmosfera cuidada, audio limpio y entrega final solida.",
     tools: ["DaV", "Fair", "Grade", "Mix"],
-    image: "/assets/visual-palette.png",
+    video: "/assets/video_right.mp4",
+    href: "https://www.youtube.com/@bajoflow",
   },
 ];
 
-export type Project = (typeof projects)[number] & { video?: string };
+export type Project = (typeof projects)[number];
 
 export const craftSteps = [
   {

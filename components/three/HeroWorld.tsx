@@ -1,53 +1,92 @@
 "use client";
 
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useState, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Float, PerspectiveCamera } from "@react-three/drei";
-import type { Group, Mesh } from "three";
-import { ParticlesField } from "@/components/three/ParticlesField";
+import { PerspectiveCamera } from "@react-three/drei";
+import * as THREE from "three";
+import type { Group } from "three";
+
+// ----------------------------------------------------
+// CONTROLES MANUALES PARA EL USUARIO
+// ----------------------------------------------------
+// Cambiá este valor para darle más o menos relieve 3D al video.
+// OJO: Si es muy alto (ej. 1.0) va a parecer "gelatina" que tiembla,
+// porque los píxeles del video cambian de brillo en cada frame, moviendo la pared.
+// Valores recomendados: 0.05 a 0.2
+const DISPLACEMENT_INTENSITY = 0.15;
+
+// Cambiá a true si querés ver la malla de polígonos (solo para probar el rendimiento).
+const WIREFRAME = false;
+// ----------------------------------------------------
+
+function CinemaScreen() {
+  const [video] = useState(() => {
+    const vid = document.createElement("video");
+    vid.src = "/assets/reel.mp4";
+    vid.crossOrigin = "Anonymous";
+    vid.loop = true;
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.preload = "auto";
+    return vid;
+  });
+
+  const videoTexture = useMemo(() => {
+    const tex = new THREE.VideoTexture(video);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }, [video]);
+
+  useEffect(() => {
+    function playFromVisibleFrame() {
+      if (video.currentTime < 0.35) video.currentTime = 0.8;
+      video.play().catch(() => {});
+    }
+
+    if (video.readyState >= 1) playFromVisibleFrame();
+    else video.addEventListener("loadedmetadata", playFromVisibleFrame, { once: true });
+
+    return () => video.removeEventListener("loadedmetadata", playFromVisibleFrame);
+  }, [video]);
+
+  return (
+    <mesh position={[0, 0, 0]} scale={[-1, 1, 1]}>
+      {/* 
+        Aumentamos los polígonos para que el mapa de desplazamiento tenga vértices que mover:
+        radialSegments = 128, heightSegments = 64
+        Es lo suficientemente liviano (low-poly) pero da un efecto buenísimo.
+      */}
+      <cylinderGeometry args={[12, 12, 13.5, 128, 64, true, Math.PI - 1.0, 2.0]} />
+
+      <meshStandardMaterial
+        map={videoTexture}
+        displacementMap={videoTexture}
+        displacementScale={DISPLACEMENT_INTENSITY}
+        emissiveMap={videoTexture}
+        emissive={"#ffffff"}
+        emissiveIntensity={0.72}
+        side={THREE.DoubleSide}
+        toneMapped={false}
+        wireframe={WIREFRAME}
+        roughness={0.9}
+      />
+    </mesh>
+  );
+}
 
 function HeroRig() {
   const group = useRef<Group>(null);
-  const monolith = useRef<Mesh>(null);
 
   useFrame((state) => {
     if (!group.current) return;
-    group.current.rotation.y += (state.pointer.x * 0.18 - group.current.rotation.y) * 0.04;
-    group.current.rotation.x += (-state.pointer.y * 0.08 - group.current.rotation.x) * 0.04;
-
-    if (monolith.current) {
-      monolith.current.rotation.y = state.clock.elapsedTime * 0.17;
-      monolith.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.6) * 0.08;
-    }
+    // Paneo inmersivo suave con el mouse
+    group.current.rotation.y += (state.pointer.x * 0.15 - group.current.rotation.y) * 0.05;
+    group.current.rotation.x += (-state.pointer.y * 0.05 - group.current.rotation.x) * 0.05;
   });
 
   return (
     <group ref={group}>
-      <ParticlesField count={320} spread={11} />
-      <Float floatIntensity={1.4} rotationIntensity={0.35} speed={1.3}>
-        <mesh ref={monolith} position={[1.9, 0.15, -1.9]} rotation={[0.35, 0.4, -0.18]}>
-          <boxGeometry args={[0.72, 2.2, 0.42]} />
-          <meshPhysicalMaterial
-            color="#0b0f18"
-            emissive="#1e2a5a"
-            emissiveIntensity={0.55}
-            metalness={0.65}
-            roughness={0.18}
-            transmission={0.12}
-          />
-        </mesh>
-      </Float>
-
-      <mesh position={[0.45, -1.15, -2.4]} rotation={[-1.12, 0, 0]}>
-        <planeGeometry args={[7.5, 3.2]} />
-        <meshBasicMaterial color="#11162a" opacity={0.24} transparent />
-      </mesh>
-      <mesh position={[-1.7, 0.2, -3.1]} rotation={[0.15, -0.35, 0.06]}>
-        <planeGeometry args={[2.1, 3.7]} />
-        <meshBasicMaterial color="#7b4cff" opacity={0.09} transparent />
-      </mesh>
-      <pointLight color="#ff4d8d" intensity={12} position={[-2.1, -0.2, 1.2]} />
-      <pointLight color="#5ea1ff" intensity={18} position={[2.8, 1.4, 1.6]} />
+      <CinemaScreen />
     </group>
   );
 }
@@ -56,11 +95,12 @@ export function HeroWorld() {
   return (
     <div className="hero-world" aria-hidden="true">
       <Canvas dpr={[1, 1.5]} gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}>
-        <PerspectiveCamera makeDefault fov={38} position={[0, 0.2, 6.2]} />
+        <PerspectiveCamera makeDefault fov={45} position={[0, 0, 0]} />
         <Suspense fallback={null}>
-          <ambientLight intensity={0.45} />
+          {/* Luces para que el relieve 3D genere sombras sutiles y se note la profundidad */}
+          <ambientLight intensity={1.2} />
+          <directionalLight position={[5, 10, 5]} intensity={1.5} />
           <HeroRig />
-          <Environment preset="night" />
         </Suspense>
       </Canvas>
     </div>
