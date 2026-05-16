@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { navItems } from "@/data/site";
+import { languageOptions, siteCopy, type Language } from "@/data/site";
 import { BioScene } from "@/components/BioScene";
 import { ContactScene } from "@/components/ContactScene";
 import { CraftScene } from "@/components/CraftScene";
@@ -17,6 +17,12 @@ const sceneIds = ["intro", "work", "craft", "bio", "contact", "footer"];
 
 export function ExperiencePage() {
   const activeScene = useActiveScene(sceneIds);
+  const [language, setLanguage] = useState<Language>("es");
+  const copy = siteCopy[language];
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -65,14 +71,21 @@ export function ExperiencePage() {
 
   return (
     <>
-      <Header activeScene={activeScene} items={navItems} />
+      <Header
+        activeScene={activeScene}
+        copy={copy.header}
+        items={copy.navItems}
+        language={language}
+        languages={languageOptions}
+        onLanguageChange={setLanguage}
+      />
       <main className="snap-stage">
-        <HeroScene />
-        <WorkScene />
-        <CraftScene />
-        <BioScene />
-        <ContactScene />
-        <FooterScene />
+        <HeroScene copy={copy.hero} />
+        <WorkScene copy={copy.work} />
+        <CraftScene copy={copy.craft} />
+        <BioScene copy={copy.bio} />
+        <ContactScene copy={copy.contact} />
+        <FooterScene copy={copy.footer} />
       </main>
     </>
   );

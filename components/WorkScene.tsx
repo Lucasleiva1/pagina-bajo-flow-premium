@@ -4,12 +4,17 @@ import { type PointerEvent, useRef, useState } from "react";
 import { SceneShell } from "@/components/SceneShell";
 import { WorkGallery3D } from "@/components/three/WorkGallery3D";
 import { ChevronIcon } from "@/components/ui/Icons";
-import { projects } from "@/data/site";
+import type { SiteCopy } from "@/data/site";
 
-export function WorkScene() {
+type WorkSceneProps = {
+  copy: SiteCopy["work"];
+};
+
+export function WorkScene({ copy }: WorkSceneProps) {
   const [active, setActive] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const dragStart = useRef<number | null>(null);
+  const projects = copy.projects;
 
   function move(direction: number) {
     setActive((current) => (current + direction + projects.length) % projects.length);
@@ -32,12 +37,8 @@ export function WorkScene() {
     <SceneShell className="work-scene" id="work">
       <div className="work-bg" aria-hidden="true" />
       <div className="scene-heading work-heading" data-scene-copy>
-        <p className="kicker">Selected work</p>
-        <h2>Stories, Cut to Perfection</h2>
-        <p>
-          Una seleccion de piezas donde edicion, ritmo, imagen y sonido se sienten como una
-          escena cinematografica.
-        </p>
+        <p className="kicker">{copy.kicker}</p>
+        <h2>{copy.title}</h2>
       </div>
 
       <div
@@ -67,11 +68,17 @@ export function WorkScene() {
         <WorkGallery3D
           active={active}
           dragOffset={dragOffset}
+          labels={{
+            gallery: `${copy.kicker} 3D`,
+            project: copy.projectAria,
+            tools: copy.toolsAria,
+            viewCase: copy.viewCase,
+          }}
           projects={projects}
           setActive={setActive}
         />
         <button
-          aria-label="Trabajo anterior"
+          aria-label={copy.previous}
           className="gallery-arrow left"
           onClick={() => move(-1)}
           onPointerDown={stopStagePointer}
@@ -80,7 +87,7 @@ export function WorkScene() {
           <ChevronIcon />
         </button>
         <button
-          aria-label="Trabajo siguiente"
+          aria-label={copy.next}
           className="gallery-arrow right"
           onClick={() => move(1)}
           onPointerDown={stopStagePointer}
@@ -90,12 +97,12 @@ export function WorkScene() {
         </button>
       </div>
 
-      <div className="gallery-progress" aria-label="Progreso de trabajos">
+      <div className="gallery-progress" aria-label={copy.progress}>
         <span>{String(active + 1).padStart(2, "0")}</span>
         <div>
           {projects.map((project, index) => (
             <button
-              aria-label={`Ver ${project.title}`}
+              aria-label={`${copy.viewProject} ${project.title}`}
               className={index === active ? "active" : ""}
               key={project.title}
               onClick={() => setActive(index)}

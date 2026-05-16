@@ -4,8 +4,13 @@ import { SceneShell } from "@/components/SceneShell";
 import { HeroWorld } from "@/components/three/HeroWorld";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { MagneticButton } from "@/components/ui/MagneticButton";
+import type { SiteCopy } from "@/data/site";
 
-export function HeroScene() {
+type HeroSceneProps = {
+  copy: SiteCopy["hero"];
+};
+
+export function HeroScene({ copy }: HeroSceneProps) {
   return (
     <SceneShell className="hero-scene" id="intro">
       <video
@@ -21,27 +26,23 @@ export function HeroScene() {
       <HeroWorld />
 
       <div className="side-rail" aria-hidden="true">
-        <span>scroll to explore</span>
+        <span>{copy.sideRail}</span>
         <i />
       </div>
 
       <div className="hero-copy" data-scene-copy>
-        <p className="kicker">Lucas Leiva / Editor audiovisual</p>
-        <h1>Contenido de alto impacto visual</h1>
-        <p className="hero-lead">
-          Edicion dinamica, color cinematografico, audio cuidado y piezas con presencia para
-          YouTube, redes, marcas e institucionales.
-        </p>
+        <p className="kicker">{copy.kicker}</p>
+        <h1>{copy.title}</h1>
+        <p className="hero-lead">{copy.lead}</p>
         <div className="hero-actions">
           <MagneticButton href="#work" icon={<ArrowIcon />}>
-            Ver trabajos
+            {copy.primaryAction}
           </MagneticButton>
           <MagneticButton href="#contact" variant="ghost">
-            Contactar
+            {copy.secondaryAction}
           </MagneticButton>
         </div>
       </div>
-
     </SceneShell>
   );
 }

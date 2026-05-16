@@ -1,12 +1,17 @@
 import { SceneShell } from "@/components/SceneShell";
+import type { SiteCopy } from "@/data/site";
 
-export function FooterScene() {
+type FooterSceneProps = {
+  copy: SiteCopy["footer"];
+};
+
+export function FooterScene({ copy }: FooterSceneProps) {
   return (
     <SceneShell className="footer-scene" id="footer">
       <div className="footer-mark" data-scene-copy>
-        <p className="kicker">Bajo Flow</p>
-        <h2>Edicion, color, audio y direccion visual para piezas que se sienten grandes.</h2>
-        <span>Lucas Leiva - Buenos Aires</span>
+        <p className="kicker">{copy.kicker}</p>
+        <h2>{copy.title}</h2>
+        <span>{copy.location}</span>
       </div>
     </SceneShell>
   );

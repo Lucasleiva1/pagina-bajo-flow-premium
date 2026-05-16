@@ -1,21 +1,22 @@
 import { SceneShell } from "@/components/SceneShell";
 import { SparkIcon } from "@/components/ui/Icons";
-import { craftSteps } from "@/data/site";
+import type { SiteCopy } from "@/data/site";
 
-export function CraftScene() {
+type CraftSceneProps = {
+  copy: SiteCopy["craft"];
+};
+
+export function CraftScene({ copy }: CraftSceneProps) {
   return (
     <SceneShell className="craft-scene" id="craft">
       <div className="scene-heading craft-heading" data-scene-copy>
-        <p className="kicker">Craft sequence</p>
-        <h2>Del material crudo a una pieza con pulso.</h2>
-        <p>
-          No es una lista de servicios. Es el recorrido visual del trabajo: ritmo, atmosfera,
-          intencion, sonido y entrega.
-        </p>
+        <p className="kicker">{copy.kicker}</p>
+        <h2>{copy.title}</h2>
+        <p>{copy.description}</p>
       </div>
 
       <div className="craft-rail">
-        {craftSteps.map((step) => (
+        {copy.steps.map((step) => (
           <article className="craft-card" data-depth-card key={step.title}>
             <span className="craft-number">{step.number}</span>
             <span className={`craft-icon ${step.icon}`} aria-hidden="true">

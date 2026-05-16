@@ -6,6 +6,12 @@ import type { Project } from "@/data/site";
 type WorkGallery3DProps = {
   active: number;
   dragOffset?: number;
+  labels: {
+    gallery: string;
+    project: string;
+    tools: string;
+    viewCase: string;
+  };
   projects: Project[];
   setActive: (index: number) => void;
 };
@@ -33,6 +39,7 @@ function formatIndex(index: number) {
 export function WorkGallery3D({
   active,
   dragOffset = 0,
+  labels,
   projects,
   setActive,
 }: WorkGallery3DProps) {
@@ -53,7 +60,7 @@ export function WorkGallery3D({
   }
 
   return (
-    <div className="work-canvas cinematic-gallery" aria-label="Galeria 3D de trabajos">
+    <div className="work-canvas cinematic-gallery" aria-label={labels.gallery}>
       <div className="gallery-atmosphere" aria-hidden="true" />
       <div className={`gallery-orbit${dragOffset !== 0 ? " dragging" : ""}`} style={dragStyle}>
         {projects.map((project, index) => {
@@ -65,7 +72,7 @@ export function WorkGallery3D({
           return (
             <article
               aria-hidden={!isVisible}
-              aria-label={`Proyecto ${formatIndex(index)}: ${project.title}`}
+              aria-label={`${labels.project} ${formatIndex(index)}: ${project.title}`}
               className={`work-card ${slot}${isActive ? " active" : ""}`}
               key={project.title}
               onClick={() => selectProject(index)}
@@ -99,7 +106,7 @@ export function WorkGallery3D({
               </div>
 
               <div className="work-card-footer">
-                <div className="work-tools" aria-label="Herramientas">
+                <div className="work-tools" aria-label={labels.tools}>
                   {project.tools.map((tool) => (
                     <span key={tool}>{tool}</span>
                   ))}
@@ -113,7 +120,7 @@ export function WorkGallery3D({
                     rel="noreferrer"
                     target="_blank"
                   >
-                    Ver en YouTube
+                    {labels.viewCase}
                     <svg aria-hidden="true" viewBox="0 0 16 16">
                       <path d="M5 3h8v8" />
                       <path d="M13 3 3 13" />

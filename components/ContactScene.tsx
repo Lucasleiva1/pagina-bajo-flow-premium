@@ -1,21 +1,22 @@
 import { SceneShell } from "@/components/SceneShell";
 import { SocialCard } from "@/components/ui/SocialCard";
-import { socialLinks } from "@/data/site";
+import type { SiteCopy } from "@/data/site";
 
-export function ContactScene() {
+type ContactSceneProps = {
+  copy: SiteCopy["contact"];
+};
+
+export function ContactScene({ copy }: ContactSceneProps) {
   return (
     <SceneShell className="contact-scene" id="contact">
       <div className="contact-copy" data-scene-copy>
-        <p className="kicker">Contact</p>
-        <h2>Hagamos que tu pieza se sienta de cine.</h2>
-        <p>
-          Si queres que tu contenido tenga ritmo, imagen, sonido y presencia, escribime por la red
-          que uses.
-        </p>
+        <p className="kicker">{copy.kicker}</p>
+        <h2>{copy.title}</h2>
+        <p>{copy.text}</p>
       </div>
 
       <div className="social-grid" data-depth-card>
-        {socialLinks.map((link) => (
+        {copy.socialLinks.map((link) => (
           <SocialCard key={link.href} {...link} />
         ))}
       </div>

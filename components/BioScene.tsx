@@ -1,8 +1,11 @@
 import { SceneShell } from "@/components/SceneShell";
+import type { SiteCopy } from "@/data/site";
 
-const tags = ["Video editing", "Color grading", "Post audio", "Social media", "Institucionales"];
+type BioSceneProps = {
+  copy: SiteCopy["bio"];
+};
 
-export function BioScene() {
+export function BioScene({ copy }: BioSceneProps) {
   return (
     <SceneShell className="bio-scene" id="bio">
       <div className="bio-portrait" data-depth-card>
@@ -12,18 +15,13 @@ export function BioScene() {
       </div>
 
       <div className="bio-copy" data-scene-copy>
-        <p className="kicker">Bio</p>
-        <h2>Soy Lucas, editor de video enfocado en transformar piezas audiovisuales.</h2>
-        <p>
-          Trabajo cada proyecto desde el ritmo, la atmosfera y la emocion para que cada corte
-          tenga una razon.
-        </p>
-        <p>
-          Bajo Flow nace para crear contenido con identidad: videos para YouTube, redes sociales,
-          marcas e institucionales.
-        </p>
+        <p className="kicker">{copy.kicker}</p>
+        <h2>{copy.title}</h2>
+        {copy.paragraphs.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
         <div className="tag-list">
-          {tags.map((tag) => (
+          {copy.tags.map((tag) => (
             <span key={tag}>{tag}</span>
           ))}
         </div>
