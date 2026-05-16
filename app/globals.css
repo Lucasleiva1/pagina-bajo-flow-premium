@@ -1132,32 +1132,34 @@ p {
 
 /* ── Full back wall panel (wraps around character) ── */
 .bio-room-wall-full {
-  background: rgba(5, 8, 14, 0.92);
-  border: 1px solid rgba(242, 242, 243, 0.18);
-  box-shadow:
-    0 0 0 1px rgba(255, 180, 84, 0.08),
-    0 1.8rem 4.2rem rgba(0, 0, 0, 0.52);
   color: var(--ink);
   display: grid;
   grid-template-rows: auto 1fr auto;
   height: 24rem;
+  pointer-events: none;
   position: relative;
   width: 54rem;
 }
 
 .bio-room-wall-frame {
-  border: 1px solid rgba(255, 180, 84, 0.32);
-  inset: 0.45rem;
-  pointer-events: none;
-  position: absolute;
-  z-index: 3;
+  display: none;
 }
 
 /* Top strip */
 .bio-room-wall-top {
-  border-bottom: 1px solid rgba(242, 242, 243, 0.1);
   padding: 1rem 1.4rem 0.8rem;
   text-align: center;
+  transform: translateY(-14rem);
+}
+
+.bio-room-wall-top-inner {
+  background: rgba(5, 8, 14, 0.72);
+  border: 1px solid rgba(242, 242, 243, 0.14);
+  box-shadow: 0 0 2rem rgba(0, 0, 0, 0.32);
+  display: inline-block;
+  min-width: 18rem;
+  padding: 0.64rem 1.15rem 0.72rem;
+  pointer-events: auto;
 }
 
 .bio-room-wall-top h2 {
@@ -1196,14 +1198,22 @@ p {
   flex-direction: column;
   justify-content: center;
   padding: 0.8rem 1.1rem;
+  pointer-events: auto;
 }
 
 .bio-room-wall-col-left {
-  border-right: 1px solid rgba(242, 242, 243, 0.08);
+  border-right: 0;
 }
 
 .bio-room-wall-col-right {
-  border-left: 1px solid rgba(242, 242, 243, 0.08);
+  border-left: 0;
+}
+
+.bio-room-wall-statement {
+  background: rgba(5, 8, 14, 0.7);
+  border: 1px solid rgba(242, 242, 243, 0.12);
+  box-shadow: 0 1.2rem 2.8rem rgba(0, 0, 0, 0.24);
+  padding: 0.78rem;
 }
 
 /* Statement text (left column) */
@@ -1259,14 +1269,20 @@ p {
 
 /* Bottom strip — skills */
 .bio-room-wall-bottom {
-  border-top: 1px solid rgba(242, 242, 243, 0.1);
   padding: 0.6rem 1.2rem;
 }
 
 .bio-room-wall-skills {
   align-items: center;
+  background: rgba(5, 8, 14, 0.7);
+  border: 1px solid rgba(242, 242, 243, 0.12);
   display: flex;
+  flex-wrap: wrap;
   gap: 0.72rem;
+  margin-left: auto;
+  max-width: 19rem;
+  padding: 0.58rem;
+  pointer-events: auto;
 }
 
 .bio-room-wall-skills-label {

@@ -2,13 +2,15 @@
 
 import Image from "next/image";
 import { Html } from "@react-three/drei";
-import { useControls, folder } from "leva";
+import { useControls } from "leva";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
 
 type BioRoomHtmlPanelsProps = {
   copy: SiteCopy["bio"];
 };
+
+const collapsedLevaFolder = { collapsed: true } as const;
 
 function linkTarget(href: string) {
   return href.startsWith("#") || href.startsWith("mailto:")
@@ -27,28 +29,28 @@ export function BioRoomHtmlPanels({ copy }: BioRoomHtmlPanelsProps) {
     posY: { value: 1.6, min: 0, max: 3.5, step: 0.02, label: "Y" },
     posZ: { value: -3.48, min: -4, max: 0, step: 0.02, label: "Z" },
     scale: { value: 1.92, min: 0.5, max: 4, step: 0.02, label: "distanceFactor" },
-  });
+  }, collapsedLevaFolder);
 
   const bioPanel = useControls("📄 BIO PANEL (Left Wall)", {
     posX: { value: -3.92, min: -5, max: 0, step: 0.02, label: "X" },
     posY: { value: 1.6, min: 0, max: 3.5, step: 0.02, label: "Y" },
     posZ: { value: 0.4, min: -4, max: 4, step: 0.02, label: "Z" },
     scale: { value: 1.18, min: 0.5, max: 3, step: 0.02, label: "distanceFactor" },
-  });
+  }, collapsedLevaFolder);
 
   const galleryPanel = useControls("🖼️ GALLERY PANEL (Right Wall)", {
     posX: { value: 3.92, min: 0, max: 5, step: 0.02, label: "X" },
     posY: { value: 1.6, min: 0, max: 3.5, step: 0.02, label: "Y" },
     posZ: { value: 0.4, min: -4, max: 4, step: 0.02, label: "Z" },
     scale: { value: 1.18, min: 0.5, max: 3, step: 0.02, label: "distanceFactor" },
-  });
+  }, collapsedLevaFolder);
 
   const labelChip = useControls("🏷️ LUCAS LABEL", {
     posX: { value: 0, min: -4, max: 4, step: 0.02, label: "X" },
     posY: { value: 0.18, min: -1, max: 2, step: 0.02, label: "Y" },
     posZ: { value: 1.3, min: -2, max: 4, step: 0.02, label: "Z" },
     scale: { value: 1.08, min: 0.5, max: 2, step: 0.02, label: "distanceFactor" },
-  });
+  }, collapsedLevaFolder);
 
   return (
     <>
@@ -60,7 +62,6 @@ export function BioRoomHtmlPanels({ copy }: BioRoomHtmlPanelsProps) {
             : ""
         }`}
         distanceFactor={backWall.scale}
-        occlude="blending"
         position={[backWall.posX, backWall.posY, backWall.posZ]}
         transform
       >
@@ -132,7 +133,6 @@ export function BioRoomHtmlPanels({ copy }: BioRoomHtmlPanelsProps) {
           activeRoomView === "bio" ? " is-active" : ""
         }`}
         distanceFactor={bioPanel.scale}
-        occlude="blending"
         position={[bioPanel.posX, bioPanel.posY, bioPanel.posZ]}
         rotation={[0, Math.PI / 2, 0]}
         transform
@@ -158,7 +158,6 @@ export function BioRoomHtmlPanels({ copy }: BioRoomHtmlPanelsProps) {
           activeRoomView === "gallery" ? " is-active" : ""
         }`}
         distanceFactor={galleryPanel.scale}
-        occlude="blending"
         position={[galleryPanel.posX, galleryPanel.posY, galleryPanel.posZ]}
         rotation={[0, -Math.PI / 2, 0]}
         transform

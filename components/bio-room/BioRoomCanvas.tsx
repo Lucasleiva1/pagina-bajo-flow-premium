@@ -22,6 +22,8 @@ type BioRoomCanvasProps = {
   copy: SiteCopy["bio"];
 };
 
+const collapsedLevaFolder = { collapsed: true } as const;
+
 /* ──────────────────────── Camera states ──────────────────────── */
 /* Each state faces the target wall HEAD-ON so the Html panels
    rendered on that wall are fully readable (no extreme perspective). */
@@ -129,7 +131,7 @@ function LucasBillboard() {
     width: { value: 1.74, min: 0.5, max: 4, step: 0.05, label: "Ancho" },
     height: { value: 2.55, min: 0.5, max: 5, step: 0.05, label: "Alto" },
     emissiveIntensity: { value: 0.08, min: 0, max: 0.5, step: 0.01, label: "Brillo" },
-  });
+  }, collapsedLevaFolder);
 
   return (
     <group position={[lucasControls.posX, lucasControls.posY, lucasControls.posZ]}>
@@ -170,7 +172,7 @@ function RoomShell() {
     depth: { value: 8, min: 4, max: 14, step: 0.1, label: "Profundidad (D)" },
     height: { value: 3.2, min: 2, max: 6, step: 0.1, label: "Altura (H)" },
     zBack: { value: -3.5, min: -8, max: 0, step: 0.1, label: "Z Pared Fondo" },
-  });
+  }, collapsedLevaFolder);
 
   // Leva controls for Lights
   const lightControls = useControls("💡 LUCES", {
@@ -179,27 +181,27 @@ function RoomShell() {
       keyPosY: { value: 3.3, min: 0, max: 6, step: 0.1, label: "Y" },
       keyPosZ: { value: 1, min: -5, max: 8, step: 0.1, label: "Z" },
       keyIntensity: { value: 22, min: 0, max: 50, step: 0.5, label: "Intensidad" },
-    }),
+    }, collapsedLevaFolder),
     "Warm Rim (Contorno)": folder({
       rimPosX: { value: 0, min: -5, max: 5, step: 0.1, label: "X" },
       rimPosY: { value: 2.6, min: 0, max: 5, step: 0.1, label: "Y" },
       rimPosZ: { value: -1.8, min: -5, max: 5, step: 0.1, label: "Z" },
       rimIntensity: { value: 12, min: 0, max: 30, step: 0.5, label: "Intensidad" },
-    }),
+    }, collapsedLevaFolder),
     "Cool Accent (Azul)": folder({
       coolPosX: { value: 3.2, min: -5, max: 5, step: 0.1, label: "X" },
       coolPosY: { value: 1.8, min: 0, max: 5, step: 0.1, label: "Y" },
       coolPosZ: { value: 1.5, min: -5, max: 8, step: 0.1, label: "Z" },
       coolIntensity: { value: 5, min: 0, max: 20, step: 0.5, label: "Intensidad" },
-    }),
+    }, collapsedLevaFolder),
     "Front Fill (Frontal)": folder({
       fillPosX: { value: 0, min: -5, max: 5, step: 0.1, label: "X" },
       fillPosY: { value: 1.6, min: 0, max: 5, step: 0.1, label: "Y" },
       fillPosZ: { value: 4.5, min: -2, max: 10, step: 0.1, label: "Z" },
       fillIntensity: { value: 6, min: 0, max: 20, step: 0.5, label: "Intensidad" },
-    }),
+    }, collapsedLevaFolder),
     ambientIntensity: { value: 0.35, min: 0, max: 2, step: 0.05, label: "Ambiente" },
-  });
+  }, collapsedLevaFolder);
 
   const W = roomControls.halfWidth;
   const D = roomControls.depth;
@@ -273,6 +275,35 @@ function RoomShell() {
           roughness={0.74}
         />
       </mesh>
+
+      {/* Physical back-wall display pad. This lives in WebGL, so Lucas can sit in front of it by real Z depth. */}
+      <mesh position={[0, H / 2, Zback + 0.018]}>
+        <planeGeometry args={[W * 2 - 0.72, H - 0.48]} />
+        <meshStandardMaterial
+          color="#05080e"
+          metalness={0.22}
+          roughness={0.7}
+        />
+      </mesh>
+
+      <GlowLine
+        position={[0, H - 0.28, Zback + 0.035]}
+        scale={[W * 2 - 0.95, 0.014, 0.014]}
+      />
+      <GlowLine
+        position={[0, 0.28, Zback + 0.035]}
+        scale={[W * 2 - 0.95, 0.014, 0.014]}
+      />
+      <GlowLine
+        position={[-W + 0.46, H / 2, Zback + 0.035]}
+        rotation={[0, 0, Math.PI / 2]}
+        scale={[H - 0.72, 0.014, 0.014]}
+      />
+      <GlowLine
+        position={[W - 0.46, H / 2, Zback + 0.035]}
+        rotation={[0, 0, Math.PI / 2]}
+        scale={[H - 0.72, 0.014, 0.014]}
+      />
 
       {/* Left wall (character-right-wall = bio) */}
       <mesh
