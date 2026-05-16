@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { type ReactNode, useMemo, useRef } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { useControls, folder, Leva } from "leva";
@@ -14,7 +14,11 @@ import {
   TextureLoader,
   Vector3,
 } from "three";
-import { BioRoomHtmlPanels } from "@/components/bio-room/BioRoomHtmlPanels";
+import {
+  createBioRoomLayout,
+  type BioRoomLayout,
+} from "@/components/bio-room/BioRoomLayout";
+import { BioRoomWorldPanels } from "@/components/bio-room/BioRoomWorldPanels";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
 
@@ -163,7 +167,11 @@ function LucasBillboard() {
 }
 
 /* ──────────────────────── Room shell ──────────────────────── */
-function RoomShell() {
+function RoomShell({
+  children,
+}: {
+  children?: (layout: BioRoomLayout) => ReactNode;
+}) {
   const softbox = SoftboxTexture();
 
   // Leva controls for Room dimensions
@@ -207,6 +215,17 @@ function RoomShell() {
   const D = roomControls.depth;
   const Zback = roomControls.zBack;
   const H = roomControls.height;
+  const layout = useMemo(
+    () =>
+      createBioRoomLayout({
+        depth: D,
+        halfWidth: W,
+        height: H,
+        zBack: Zback,
+      }),
+    [D, H, W, Zback],
+  );
+  const centerZ = layout.centerZ;
 
   return (
     <group>
@@ -251,7 +270,7 @@ function RoomShell() {
       />
 
       {/* Floor */}
-      <mesh position={[0, 0, Zback + D / 2]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[0, 0, centerZ]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W * 2, D]} />
         <meshStandardMaterial
           color="#070911"
@@ -261,7 +280,7 @@ function RoomShell() {
       </mesh>
 
       {/* Ceiling */}
-      <mesh position={[0, H, Zback + D / 2]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh position={[0, H, centerZ]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W * 2, D]} />
         <meshStandardMaterial color="#05060b" metalness={0.1} roughness={0.7} />
       </mesh>
@@ -307,8 +326,8 @@ function RoomShell() {
 
       {/* Left wall (character-right-wall = bio) */}
       <mesh
-        position={[-W, H / 2, Zback + D / 2]}
-        rotation={[0, Math.PI / 2, 0]}
+        position={layout.walls.characterRightWall.position}
+        rotation={layout.walls.characterRightWall.rotation}
       >
         <planeGeometry args={[D, H]} />
         <meshStandardMaterial
@@ -320,8 +339,8 @@ function RoomShell() {
 
       {/* Right wall (character-left-wall = gallery) */}
       <mesh
-        position={[W, H / 2, Zback + D / 2]}
-        rotation={[0, -Math.PI / 2, 0]}
+        position={layout.walls.characterLeftWall.position}
+        rotation={layout.walls.characterLeftWall.rotation}
       >
         <planeGeometry args={[D, H]} />
         <meshStandardMaterial
@@ -353,12 +372,12 @@ function RoomShell() {
         scale={[W * 2 - 0.6, 0.018, 0.018]}
       />
       <GlowLine
-        position={[-W + 0.12, 0.015, Zback + D / 2]}
+        position={[-W + 0.12, 0.015, centerZ]}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 0.6, 0.018, 0.018]}
       />
       <GlowLine
-        position={[W - 0.12, 0.015, Zback + D / 2]}
+        position={[W - 0.12, 0.015, centerZ]}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 0.6, 0.018, 0.018]}
       />
@@ -369,15 +388,16 @@ function RoomShell() {
         scale={[W * 2 - 1.2, 0.018, 0.018]}
       />
       <GlowLine
-        position={[-W + 0.15, H - 0.08, Zback + D / 2]}
+        position={[-W + 0.15, H - 0.08, centerZ]}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 1.2, 0.018, 0.018]}
       />
       <GlowLine
-        position={[W - 0.15, H - 0.08, Zback + D / 2]}
+        position={[W - 0.15, H - 0.08, centerZ]}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 1.2, 0.018, 0.018]}
       />
+      {children?.(layout)}
     </group>
   );
 }
@@ -395,11 +415,12 @@ function SceneContent({ copy }: BioRoomCanvasProps) {
     <>
       <PerspectiveCamera makeDefault fov={42} position={[0, 1.6, 6.2]} />
       <CameraRig />
-      <RoomShell />
+      <RoomShell>
+        {(layout) => <BioRoomWorldPanels copy={copy} layout={layout} />}
+      </RoomShell>
       <group ref={groupRef}>
         <LucasBillboard />
       </group>
-      <BioRoomHtmlPanels copy={copy} />
     </>
   );
 }

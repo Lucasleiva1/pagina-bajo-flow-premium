@@ -1092,16 +1092,6 @@ p {
   z-index: 1;
 }
 
-.bio-room-html {
-  pointer-events: auto;
-  transition: filter 360ms ease, opacity 360ms ease;
-}
-
-.bio-room-html:not(.is-active):not(.bio-room-person-label) {
-  filter: brightness(0.62) saturate(0.72);
-  opacity: 0.7;
-}
-
 .bio-room-panel {
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
@@ -1586,6 +1576,14 @@ p {
   display: none;
 }
 
+.bio-room-mobile-portrait {
+  position: relative;
+}
+
+.bio-room-mobile-portrait img {
+  object-fit: contain;
+}
+
 .contact-scene {
   align-items: center;
   display: grid;
@@ -2044,10 +2042,6 @@ p {
     height: 30rem;
     opacity: 0.48;
     pointer-events: none;
-  }
-
-  .bio-room-html {
-    display: none;
   }
 
   .bio-room-controls {
