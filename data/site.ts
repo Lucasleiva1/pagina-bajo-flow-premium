@@ -147,11 +147,64 @@ export const siteCopy = {
     bio: {
       kicker: "Bio",
       title: "Soy Lucas, editor de video enfocado en transformar piezas audiovisuales.",
+      identitySubtitle: "Editor de video · Postproducción · Motion · Color · Contenido visual",
       paragraphs: [
         "Trabajo cada proyecto desde el ritmo, la atmósfera y la emoción para que cada corte tenga una razón.",
         "Bajo Flow nace para crear contenido con identidad: videos para YouTube, redes sociales, marcas e institucionales.",
       ],
       tags: ["Edición de video", "Color", "Post audio", "Redes sociales", "Institucionales"],
+      roomControls: [
+        { label: "Inicio", view: "home" },
+        { label: "Bio", view: "bio" },
+        { label: "Galería", view: "gallery" },
+        { label: "Contacto", view: "contact" },
+      ],
+      contactLinks: [
+        { label: "Instagram", handle: "@lucasleivafabian", href: "https://www.instagram.com/lucasleivafabian" },
+        { label: "TikTok", handle: "@lucasleiva444", href: "https://www.tiktok.com/@lucasleiva444" },
+        { label: "YouTube", handle: "@bajoflow", href: "https://www.youtube.com/@bajoflow" },
+        { label: "Facebook", handle: "/bajoflow", href: "https://www.facebook.com/bajoflow" },
+        { label: "Mail", handle: "Contacto", href: "mailto:contacto@bajoflow.com" },
+        { label: "Portfolio", handle: "Ver piezas", href: "#work" },
+      ],
+      tools: [
+        "DaVinci Resolve",
+        "Fusion",
+        "Blender",
+        "Photoshop",
+        "IA visual",
+        "Color correction",
+        "Sound design",
+        "Motion graphics",
+        "Storytelling",
+        "Reels/Shorts/Ads",
+      ],
+      bioBlocks: [
+        {
+          title: "Quién soy",
+          text: "Soy Lucas Leiva, editor audiovisual y creador visual detrás de Bajo Flow.",
+        },
+        {
+          title: "Qué hago",
+          text: "Transformo material crudo en piezas con ritmo, imagen, sonido y presencia para redes, marcas e institucionales.",
+        },
+        {
+          title: "Cómo trabajo",
+          text: "Ordeno la narrativa, encuentro el pulso del corte y cuido color, audio, motion y entrega final.",
+        },
+        {
+          title: "Mi enfoque",
+          text: "Cada video tiene que sentirse claro, cinematográfico y con identidad, sin perder velocidad ni retención.",
+        },
+      ],
+      galleryItems: [
+        { title: "Ritmo visual", category: "Placeholder", image: "/assets/bio-room/gallery-01.png" },
+        { title: "Color y atmósfera", category: "Placeholder", image: "/assets/bio-room/gallery-02.png" },
+        { title: "Motion", category: "Placeholder", image: "/assets/bio-room/gallery-03.png" },
+        { title: "Postproducción", category: "Placeholder", image: "/assets/bio-room/gallery-04.png" },
+        { title: "Social cuts", category: "Placeholder", image: "/assets/bio-room/gallery-05.png" },
+        { title: "Identidad visual", category: "Placeholder", image: "/assets/bio-room/gallery-06.png" },
+      ],
     },
     contact: {
       kicker: "Contacto",
@@ -279,11 +332,64 @@ export const siteCopy = {
     bio: {
       kicker: "Bio",
       title: "I am Lucas, a video editor focused on transforming audiovisual pieces.",
+      identitySubtitle: "Video editor · Post-production · Motion · Color · Visual content",
       paragraphs: [
         "I approach every project through rhythm, atmosphere, and emotion so every cut has a reason.",
         "Bajo Flow was created to build content with identity: videos for YouTube, social media, brands, and institutions.",
       ],
       tags: ["Video editing", "Color grading", "Post audio", "Social media", "Institutional"],
+      roomControls: [
+        { label: "Home", view: "home" },
+        { label: "Bio", view: "bio" },
+        { label: "Gallery", view: "gallery" },
+        { label: "Contact", view: "contact" },
+      ],
+      contactLinks: [
+        { label: "Instagram", handle: "@lucasleivafabian", href: "https://www.instagram.com/lucasleivafabian" },
+        { label: "TikTok", handle: "@lucasleiva444", href: "https://www.tiktok.com/@lucasleiva444" },
+        { label: "YouTube", handle: "@bajoflow", href: "https://www.youtube.com/@bajoflow" },
+        { label: "Facebook", handle: "/bajoflow", href: "https://www.facebook.com/bajoflow" },
+        { label: "Mail", handle: "Contact", href: "mailto:contacto@bajoflow.com" },
+        { label: "Portfolio", handle: "View work", href: "#work" },
+      ],
+      tools: [
+        "DaVinci Resolve",
+        "Fusion",
+        "Blender",
+        "Photoshop",
+        "Visual AI",
+        "Color correction",
+        "Sound design",
+        "Motion graphics",
+        "Storytelling",
+        "Reels/Shorts/Ads",
+      ],
+      bioBlocks: [
+        {
+          title: "Who I am",
+          text: "I am Lucas Leiva, an audiovisual editor and visual creator behind Bajo Flow.",
+        },
+        {
+          title: "What I do",
+          text: "I turn raw material into pieces with rhythm, image, sound, and presence for social media, brands, and institutions.",
+        },
+        {
+          title: "How I work",
+          text: "I shape the narrative, find the pulse of the edit, and refine color, audio, motion, and final delivery.",
+        },
+        {
+          title: "My focus",
+          text: "Every video should feel clear, cinematic, and identifiable without losing pace or retention.",
+        },
+      ],
+      galleryItems: [
+        { title: "Visual rhythm", category: "Placeholder", image: "/assets/bio-room/gallery-01.png" },
+        { title: "Color and atmosphere", category: "Placeholder", image: "/assets/bio-room/gallery-02.png" },
+        { title: "Motion", category: "Placeholder", image: "/assets/bio-room/gallery-03.png" },
+        { title: "Post-production", category: "Placeholder", image: "/assets/bio-room/gallery-04.png" },
+        { title: "Social cuts", category: "Placeholder", image: "/assets/bio-room/gallery-05.png" },
+        { title: "Visual identity", category: "Placeholder", image: "/assets/bio-room/gallery-06.png" },
+      ],
     },
     contact: {
       kicker: "Contact",
@@ -411,11 +517,64 @@ export const siteCopy = {
     bio: {
       kicker: "Bio",
       title: "Sou Lucas, editor de vídeo focado em transformar peças audiovisuais.",
+      identitySubtitle: "Editor de vídeo · Pós-produção · Motion · Cor · Conteúdo visual",
       paragraphs: [
         "Trabalho cada projeto a partir do ritmo, da atmosfera e da emoção para que cada corte tenha uma razão.",
         "Bajo Flow nasce para criar conteúdo com identidade: vídeos para YouTube, redes sociais, marcas e institucionais.",
       ],
       tags: ["Edição de vídeo", "Cor", "Pós-áudio", "Redes sociais", "Institucionais"],
+      roomControls: [
+        { label: "Início", view: "home" },
+        { label: "Bio", view: "bio" },
+        { label: "Galeria", view: "gallery" },
+        { label: "Contato", view: "contact" },
+      ],
+      contactLinks: [
+        { label: "Instagram", handle: "@lucasleivafabian", href: "https://www.instagram.com/lucasleivafabian" },
+        { label: "TikTok", handle: "@lucasleiva444", href: "https://www.tiktok.com/@lucasleiva444" },
+        { label: "YouTube", handle: "@bajoflow", href: "https://www.youtube.com/@bajoflow" },
+        { label: "Facebook", handle: "/bajoflow", href: "https://www.facebook.com/bajoflow" },
+        { label: "Mail", handle: "Contato", href: "mailto:contacto@bajoflow.com" },
+        { label: "Portfolio", handle: "Ver peças", href: "#work" },
+      ],
+      tools: [
+        "DaVinci Resolve",
+        "Fusion",
+        "Blender",
+        "Photoshop",
+        "IA visual",
+        "Color correction",
+        "Sound design",
+        "Motion graphics",
+        "Storytelling",
+        "Reels/Shorts/Ads",
+      ],
+      bioBlocks: [
+        {
+          title: "Quem sou",
+          text: "Sou Lucas Leiva, editor audiovisual e criador visual por trás da Bajo Flow.",
+        },
+        {
+          title: "O que faço",
+          text: "Transformo material bruto em peças com ritmo, imagem, som e presença para redes, marcas e institucionais.",
+        },
+        {
+          title: "Como trabalho",
+          text: "Organizo a narrativa, encontro o pulso do corte e cuido de cor, áudio, motion e entrega final.",
+        },
+        {
+          title: "Meu enfoque",
+          text: "Cada vídeo precisa parecer claro, cinematográfico e com identidade, sem perder velocidade nem retenção.",
+        },
+      ],
+      galleryItems: [
+        { title: "Ritmo visual", category: "Placeholder", image: "/assets/bio-room/gallery-01.png" },
+        { title: "Cor e atmosfera", category: "Placeholder", image: "/assets/bio-room/gallery-02.png" },
+        { title: "Motion", category: "Placeholder", image: "/assets/bio-room/gallery-03.png" },
+        { title: "Pós-produção", category: "Placeholder", image: "/assets/bio-room/gallery-04.png" },
+        { title: "Cortes sociais", category: "Placeholder", image: "/assets/bio-room/gallery-05.png" },
+        { title: "Identidade visual", category: "Placeholder", image: "/assets/bio-room/gallery-06.png" },
+      ],
     },
     contact: {
       kicker: "Contato",
@@ -480,8 +639,14 @@ export const siteCopy = {
   bio: {
     kicker: string;
     title: string;
+    identitySubtitle: string;
     paragraphs: string[];
     tags: string[];
+    roomControls: Array<{ label: string; view: "home" | "bio" | "gallery" | "contact" }>;
+    contactLinks: Array<{ label: string; handle: string; href: string }>;
+    tools: string[];
+    bioBlocks: Array<{ title: string; text: string }>;
+    galleryItems: Array<{ title: string; category: string; image: string }>;
   };
   contact: {
     kicker: string;

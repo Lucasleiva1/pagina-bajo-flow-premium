@@ -453,9 +453,6 @@ p {
 
 .work-scene {
   background:
-    radial-gradient(circle at 58% 73%, rgba(255, 77, 141, 0.3), transparent 22rem),
-    radial-gradient(circle at 46% 48%, rgba(94, 161, 255, 0.24), transparent 32rem),
-    linear-gradient(180deg, rgba(7, 11, 18, 0.76), rgba(8, 12, 19, 0.74)),
     #080b12;
   -webkit-user-select: none;
   padding-top: 6.35rem;
@@ -464,9 +461,10 @@ p {
 
 .work-bg {
   background:
-    radial-gradient(circle at 50% 58%, rgba(94, 161, 255, 0.24), transparent 28rem),
-    radial-gradient(circle at 64% 74%, rgba(255, 77, 141, 0.2), transparent 25rem),
-    linear-gradient(180deg, #0f1726 0%, #080c14 54%, #070910 100%);
+    linear-gradient(180deg, rgba(3, 5, 10, 0.42), rgba(3, 5, 10, 0.72)),
+    linear-gradient(90deg, rgba(3, 5, 10, 0.74), rgba(3, 5, 10, 0.16) 46%, rgba(3, 5, 10, 0.72)),
+    url("/fondo-carrucel.png") center / cover no-repeat,
+    #080b12;
   filter: none;
   inset: 0;
   opacity: 1;
@@ -476,9 +474,9 @@ p {
 
 .work-bg::after {
   background:
-    radial-gradient(ellipse at 50% 92%, rgba(255, 77, 141, 0.16), transparent 34rem),
-    linear-gradient(90deg, rgba(5, 7, 11, 0.34), rgba(5, 7, 11, 0.06) 48%, rgba(5, 7, 11, 0.34)),
-    linear-gradient(0deg, rgba(5, 7, 11, 0.42), rgba(5, 7, 11, 0.04) 52%, rgba(5, 7, 11, 0.36));
+    radial-gradient(ellipse at 50% 80%, rgba(255, 77, 141, 0.18), transparent 34rem),
+    radial-gradient(circle at 63% 34%, rgba(94, 161, 255, 0.2), transparent 27rem),
+    linear-gradient(0deg, rgba(5, 7, 11, 0.5), rgba(5, 7, 11, 0.05) 52%, rgba(5, 7, 11, 0.48));
   content: "";
   inset: 0;
   position: absolute;
@@ -1015,10 +1013,9 @@ p {
 }
 
 .bio-scene {
-  align-items: center;
-  display: grid;
-  gap: 5vw;
-  grid-template-columns: minmax(18rem, 0.82fr) minmax(22rem, 1fr);
+  min-height: 100svh;
+  overflow: hidden;
+  padding: 0;
 }
 
 .bio-portrait {
@@ -1066,6 +1063,371 @@ p {
 
 .tag-list {
   margin-top: 1.5rem;
+}
+
+.bio-room {
+  background:
+    linear-gradient(180deg, rgba(5, 7, 13, 0.26), rgba(5, 7, 13, 0.72)),
+    #05070d;
+  min-height: 100svh;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.bio-room::after {
+  background:
+    linear-gradient(90deg, rgba(5, 7, 13, 0.72), transparent 28%, transparent 72%, rgba(5, 7, 13, 0.72)),
+    linear-gradient(0deg, rgba(5, 7, 13, 0.82), transparent 34%, rgba(5, 7, 13, 0.24));
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.bio-room-canvas {
+  inset: 0;
+  position: absolute;
+  z-index: 1;
+}
+
+.bio-room-html {
+  pointer-events: auto;
+  transition: filter 260ms ease, opacity 260ms ease;
+}
+
+.bio-room-html:not(.is-active):not(.bio-room-person-label) {
+  filter: brightness(0.78) saturate(0.84);
+  opacity: 0.86;
+}
+
+.bio-room-panel {
+  background:
+    linear-gradient(135deg, rgba(242, 242, 243, 0.08), transparent 28%),
+    rgba(5, 8, 14, 0.7);
+  border: 1px solid rgba(242, 242, 243, 0.24);
+  box-shadow:
+    0 0 0 1px rgba(255, 180, 84, 0.08),
+    0 1.4rem 3.6rem rgba(0, 0, 0, 0.32),
+    inset 0 0 3.5rem rgba(94, 161, 255, 0.05);
+  color: var(--ink);
+  padding: 1.15rem;
+  position: relative;
+}
+
+.bio-room-panel::before {
+  border: 1px solid rgba(255, 180, 84, 0.44);
+  content: "";
+  inset: 0.42rem;
+  pointer-events: none;
+  position: absolute;
+}
+
+.bio-room-panel-front {
+  width: 42rem;
+}
+
+.bio-room-panel-bio,
+.bio-room-panel-gallery {
+  width: 32rem;
+}
+
+.bio-room-kicker {
+  color: #ffb454;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.22rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.bio-room-panel h2,
+.bio-room-mobile-panel h2 {
+  font-size: 3.4rem;
+  line-height: 0.92;
+  margin: 0;
+}
+
+.bio-room-panel h3,
+.bio-room-mobile-panel h3 {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  line-height: 1;
+  margin: 0 0 1rem;
+}
+
+.bio-room-subtitle,
+.bio-room-mobile-panel > p {
+  color: rgba(242, 242, 243, 0.76);
+  font-size: 0.94rem;
+  line-height: 1.5;
+  margin: 0.75rem 0 1.1rem;
+}
+
+.bio-room-contact-links {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.bio-room-contact-links a {
+  background: rgba(242, 242, 243, 0.055);
+  border: 1px solid rgba(242, 242, 243, 0.14);
+  color: var(--ink);
+  display: grid;
+  gap: 0.18rem;
+  min-height: 4rem;
+  padding: 0.72rem;
+  text-decoration: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.bio-room-contact-links a:hover,
+.bio-room-contact-links a:focus-visible {
+  border-color: rgba(255, 180, 84, 0.78);
+  box-shadow: 0 0 22px rgba(255, 180, 84, 0.16);
+  transform: translateY(-0.12rem);
+}
+
+.bio-room-contact-links span,
+.bio-room-gallery-grid strong {
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.1rem;
+  text-transform: uppercase;
+}
+
+.bio-room-contact-links small,
+.bio-room-gallery-grid small {
+  color: rgba(242, 242, 243, 0.58);
+  font-size: 0.7rem;
+}
+
+.bio-room-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  margin-top: 1rem;
+}
+
+.bio-room-tools span {
+  background: rgba(255, 180, 84, 0.075);
+  border: 1px solid rgba(255, 180, 84, 0.22);
+  color: rgba(242, 242, 243, 0.84);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08rem;
+  padding: 0.42rem 0.48rem;
+  text-transform: uppercase;
+}
+
+.bio-room-bio-grid {
+  display: grid;
+  gap: 0.72rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.bio-room-bio-grid article,
+.bio-room-mobile-panel article {
+  background: rgba(242, 242, 243, 0.052);
+  border: 1px solid rgba(242, 242, 243, 0.12);
+  min-height: 8rem;
+  padding: 0.82rem;
+}
+
+.bio-room-bio-grid article span {
+  background: linear-gradient(90deg, #ffb454, transparent);
+  display: block;
+  height: 1px;
+  margin-bottom: 0.72rem;
+  width: 2.6rem;
+}
+
+.bio-room-bio-grid h4,
+.bio-room-mobile-panel h4 {
+  font-size: 0.86rem;
+  letter-spacing: 0.08rem;
+  margin: 0 0 0.42rem;
+  text-transform: uppercase;
+}
+
+.bio-room-bio-grid p,
+.bio-room-mobile-panel article p {
+  color: rgba(242, 242, 243, 0.7);
+  font-size: 0.78rem;
+  line-height: 1.48;
+  margin: 0;
+}
+
+.bio-room-gallery-grid {
+  display: grid;
+  gap: 0.72rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.bio-room-gallery-grid button {
+  background: rgba(242, 242, 243, 0.052);
+  border: 1px solid rgba(242, 242, 243, 0.14);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 0.32rem;
+  padding: 0.5rem;
+  text-align: left;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.bio-room-gallery-grid button:hover,
+.bio-room-gallery-grid button:focus-visible {
+  border-color: rgba(94, 161, 255, 0.72);
+  box-shadow: 0 0 22px rgba(94, 161, 255, 0.16);
+  transform: translateY(-0.12rem);
+}
+
+.bio-room-gallery-thumb {
+  aspect-ratio: 16 / 10;
+  display: block;
+  overflow: hidden;
+  position: relative;
+}
+
+.bio-room-gallery-thumb img {
+  object-fit: cover;
+}
+
+.bio-room-center-chip {
+  background: rgba(5, 8, 14, 0.72);
+  border: 1px solid rgba(255, 180, 84, 0.5);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.15rem;
+  padding: 0.45rem 0.62rem;
+  text-transform: uppercase;
+}
+
+.bio-room-controls {
+  align-items: center;
+  background: rgba(5, 8, 14, 0.62);
+  border: 1px solid rgba(242, 242, 243, 0.14);
+  bottom: 2rem;
+  display: flex;
+  gap: 0.32rem;
+  left: 50%;
+  padding: 0.36rem;
+  position: absolute;
+  transform: translateX(-50%);
+  z-index: 8;
+}
+
+.bio-room-controls button {
+  background: transparent;
+  border: 0;
+  color: rgba(242, 242, 243, 0.68);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12rem;
+  padding: 0.72rem 0.9rem;
+  position: relative;
+  text-transform: uppercase;
+}
+
+.bio-room-controls button span:last-child {
+  position: relative;
+  z-index: 2;
+}
+
+.bio-room-controls button.active {
+  color: var(--ink);
+}
+
+.bio-room-control-glow {
+  background: linear-gradient(90deg, rgba(255, 77, 141, 0.2), rgba(255, 180, 84, 0.2));
+  border: 1px solid rgba(255, 180, 84, 0.24);
+  inset: 0;
+  position: absolute;
+  z-index: 1;
+}
+
+.bio-room-overlay {
+  align-items: center;
+  display: grid;
+  inset: 0;
+  justify-items: center;
+  padding: 1.5rem;
+  position: fixed;
+  z-index: 100;
+}
+
+.bio-room-overlay-backdrop {
+  background: rgba(2, 3, 6, 0.78);
+  border: 0;
+  cursor: pointer;
+  inset: 0;
+  position: absolute;
+}
+
+.bio-room-overlay-card {
+  background: rgba(8, 12, 19, 0.96);
+  border: 1px solid rgba(242, 242, 243, 0.18);
+  box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.56);
+  max-width: 58rem;
+  overflow: hidden;
+  position: relative;
+  width: min(100%, 58rem);
+  z-index: 2;
+}
+
+.bio-room-overlay-close {
+  background: rgba(242, 242, 243, 0.08);
+  border: 1px solid rgba(242, 242, 243, 0.16);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12rem;
+  padding: 0.62rem 0.78rem;
+  position: absolute;
+  right: 1rem;
+  text-transform: uppercase;
+  top: 1rem;
+  z-index: 3;
+}
+
+.bio-room-overlay-image {
+  aspect-ratio: 16 / 10;
+  position: relative;
+}
+
+.bio-room-overlay-image img {
+  object-fit: cover;
+}
+
+.bio-room-overlay-copy {
+  padding: 1.1rem;
+}
+
+.bio-room-overlay-copy p {
+  color: #ffb454;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.16rem;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.bio-room-overlay-copy h3 {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  margin: 0;
+}
+
+.bio-room-mobile {
+  display: none;
 }
 
 .contact-scene {
@@ -1502,22 +1864,113 @@ p {
   }
 
   .craft-card p,
-  .bio-copy p,
   .contact-copy p {
     font-size: 0.9rem;
   }
 
   .bio-scene {
-    gap: 2rem;
+    min-height: auto;
+    overflow: visible;
+    padding: 0;
   }
 
-  .bio-portrait {
-    aspect-ratio: auto;
-    height: clamp(14rem, 58vw, 18rem);
-    max-height: 18rem;
-    min-height: 0;
-    order: 2;
+  .bio-room {
+    min-height: auto;
+    overflow: visible;
+    padding: 4.75rem 1rem 6.5rem;
+  }
+
+  .bio-room::after {
+    opacity: 0.72;
+  }
+
+  .bio-room-canvas {
+    height: 30rem;
+    opacity: 0.48;
+    pointer-events: none;
+  }
+
+  .bio-room-html {
+    display: none;
+  }
+
+  .bio-room-controls {
+    bottom: auto;
+    display: grid;
+    gap: 0.22rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    left: auto;
+    margin: 0 auto 1rem;
+    max-width: min(100%, 24rem);
+    overflow: visible;
+    position: sticky;
+    top: 4.65rem;
+    transform: none;
     width: 100%;
+  }
+
+  .bio-room-controls button {
+    font-size: 0.58rem;
+    letter-spacing: 0.06rem;
+    min-width: 0;
+    padding: 0.58rem 0.22rem;
+  }
+
+  .bio-room-mobile {
+    display: grid;
+    gap: 1rem;
+    position: relative;
+    z-index: 5;
+  }
+
+  .bio-room-mobile-portrait {
+    height: 31rem;
+    justify-self: center;
+    max-width: 20rem;
+    position: relative;
+    width: 74vw;
+  }
+
+  .bio-room-mobile-portrait img {
+    object-fit: contain;
+  }
+
+  .bio-room-mobile-panel {
+    background:
+      linear-gradient(135deg, rgba(242, 242, 243, 0.08), transparent 28%),
+      rgba(5, 8, 14, 0.78);
+    border: 1px solid rgba(242, 242, 243, 0.16);
+    padding: 1rem;
+    position: relative;
+  }
+
+  .bio-room-mobile-panel h2 {
+    font-size: 2.55rem;
+  }
+
+  .bio-room-mobile-panel h3 {
+    font-size: 1.7rem;
+  }
+
+  .bio-room-mobile-panel article {
+    margin-top: 0.72rem;
+    min-height: auto;
+  }
+
+  .bio-room-mobile .bio-room-contact-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bio-room-mobile .bio-room-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bio-room-overlay {
+    padding: 1rem;
+  }
+
+  .bio-room-overlay-copy h3 {
+    font-size: 1.6rem;
   }
 
   .contact-scene {
@@ -1549,6 +2002,10 @@ p {
 @media (max-width: 470px) {
   .scene {
     padding: 5.4rem 1rem 3rem;
+  }
+
+  .scene.bio-scene {
+    padding: 0;
   }
 
   .site-header {
@@ -1630,6 +2087,24 @@ p {
   .work-panel {
     left: 1rem;
     max-width: calc(100% - 2rem);
+  }
+
+  .bio-room {
+    padding: 4.5rem 0.8rem 6.5rem;
+  }
+
+  .bio-room-mobile-portrait {
+    height: 27rem;
+    width: 82vw;
+  }
+
+  .bio-room-mobile .bio-room-contact-links,
+  .bio-room-mobile .bio-room-gallery-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bio-room-controls {
+    max-width: 100%;
   }
 }
 

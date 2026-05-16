@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, KeyboardEvent } from "react";
+import type { CSSProperties } from "react";
 import type { Project } from "@/data/site";
 
 type WorkGallery3DProps = {
@@ -53,16 +53,13 @@ export function WorkGallery3D({
     if (index !== active) setActive(index);
   }
 
-  function handleCardKeyDown(event: KeyboardEvent<HTMLElement>, index: number) {
-    if (event.key !== "Enter" && event.key !== " ") return;
-    event.preventDefault();
-    selectProject(index);
-  }
-
   return (
     <div className="work-canvas cinematic-gallery" aria-label={labels.gallery}>
       <div className="gallery-atmosphere" aria-hidden="true" />
-      <div className={`gallery-orbit${dragOffset !== 0 ? " dragging" : ""}`} style={dragStyle}>
+      <div
+        className={`gallery-orbit${dragOffset !== 0 ? " dragging" : ""}`}
+        style={dragStyle}
+      >
         {projects.map((project, index) => {
           const offset = circularOffset(index, active, total);
           const slot = slotForOffset(offset);
@@ -75,11 +72,25 @@ export function WorkGallery3D({
               aria-label={`${labels.project} ${formatIndex(index)}: ${project.title}`}
               className={`work-card ${slot}${isActive ? " active" : ""}`}
               key={project.title}
-              onClick={() => selectProject(index)}
-              onKeyDown={(event) => handleCardKeyDown(event, index)}
-              role={isVisible && !isActive ? "button" : undefined}
-              tabIndex={isVisible && !isActive ? 0 : -1}
             >
+              {!isActive && isVisible && (
+                <button
+                  aria-label={`Select ${project.title}`}
+                  className="work-card-interaction"
+                  onClick={() => selectProject(index)}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    opacity: 0,
+                    cursor: "pointer",
+                    zIndex: 10,
+                    border: "none",
+                    background: "transparent",
+                  }}
+                />
+              )}
               <div className="work-card-media-wrap">
                 <video
                   autoPlay
@@ -89,7 +100,9 @@ export function WorkGallery3D({
                   playsInline
                   preload="auto"
                   src={project.video}
-                />
+                >
+                  <track kind="captions" />
+                </video>
                 <div className="work-card-shade" aria-hidden="true" />
               </div>
 

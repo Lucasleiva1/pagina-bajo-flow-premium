@@ -30,3 +30,14 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# logs
+*.log
+*.err.log
+*.out.log
+
+# typescript build info
+tsconfig.tsbuildinfo
+
+# error docs
+ERROR_*.md
