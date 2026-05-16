@@ -3,6 +3,7 @@
 import { useMemo, useRef } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
+import { useControls, folder, Leva } from "leva";
 import {
   AdditiveBlending,
   CanvasTexture,
@@ -21,25 +22,32 @@ type BioRoomCanvasProps = {
   copy: SiteCopy["bio"];
 };
 
+/* ──────────────────────── Camera states ──────────────────────── */
+/* Each state faces the target wall HEAD-ON so the Html panels
+   rendered on that wall are fully readable (no extreme perspective). */
 const cameraStates = {
   home: {
-    position: new Vector3(0, 1.62, 5.8),
-    target: new Vector3(-0.34, 1.48, -1.8),
+    position: new Vector3(0, 1.6, 6.2),
+    target: new Vector3(0, 1.6, -3.5),
   },
   bio: {
-    position: new Vector3(-4.3, 1.62, 3.1),
-    target: new Vector3(-3.45, 1.58, -1.55),
+    /* Camera moves to face the LEFT wall (character-right-wall) head-on */
+    position: new Vector3(-1.6, 1.6, 0.4),
+    target: new Vector3(-3.6, 1.5, 0.4),
   },
   gallery: {
-    position: new Vector3(4.3, 1.62, 3.1),
-    target: new Vector3(3.45, 1.58, -1.55),
+    /* Camera moves to face the RIGHT wall (character-left-wall) head-on */
+    position: new Vector3(1.6, 1.6, 0.4),
+    target: new Vector3(3.6, 1.5, 0.4),
   },
   contact: {
-    position: new Vector3(-0.86, 1.52, 5.1),
-    target: new Vector3(-1.34, 1.32, -3.08),
+    /* Zoom-in on the back wall contact links */
+    position: new Vector3(0, 1.5, 4.2),
+    target: new Vector3(0, 1.5, -3.5),
   },
 };
 
+/* ──────────────────────── Camera rig ──────────────────────── */
 function CameraRig() {
   const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
   const { camera } = useThree();
@@ -47,7 +55,7 @@ function CameraRig() {
 
   useFrame((_, delta) => {
     const state = cameraStates[activeRoomView];
-    const speed = 1 - Math.pow(0.035, delta);
+    const speed = 1 - Math.pow(0.025, delta);
     camera.position.lerp(state.position, speed);
     target.current.lerp(state.target, speed);
     camera.lookAt(target.current);
@@ -56,15 +64,30 @@ function CameraRig() {
   return null;
 }
 
-function GlowLine({ position, rotation, scale }: { position: [number, number, number]; rotation?: [number, number, number]; scale: [number, number, number] }) {
+/* ──────────────────────── Glow line helper ──────────────────────── */
+function GlowLine({
+  position,
+  rotation,
+  scale,
+}: {
+  position: [number, number, number];
+  rotation?: [number, number, number];
+  scale: [number, number, number];
+}) {
   return (
     <mesh position={position} rotation={rotation} scale={scale}>
       <boxGeometry args={[1, 1, 1]} />
-      <meshBasicMaterial color="#f7e5c8" toneMapped={false} transparent opacity={0.72} />
+      <meshBasicMaterial
+        color="#f7e5c8"
+        toneMapped={false}
+        transparent
+        opacity={0.9}
+      />
     </mesh>
   );
 }
 
+/* ──────────────────────── Softbox texture ──────────────────────── */
 function SoftboxTexture() {
   return useMemo(() => {
     const canvas = document.createElement("canvas");
@@ -87,90 +110,259 @@ function SoftboxTexture() {
   }, []);
 }
 
+/* ──────────────────────── Lucas billboard ──────────────────────── */
 function LucasBillboard() {
-  const texture = useLoader(TextureLoader, "/assets/bio-room/lucas-fullbody-cutout.png");
+  const texture = useLoader(
+    TextureLoader,
+    "/assets/bio-room/lucas-fullbody-cutout.png",
+  );
 
   texture.colorSpace = SRGBColorSpace;
   texture.minFilter = LinearFilter;
   texture.magFilter = LinearFilter;
 
+  // Leva controls for Lucas
+  const lucasControls = useControls("🧍 LUCAS (Billboard)", {
+    posX: { value: 0, min: -4, max: 4, step: 0.05, label: "X" },
+    posY: { value: 1.12, min: 0, max: 3, step: 0.05, label: "Y" },
+    posZ: { value: 0.6, min: -3.5, max: 4, step: 0.05, label: "Z" },
+    width: { value: 1.74, min: 0.5, max: 4, step: 0.05, label: "Ancho" },
+    height: { value: 2.55, min: 0.5, max: 5, step: 0.05, label: "Alto" },
+    emissiveIntensity: { value: 0.08, min: 0, max: 0.5, step: 0.01, label: "Brillo" },
+  });
+
   return (
-    <group position={[0, 1.12, -1.18]}>
+    <group position={[lucasControls.posX, lucasControls.posY, lucasControls.posZ]}>
+      {/* Main character plane */}
       <mesh position={[0, 0.12, 0]}>
-        <planeGeometry args={[1.74, 2.55]} />
-        <meshBasicMaterial alphaTest={0.05} map={texture} side={DoubleSide} transparent />
+        <planeGeometry args={[lucasControls.width, lucasControls.height]} />
+        <meshStandardMaterial
+          alphaTest={0.05}
+          emissive="#ffffff"
+          emissiveIntensity={lucasControls.emissiveIntensity}
+          emissiveMap={texture}
+          map={texture}
+          side={DoubleSide}
+          transparent
+        />
       </mesh>
+      {/* Floor shadow */}
       <mesh position={[0, -1.13, 0.02]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.92, 80]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.42} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.52} />
       </mesh>
+      {/* Amber glow ring on floor */}
       <mesh position={[0, -1.12, 0.025]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.58, 0.9, 96]} />
-        <meshBasicMaterial color="#ffb454" transparent opacity={0.25} />
+        <ringGeometry args={[0.58, 0.95, 96]} />
+        <meshBasicMaterial color="#ffb454" transparent opacity={0.3} />
       </mesh>
     </group>
   );
 }
 
+/* ──────────────────────── Room shell ──────────────────────── */
 function RoomShell() {
   const softbox = SoftboxTexture();
 
+  // Leva controls for Room dimensions
+  const roomControls = useControls("🏠 ROOM (Habitación)", {
+    halfWidth: { value: 4, min: 2, max: 8, step: 0.1, label: "Mitad Ancho (W)" },
+    depth: { value: 8, min: 4, max: 14, step: 0.1, label: "Profundidad (D)" },
+    height: { value: 3.2, min: 2, max: 6, step: 0.1, label: "Altura (H)" },
+    zBack: { value: -3.5, min: -8, max: 0, step: 0.1, label: "Z Pared Fondo" },
+  });
+
+  // Leva controls for Lights
+  const lightControls = useControls("💡 LUCES", {
+    "Key Light (Cenital)": folder({
+      keyPosX: { value: 0, min: -5, max: 5, step: 0.1, label: "X" },
+      keyPosY: { value: 3.3, min: 0, max: 6, step: 0.1, label: "Y" },
+      keyPosZ: { value: 1, min: -5, max: 8, step: 0.1, label: "Z" },
+      keyIntensity: { value: 22, min: 0, max: 50, step: 0.5, label: "Intensidad" },
+    }),
+    "Warm Rim (Contorno)": folder({
+      rimPosX: { value: 0, min: -5, max: 5, step: 0.1, label: "X" },
+      rimPosY: { value: 2.6, min: 0, max: 5, step: 0.1, label: "Y" },
+      rimPosZ: { value: -1.8, min: -5, max: 5, step: 0.1, label: "Z" },
+      rimIntensity: { value: 12, min: 0, max: 30, step: 0.5, label: "Intensidad" },
+    }),
+    "Cool Accent (Azul)": folder({
+      coolPosX: { value: 3.2, min: -5, max: 5, step: 0.1, label: "X" },
+      coolPosY: { value: 1.8, min: 0, max: 5, step: 0.1, label: "Y" },
+      coolPosZ: { value: 1.5, min: -5, max: 8, step: 0.1, label: "Z" },
+      coolIntensity: { value: 5, min: 0, max: 20, step: 0.5, label: "Intensidad" },
+    }),
+    "Front Fill (Frontal)": folder({
+      fillPosX: { value: 0, min: -5, max: 5, step: 0.1, label: "X" },
+      fillPosY: { value: 1.6, min: 0, max: 5, step: 0.1, label: "Y" },
+      fillPosZ: { value: 4.5, min: -2, max: 10, step: 0.1, label: "Z" },
+      fillIntensity: { value: 6, min: 0, max: 20, step: 0.5, label: "Intensidad" },
+    }),
+    ambientIntensity: { value: 0.35, min: 0, max: 2, step: 0.05, label: "Ambiente" },
+  });
+
+  const W = roomControls.halfWidth;
+  const D = roomControls.depth;
+  const Zback = roomControls.zBack;
+  const H = roomControls.height;
+
   return (
     <group>
-      <color attach="background" args={["#05070d"]} />
-      <fog attach="fog" args={["#05070d", 4.5, 9.8]} />
-      <ambientLight intensity={0.28} />
-      <pointLight color="#ffb454" intensity={10} position={[0, 2.8, 1.4]} distance={7} />
-      <pointLight color="#5ea1ff" intensity={4} position={[2.8, 1.4, 0.4]} distance={5} />
-      <spotLight angle={0.46} color="#ffffff" intensity={18} penumbra={0.86} position={[0, 3.1, 1.4]} />
+      <color attach="background" args={["#04060c"]} />
+      <fog attach="fog" args={["#04060c", 5, 11]} />
 
-      <mesh position={[0, 0, -0.55]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[8, 6.5]} />
-        <meshStandardMaterial color="#070911" metalness={0.24} roughness={0.62} />
+      {/* Ambient + directional lights */}
+      <ambientLight intensity={lightControls.ambientIntensity} />
+
+      {/* Main key light – warm overhead */}
+      <spotLight
+        angle={0.52}
+        color="#ffffff"
+        intensity={lightControls.keyIntensity}
+        penumbra={0.9}
+        position={[lightControls.keyPosX, lightControls.keyPosY, lightControls.keyPosZ]}
+        target-position={[0, 0, 0]}
+      />
+
+      {/* Warm fill from behind-above for character rim */}
+      <pointLight
+        color="#ffb454"
+        intensity={lightControls.rimIntensity}
+        position={[lightControls.rimPosX, lightControls.rimPosY, lightControls.rimPosZ]}
+        distance={6}
+      />
+
+      {/* Cool accent from the right side */}
+      <pointLight
+        color="#5ea1ff"
+        intensity={lightControls.coolIntensity}
+        position={[lightControls.coolPosX, lightControls.coolPosY, lightControls.coolPosZ]}
+        distance={6}
+      />
+
+      {/* Front fill to brighten character */}
+      <pointLight
+        color="#e8dfd0"
+        intensity={lightControls.fillIntensity}
+        position={[lightControls.fillPosX, lightControls.fillPosY, lightControls.fillPosZ]}
+        distance={7}
+      />
+
+      {/* Floor */}
+      <mesh position={[0, 0, Zback + D / 2]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[W * 2, D]} />
+        <meshStandardMaterial
+          color="#070911"
+          metalness={0.28}
+          roughness={0.58}
+        />
       </mesh>
-      <mesh position={[0, 3.05, -0.55]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[8, 6.5]} />
+
+      {/* Ceiling */}
+      <mesh position={[0, H, Zback + D / 2]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[W * 2, D]} />
         <meshStandardMaterial color="#05060b" metalness={0.1} roughness={0.7} />
       </mesh>
-      <mesh position={[0, 1.5, -3.55]}>
-        <planeGeometry args={[8, 3.1]} />
-        <meshStandardMaterial color="#080c14" metalness={0.18} roughness={0.74} />
-      </mesh>
-      <mesh position={[-3.7, 1.5, -0.55]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[6.5, 3.1]} />
-        <meshStandardMaterial color="#070a12" metalness={0.18} roughness={0.76} />
-      </mesh>
-      <mesh position={[3.7, 1.5, -0.55]} rotation={[0, -Math.PI / 2, 0]}>
-        <planeGeometry args={[6.5, 3.1]} />
-        <meshStandardMaterial color="#070a12" metalness={0.18} roughness={0.76} />
+
+      {/* Back wall */}
+      <mesh position={[0, H / 2, Zback]}>
+        <planeGeometry args={[W * 2, H]} />
+        <meshStandardMaterial
+          color="#080c14"
+          metalness={0.18}
+          roughness={0.74}
+        />
       </mesh>
 
-      <mesh position={[0, 3.01, -1.05]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[3.3, 0.36]} />
-        <meshBasicMaterial blending={AdditiveBlending} color="#fff4e4" map={softbox} transparent opacity={0.9} toneMapped={false} />
+      {/* Left wall (character-right-wall = bio) */}
+      <mesh
+        position={[-W, H / 2, Zback + D / 2]}
+        rotation={[0, Math.PI / 2, 0]}
+      >
+        <planeGeometry args={[D, H]} />
+        <meshStandardMaterial
+          color="#070a12"
+          metalness={0.18}
+          roughness={0.76}
+        />
       </mesh>
 
-      <GlowLine position={[0, 0.015, -3.18]} scale={[6.4, 0.018, 0.018]} />
-      <GlowLine position={[-3.22, 0.015, -0.45]} rotation={[0, Math.PI / 2, 0]} scale={[5.35, 0.018, 0.018]} />
-      <GlowLine position={[3.22, 0.015, -0.45]} rotation={[0, Math.PI / 2, 0]} scale={[5.35, 0.018, 0.018]} />
-      <GlowLine position={[0, 2.92, -3.48]} scale={[5.4, 0.018, 0.018]} />
-      <GlowLine position={[-3.62, 2.88, -0.4]} rotation={[0, Math.PI / 2, 0]} scale={[4.9, 0.018, 0.018]} />
-      <GlowLine position={[3.62, 2.88, -0.4]} rotation={[0, Math.PI / 2, 0]} scale={[4.9, 0.018, 0.018]} />
+      {/* Right wall (character-left-wall = gallery) */}
+      <mesh
+        position={[W, H / 2, Zback + D / 2]}
+        rotation={[0, -Math.PI / 2, 0]}
+      >
+        <planeGeometry args={[D, H]} />
+        <meshStandardMaterial
+          color="#070a12"
+          metalness={0.18}
+          roughness={0.76}
+        />
+      </mesh>
+
+      {/* Ceiling softbox (cinematic light panel) */}
+      <mesh
+        position={[0, H - 0.02, 0]}
+        rotation={[Math.PI / 2, 0, 0]}
+      >
+        <planeGeometry args={[3.6, 0.5]} />
+        <meshBasicMaterial
+          blending={AdditiveBlending}
+          color="#fff4e4"
+          map={softbox}
+          transparent
+          opacity={0.95}
+          toneMapped={false}
+        />
+      </mesh>
+
+      {/* Floor glow lines */}
+      <GlowLine
+        position={[0, 0.015, Zback + 0.1]}
+        scale={[W * 2 - 0.6, 0.018, 0.018]}
+      />
+      <GlowLine
+        position={[-W + 0.12, 0.015, Zback + D / 2]}
+        rotation={[0, Math.PI / 2, 0]}
+        scale={[D - 0.6, 0.018, 0.018]}
+      />
+      <GlowLine
+        position={[W - 0.12, 0.015, Zback + D / 2]}
+        rotation={[0, Math.PI / 2, 0]}
+        scale={[D - 0.6, 0.018, 0.018]}
+      />
+
+      {/* Ceiling glow lines */}
+      <GlowLine
+        position={[0, H - 0.08, Zback + 0.2]}
+        scale={[W * 2 - 1.2, 0.018, 0.018]}
+      />
+      <GlowLine
+        position={[-W + 0.15, H - 0.08, Zback + D / 2]}
+        rotation={[0, Math.PI / 2, 0]}
+        scale={[D - 1.2, 0.018, 0.018]}
+      />
+      <GlowLine
+        position={[W - 0.15, H - 0.08, Zback + D / 2]}
+        rotation={[0, Math.PI / 2, 0]}
+        scale={[D - 1.2, 0.018, 0.018]}
+      />
     </group>
   );
 }
 
+/* ──────────────────────── Scene wrapper ──────────────────────── */
 function SceneContent({ copy }: BioRoomCanvasProps) {
   const groupRef = useRef<Group>(null);
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
-    groupRef.current.position.y = Math.sin(clock.elapsedTime * 0.7) * 0.012;
+    groupRef.current.position.y = Math.sin(clock.elapsedTime * 0.7) * 0.008;
   });
 
   return (
     <>
-      <PerspectiveCamera makeDefault fov={42} position={[0, 1.62, 5.8]} />
+      <PerspectiveCamera makeDefault fov={42} position={[0, 1.6, 6.2]} />
       <CameraRig />
       <RoomShell />
       <group ref={groupRef}>
@@ -184,7 +376,20 @@ function SceneContent({ copy }: BioRoomCanvasProps) {
 export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
   return (
     <div className="bio-room-canvas">
-      <Canvas dpr={[1, 1.5]} gl={{ alpha: false, antialias: true, powerPreference: "high-performance" }}>
+      {/* Leva GUI panel — visible in dev mode */}
+      <Leva
+        collapsed={false}
+        oneLineLabels
+        titleBar={{ title: "🎬 Bio Room Controls" }}
+      />
+      <Canvas
+        dpr={[1, 1.5]}
+        gl={{
+          alpha: false,
+          antialias: true,
+          powerPreference: "high-performance",
+        }}
+      >
         <SceneContent copy={copy} />
       </Canvas>
     </div>

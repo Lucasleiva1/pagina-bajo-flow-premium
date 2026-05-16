@@ -1067,8 +1067,8 @@ p {
 
 .bio-room {
   background:
-    linear-gradient(180deg, rgba(5, 7, 13, 0.26), rgba(5, 7, 13, 0.72)),
-    #05070d;
+    linear-gradient(180deg, rgba(4, 6, 12, 0.2), rgba(4, 6, 12, 0.72)),
+    #04060c;
   min-height: 100svh;
   overflow: hidden;
   position: relative;
@@ -1077,8 +1077,8 @@ p {
 
 .bio-room::after {
   background:
-    linear-gradient(90deg, rgba(5, 7, 13, 0.72), transparent 28%, transparent 72%, rgba(5, 7, 13, 0.72)),
-    linear-gradient(0deg, rgba(5, 7, 13, 0.82), transparent 34%, rgba(5, 7, 13, 0.24));
+    linear-gradient(90deg, rgba(4, 6, 12, 0.56), transparent 22%, transparent 78%, rgba(4, 6, 12, 0.56)),
+    linear-gradient(0deg, rgba(4, 6, 12, 0.62), transparent 28%, rgba(4, 6, 12, 0.18));
   content: "";
   inset: 0;
   pointer-events: none;
@@ -1094,133 +1094,246 @@ p {
 
 .bio-room-html {
   pointer-events: auto;
-  transition: filter 260ms ease, opacity 260ms ease;
+  transition: filter 360ms ease, opacity 360ms ease;
 }
 
 .bio-room-html:not(.is-active):not(.bio-room-person-label) {
-  filter: brightness(0.78) saturate(0.84);
-  opacity: 0.86;
+  filter: brightness(0.62) saturate(0.72);
+  opacity: 0.7;
 }
 
 .bio-room-panel {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   background:
-    linear-gradient(135deg, rgba(242, 242, 243, 0.08), transparent 28%),
-    rgba(5, 8, 14, 0.7);
-  border: 1px solid rgba(242, 242, 243, 0.24);
+    linear-gradient(135deg, rgba(242, 242, 243, 0.1), transparent 32%),
+    rgba(5, 8, 14, 0.78);
+  border: 1px solid rgba(242, 242, 243, 0.2);
   box-shadow:
-    0 0 0 1px rgba(255, 180, 84, 0.08),
-    0 1.4rem 3.6rem rgba(0, 0, 0, 0.32),
-    inset 0 0 3.5rem rgba(94, 161, 255, 0.05);
+    0 0 0 1px rgba(255, 180, 84, 0.1),
+    0 1.8rem 4.2rem rgba(0, 0, 0, 0.42),
+    inset 0 0 4rem rgba(94, 161, 255, 0.05);
   color: var(--ink);
-  padding: 1.15rem;
+  padding: 1.6rem;
   position: relative;
 }
 
 .bio-room-panel::before {
-  border: 1px solid rgba(255, 180, 84, 0.44);
+  border: 1px solid rgba(255, 180, 84, 0.38);
   content: "";
-  inset: 0.42rem;
+  inset: 0.38rem;
   pointer-events: none;
   position: absolute;
 }
 
 .bio-room-panel-front {
-  width: 42rem;
+  width: 38rem;
 }
 
+/* ── Full back wall panel (wraps around character) ── */
+.bio-room-wall-full {
+  background: rgba(5, 8, 14, 0.92);
+  border: 1px solid rgba(242, 242, 243, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(255, 180, 84, 0.08),
+    0 1.8rem 4.2rem rgba(0, 0, 0, 0.52);
+  color: var(--ink);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 24rem;
+  position: relative;
+  width: 54rem;
+}
+
+.bio-room-wall-frame {
+  border: 1px solid rgba(255, 180, 84, 0.32);
+  inset: 0.45rem;
+  pointer-events: none;
+  position: absolute;
+  z-index: 3;
+}
+
+/* Top strip */
+.bio-room-wall-top {
+  border-bottom: 1px solid rgba(242, 242, 243, 0.1);
+  padding: 1rem 1.4rem 0.8rem;
+  text-align: center;
+}
+
+.bio-room-wall-top h2 {
+  font-size: 2.6rem;
+  letter-spacing: 0.08rem;
+  line-height: 0.92;
+  margin: 0;
+}
+
+.bio-room-wall-top .bio-room-subtitle {
+  color: rgba(242, 242, 243, 0.62);
+  font-size: 0.72rem;
+  margin: 0.35rem 0 0;
+}
+
+.bio-room-wall-top .bio-room-kicker {
+  margin-bottom: 0.32rem;
+}
+
+/* Middle: 3-column layout */
+.bio-room-wall-middle {
+  display: grid;
+  gap: 0;
+  grid-template-columns: 1fr 16rem 1fr;
+  min-height: 0;
+}
+
+/* Center gap — character shows here */
+.bio-room-wall-center-gap {
+  background: transparent;
+}
+
+/* Side columns */
+.bio-room-wall-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.8rem 1.1rem;
+}
+
+.bio-room-wall-col-left {
+  border-right: 1px solid rgba(242, 242, 243, 0.08);
+}
+
+.bio-room-wall-col-right {
+  border-left: 1px solid rgba(242, 242, 243, 0.08);
+}
+
+/* Statement text (left column) */
+.bio-room-wall-big-text {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  line-height: 1.35;
+  margin: 0 0 0.6rem;
+}
+
+.bio-room-wall-body {
+  color: rgba(242, 242, 243, 0.58);
+  font-size: 0.72rem;
+  line-height: 1.52;
+  margin: 0;
+}
+
+/* Contact grid (right column) */
+.bio-room-wall-contact-grid {
+  display: grid;
+  gap: 0.38rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.bio-room-wall-contact-grid a {
+  background: rgba(242, 242, 243, 0.04);
+  border: 1px solid rgba(242, 242, 243, 0.12);
+  color: var(--ink);
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.42rem 0.52rem;
+  text-decoration: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.bio-room-wall-contact-grid a:hover {
+  border-color: rgba(255, 180, 84, 0.65);
+  box-shadow: 0 0 14px rgba(255, 180, 84, 0.12);
+}
+
+.bio-room-wall-contact-grid span {
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+}
+
+.bio-room-wall-contact-grid small {
+  color: rgba(242, 242, 243, 0.48);
+  font-size: 0.56rem;
+}
+
+/* Bottom strip — skills */
+.bio-room-wall-bottom {
+  border-top: 1px solid rgba(242, 242, 243, 0.1);
+  padding: 0.6rem 1.2rem;
+}
+
+.bio-room-wall-skills {
+  align-items: center;
+  display: flex;
+  gap: 0.72rem;
+}
+
+.bio-room-wall-skills-label {
+  color: rgba(242, 242, 243, 0.5);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bio-room-wall-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.32rem;
+}
+
+.bio-room-wall-tools span {
+  background: rgba(255, 180, 84, 0.06);
+  border: 1px solid rgba(255, 180, 84, 0.2);
+  color: rgba(242, 242, 243, 0.78);
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.06rem;
+  padding: 0.26rem 0.38rem;
+  text-transform: uppercase;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.bio-room-wall-tools span:hover {
+  background: rgba(255, 180, 84, 0.14);
+  border-color: rgba(255, 180, 84, 0.42);
+}
+
+/* ── Shared panel styles for side walls ── */
 .bio-room-panel-bio,
 .bio-room-panel-gallery {
-  width: 32rem;
+  width: 36rem;
 }
 
 .bio-room-kicker {
   color: #ffb454;
-  font-size: 0.7rem;
+  font-size: 0.74rem;
   font-weight: 900;
   letter-spacing: 0.22rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65rem;
   text-transform: uppercase;
-}
-
-.bio-room-panel h2,
-.bio-room-mobile-panel h2 {
-  font-size: 3.4rem;
-  line-height: 0.92;
-  margin: 0;
 }
 
 .bio-room-panel h3,
 .bio-room-mobile-panel h3 {
   font-family: var(--font-display);
-  font-size: 2.1rem;
-  line-height: 1;
-  margin: 0 0 1rem;
+  font-size: 1.85rem;
+  line-height: 1.1;
+  margin: 0 0 1.1rem;
 }
 
-.bio-room-subtitle,
-.bio-room-mobile-panel > p {
-  color: rgba(242, 242, 243, 0.76);
-  font-size: 0.94rem;
-  line-height: 1.5;
-  margin: 0.75rem 0 1.1rem;
-}
-
-.bio-room-contact-links {
-  display: grid;
-  gap: 0.5rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 1rem;
-}
-
-.bio-room-contact-links a {
-  background: rgba(242, 242, 243, 0.055);
-  border: 1px solid rgba(242, 242, 243, 0.14);
-  color: var(--ink);
-  display: grid;
-  gap: 0.18rem;
-  min-height: 4rem;
-  padding: 0.72rem;
-  text-decoration: none;
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
-}
-
-.bio-room-contact-links a:hover,
-.bio-room-contact-links a:focus-visible {
-  border-color: rgba(255, 180, 84, 0.78);
-  box-shadow: 0 0 22px rgba(255, 180, 84, 0.16);
-  transform: translateY(-0.12rem);
-}
-
-.bio-room-contact-links span,
 .bio-room-gallery-grid strong {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 900;
   letter-spacing: 0.1rem;
   text-transform: uppercase;
 }
 
-.bio-room-contact-links small,
 .bio-room-gallery-grid small {
-  color: rgba(242, 242, 243, 0.58);
-  font-size: 0.7rem;
-}
-
-.bio-room-tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.42rem;
-  margin-top: 1rem;
-}
-
-.bio-room-tools span {
-  background: rgba(255, 180, 84, 0.075);
-  border: 1px solid rgba(255, 180, 84, 0.22);
-  color: rgba(242, 242, 243, 0.84);
+  color: rgba(242, 242, 243, 0.54);
   font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.08rem;
-  padding: 0.42rem 0.48rem;
-  text-transform: uppercase;
 }
 
 .bio-room-bio-grid {
@@ -1231,10 +1344,16 @@ p {
 
 .bio-room-bio-grid article,
 .bio-room-mobile-panel article {
-  background: rgba(242, 242, 243, 0.052);
+  background: rgba(242, 242, 243, 0.048);
   border: 1px solid rgba(242, 242, 243, 0.12);
-  min-height: 8rem;
-  padding: 0.82rem;
+  min-height: 7.5rem;
+  padding: 0.85rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.bio-room-bio-grid article:hover {
+  border-color: rgba(255, 180, 84, 0.35);
+  box-shadow: inset 0 0 2rem rgba(255, 180, 84, 0.06);
 }
 
 .bio-room-bio-grid article span {
@@ -1247,7 +1366,7 @@ p {
 
 .bio-room-bio-grid h4,
 .bio-room-mobile-panel h4 {
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   letter-spacing: 0.08rem;
   margin: 0 0 0.42rem;
   text-transform: uppercase;
@@ -1255,20 +1374,20 @@ p {
 
 .bio-room-bio-grid p,
 .bio-room-mobile-panel article p {
-  color: rgba(242, 242, 243, 0.7);
+  color: rgba(242, 242, 243, 0.68);
   font-size: 0.78rem;
-  line-height: 1.48;
+  line-height: 1.52;
   margin: 0;
 }
 
 .bio-room-gallery-grid {
   display: grid;
   gap: 0.72rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .bio-room-gallery-grid button {
-  background: rgba(242, 242, 243, 0.052);
+  background: rgba(242, 242, 243, 0.048);
   border: 1px solid rgba(242, 242, 243, 0.14);
   color: var(--ink);
   cursor: pointer;
@@ -1276,14 +1395,14 @@ p {
   gap: 0.32rem;
   padding: 0.5rem;
   text-align: left;
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 }
 
 .bio-room-gallery-grid button:hover,
 .bio-room-gallery-grid button:focus-visible {
   border-color: rgba(94, 161, 255, 0.72);
-  box-shadow: 0 0 22px rgba(94, 161, 255, 0.16);
-  transform: translateY(-0.12rem);
+  box-shadow: 0 0 22px rgba(94, 161, 255, 0.18);
+  transform: translateY(-0.15rem);
 }
 
 .bio-room-gallery-thumb {
@@ -1298,24 +1417,33 @@ p {
 }
 
 .bio-room-center-chip {
-  background: rgba(5, 8, 14, 0.72);
-  border: 1px solid rgba(255, 180, 84, 0.5);
+  background: rgba(4, 6, 12, 0.78);
+  border: 1px solid rgba(255, 180, 84, 0.55);
+  box-shadow: 0 0 16px rgba(255, 180, 84, 0.12);
   color: var(--ink);
   cursor: pointer;
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   font-weight: 900;
-  letter-spacing: 0.15rem;
-  padding: 0.45rem 0.62rem;
+  letter-spacing: 0.16rem;
+  padding: 0.48rem 0.72rem;
   text-transform: uppercase;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.bio-room-center-chip:hover {
+  border-color: rgba(255, 180, 84, 0.82);
+  box-shadow: 0 0 24px rgba(255, 180, 84, 0.22);
 }
 
 .bio-room-controls {
   align-items: center;
-  background: rgba(5, 8, 14, 0.62);
-  border: 1px solid rgba(242, 242, 243, 0.14);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  background: rgba(4, 6, 12, 0.68);
+  border: 1px solid rgba(242, 242, 243, 0.16);
   bottom: 2rem;
   display: flex;
-  gap: 0.32rem;
+  gap: 0.25rem;
   left: 50%;
   padding: 0.36rem;
   position: absolute;
@@ -1326,14 +1454,19 @@ p {
 .bio-room-controls button {
   background: transparent;
   border: 0;
-  color: rgba(242, 242, 243, 0.68);
+  color: rgba(242, 242, 243, 0.62);
   cursor: pointer;
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.12rem;
-  padding: 0.72rem 0.9rem;
+  padding: 0.72rem 1rem;
   position: relative;
   text-transform: uppercase;
+  transition: color 200ms ease;
+}
+
+.bio-room-controls button:hover {
+  color: rgba(242, 242, 243, 0.9);
 }
 
 .bio-room-controls button span:last-child {
@@ -1346,8 +1479,8 @@ p {
 }
 
 .bio-room-control-glow {
-  background: linear-gradient(90deg, rgba(255, 77, 141, 0.2), rgba(255, 180, 84, 0.2));
-  border: 1px solid rgba(255, 180, 84, 0.24);
+  background: linear-gradient(90deg, rgba(255, 77, 141, 0.22), rgba(255, 180, 84, 0.22));
+  border: 1px solid rgba(255, 180, 84, 0.28);
   inset: 0;
   position: absolute;
   z-index: 1;
@@ -1364,7 +1497,9 @@ p {
 }
 
 .bio-room-overlay-backdrop {
-  background: rgba(2, 3, 6, 0.78);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  background: rgba(2, 3, 6, 0.82);
   border: 0;
   cursor: pointer;
   inset: 0;
@@ -1373,7 +1508,7 @@ p {
 
 .bio-room-overlay-card {
   background: rgba(8, 12, 19, 0.96);
-  border: 1px solid rgba(242, 242, 243, 0.18);
+  border: 1px solid rgba(242, 242, 243, 0.2);
   box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.56);
   max-width: 58rem;
   overflow: hidden;
@@ -1384,7 +1519,7 @@ p {
 
 .bio-room-overlay-close {
   background: rgba(242, 242, 243, 0.08);
-  border: 1px solid rgba(242, 242, 243, 0.16);
+  border: 1px solid rgba(242, 242, 243, 0.18);
   color: var(--ink);
   cursor: pointer;
   font-size: 0.72rem;
@@ -1395,7 +1530,12 @@ p {
   right: 1rem;
   text-transform: uppercase;
   top: 1rem;
+  transition: background 180ms ease;
   z-index: 3;
+}
+
+.bio-room-overlay-close:hover {
+  background: rgba(242, 242, 243, 0.16);
 }
 
 .bio-room-overlay-image {
