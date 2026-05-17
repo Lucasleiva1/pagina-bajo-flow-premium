@@ -36,6 +36,11 @@ body {
   overflow-x: hidden;
 }
 
+html.bio-room-scroll-locked,
+body.bio-room-scroll-locked {
+  overflow: hidden;
+}
+
 body::before {
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
@@ -1577,6 +1582,45 @@ p {
   z-index: 8;
 }
 
+.bio-room-return {
+  align-items: center;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  background:
+    linear-gradient(135deg, rgba(255, 180, 84, 0.18), rgba(255, 77, 141, 0.12)),
+    rgba(4, 6, 12, 0.76);
+  border: 1px solid rgba(255, 225, 184, 0.34);
+  color: rgba(242, 242, 243, 0.92);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 900;
+  gap: 0.48rem;
+  left: 1.35rem;
+  letter-spacing: 0.12rem;
+  min-height: 2.8rem;
+  padding: 0 0.92rem;
+  position: absolute;
+  text-transform: uppercase;
+  top: 8.35rem;
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+  z-index: 9;
+}
+
+.bio-room-return:hover {
+  border-color: rgba(255, 225, 184, 0.62);
+  color: var(--ink);
+  transform: translateX(-0.12rem);
+}
+
+.bio-room-return span:first-child {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
 .bio-room-controls button {
   background: transparent;
   border: 0;
@@ -2162,6 +2206,10 @@ p {
     height: 30rem;
     opacity: 0.48;
     pointer-events: none;
+  }
+
+  .bio-room-return {
+    display: none;
   }
 
   .bio-room-controls {

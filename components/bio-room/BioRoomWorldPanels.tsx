@@ -118,6 +118,7 @@ function WallGlowLine({
   y,
   z = 0.075,
 }: {
+  color?: string;
   height: number;
   opacity?: number;
   width: number;
@@ -604,25 +605,21 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
   );
 }
 
-function BioBlock3D({
+function BioContributionRow3D({
   text,
   title,
-  x,
   y,
 }: {
   text: string;
   title: string;
-  x: number;
   y: number;
 }) {
   return (
-    <group position={[x, y, 0.08]}>
-      <WallPanel color="#050a12" height={0.78} opacity={0.72} width={2.75} z={0} />
-      <WallFrame height={0.78} width={2.75} />
-      <WallText color={wallAmber} fontSize={0.078} maxWidth={2.3} x={-1.17} y={0.21} z={0.045}>
-        {title}
+    <group position={[-2.88, y, 0.12]}>
+      <WallText color={wallInk} fontSize={0.058} maxWidth={1.22} x={0} y={0} z={0.04}>
+        {`${title}:`}
       </WallText>
-      <WallText color={wallMuted} fontSize={0.058} maxWidth={2.28} x={-1.17} y={-0.09} z={0.045}>
+      <WallText color={wallMuted} fontSize={0.058} maxWidth={2.58} x={1.06} y={0} z={0.04}>
         {text}
       </WallText>
     </group>
@@ -630,30 +627,32 @@ function BioBlock3D({
 }
 
 function BioWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
-  const positions = [
-    [-2.05, 0.28],
-    [1.05, 0.28],
-    [-2.05, -0.68],
-    [1.05, -0.68],
-  ] as const;
-
   return (
     <WallSurfaceGroup wall={wall}>
       <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} />
       <WallFrame height={wall.height - 0.66} width={wall.width - 0.86} />
-      <WallText color={wallAmber} fontSize={0.09} maxWidth={1.6} x={-3.34} y={1.08}>
-        Bio
-      </WallText>
-      <WallText fontSize={0.19} maxWidth={4.5} x={-3.34} y={0.82}>
+      <group position={[-1.32, 0.01, 0.08]}>
+        <WallPanel color="#030611" height={2.98} opacity={0.62} width={4.55} z={0} />
+        <WallGlowLine color="#00f0ff" height={0.84} opacity={0.9} width={0.018} x={-2.12} y={-0.67} z={0.055} />
+      </group>
+      <WallText fontSize={0.17} maxWidth={3.9} x={-3.24} y={1.18} z={0.16}>
         {copy.title}
       </WallText>
+      <WallText color={wallMuted} fontSize={0.075} maxWidth={3.82} x={-3.24} y={0.62} z={0.16}>
+        {copy.paragraphs[0]}
+      </WallText>
+      <WallText color={wallMuted} fontSize={0.075} maxWidth={3.82} x={-3.24} y={-0.03} z={0.16}>
+        {copy.paragraphs[1]}
+      </WallText>
+      <WallText color="#00f0ff" fontSize={0.082} maxWidth={3.5} x={-2.9} y={-0.58} z={0.16}>
+        LO QUE APORTO A CADA PROYECTO:
+      </WallText>
       {copy.bioBlocks.map((block, index) => (
-        <BioBlock3D
+        <BioContributionRow3D
           key={block.title}
           text={block.text}
           title={block.title}
-          x={positions[index]?.[0] ?? -2.05}
-          y={positions[index]?.[1] ?? -0.68}
+          y={-0.84 - index * 0.16}
         />
       ))}
     </WallSurfaceGroup>

@@ -10,6 +10,7 @@ import {
   DoubleSide,
   Group,
   LinearFilter,
+  MathUtils,
   SRGBColorSpace,
   TextureLoader,
   Vector3,
@@ -23,7 +24,7 @@ import { BioRoomWorldPanels } from "@/components/bio-room/BioRoomWorldPanels";
 import { bioRoomPreset } from "@/data/bioRoomPreset";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomPresetStore } from "@/lib/useBioRoomPresetStore";
-import { useBioRoomStore } from "@/lib/useBioRoomStore";
+import { type BioRoomView, useBioRoomStore } from "@/lib/useBioRoomStore";
 
 type BioRoomCanvasProps = {
   copy: SiteCopy["bio"];
@@ -34,6 +35,9 @@ const bioLeftWallTexture = "/images/bio-room/bio-left-wall-source-1440.webp";
 const bioRightWallTexture = "/images/bio-room/bio-right-wall-source-1440.webp";
 const bioCeilingTexture = "/images/bio-room/bio-ceiling-source-1440.webp";
 const bioFloorTexture = "/images/bio-room/bio-floor-source-1440.webp";
+const cameraFov = 42;
+const sideWallReadableWidth = 7.2;
+const sideWallBackstopMargin = 0.55;
 
 /* ──────────────────────── Camera states ──────────────────────── */
 /* Each state faces the target wall HEAD-ON so the Html panels
@@ -61,20 +65,52 @@ const cameraStates = {
 };
 
 /* ──────────────────────── Camera rig ──────────────────────── */
-function CameraRig() {
+function CameraRig({ layout }: { layout: BioRoomLayout }) {
   const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
-  const { camera } = useThree();
+  const sideWallZoom = useBioRoomStore((state) => state.sideWallZoom);
+  const { camera, size } = useThree();
+  const desiredPosition = useRef(new Vector3());
+  const desiredTarget = useRef(new Vector3());
   const target = useRef(cameraStates.home.target.clone());
 
   useFrame((_, delta) => {
-    const state = cameraStates[activeRoomView];
+    setCameraFrame(activeRoomView, layout, size.width / size.height, sideWallZoom, desiredPosition.current, desiredTarget.current);
     const speed = 1 - Math.pow(0.025, delta);
-    camera.position.lerp(state.position, speed);
-    target.current.lerp(state.target, speed);
+    camera.position.lerp(desiredPosition.current, speed);
+    target.current.lerp(desiredTarget.current, speed);
     camera.lookAt(target.current);
   });
 
   return null;
+}
+
+function setCameraFrame(
+  activeRoomView: BioRoomView,
+  layout: BioRoomLayout,
+  aspect: number,
+  sideWallZoom: number,
+  position: Vector3,
+  target: Vector3,
+) {
+  if (activeRoomView === "bio" || activeRoomView === "gallery") {
+    const verticalFov = MathUtils.degToRad(cameraFov);
+    const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * Math.max(aspect, 1.12));
+    const heightDistance = layout.height / (2 * Math.tan(verticalFov / 2));
+    const widthDistance = sideWallReadableWidth / (2 * Math.tan(horizontalFov / 2));
+    const fittedDistance = Math.max(heightDistance, widthDistance) * 1.1 * (1 + sideWallZoom);
+    const maxDistanceInsideRoom = layout.halfWidth * 2 - sideWallBackstopMargin;
+    const distance = Math.min(fittedDistance, maxDistanceInsideRoom);
+    const wall = activeRoomView === "bio" ? layout.walls.characterRightWall : layout.walls.characterLeftWall;
+    const direction = activeRoomView === "bio" ? 1 : -1;
+
+    target.set(wall.position[0], layout.height * 0.5, layout.centerZ - 0.25);
+    position.set(wall.position[0] + direction * distance, layout.height * 0.52, layout.centerZ - 0.25);
+    return;
+  }
+
+  const state = cameraStates[activeRoomView];
+  position.copy(state.position);
+  target.copy(state.target);
 }
 
 /* ──────────────────────── Glow line helper ──────────────────────── */
@@ -643,7 +679,9 @@ function RoomShell({
 
 /* ──────────────────────── Scene wrapper ──────────────────────── */
 function SceneContent({ copy }: BioRoomCanvasProps) {
+  const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
   const groupRef = useRef<Group>(null);
+  const showLucas = activeRoomView === "home" || activeRoomView === "contact";
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -652,12 +690,16 @@ function SceneContent({ copy }: BioRoomCanvasProps) {
 
   return (
     <>
-      <PerspectiveCamera makeDefault fov={42} position={[0, 1.6, 6.2]} />
-      <CameraRig />
+      <PerspectiveCamera makeDefault fov={cameraFov} position={[0, 1.6, 6.2]} />
       <RoomShell>
-        {(layout) => <BioRoomWorldPanels copy={copy} layout={layout} />}
+        {(layout) => (
+          <>
+            <CameraRig layout={layout} />
+            <BioRoomWorldPanels copy={copy} layout={layout} />
+          </>
+        )}
       </RoomShell>
-      <group ref={groupRef}>
+      <group ref={groupRef} visible={showLucas}>
         <LucasBillboard />
       </group>
     </>

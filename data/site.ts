@@ -146,13 +146,13 @@ export const siteCopy = {
     },
     bio: {
       kicker: "Bio",
-      title: "Soy Lucas, editor de video enfocado en transformar piezas audiovisuales.",
-      identitySubtitle: "Editor de video · Postproducción · Motion · Color · Contenido visual",
+      title: "¡Hola! Me llamo Lucas",
+      identitySubtitle: "Editor de video · Corrección de color · Postproducción de audio",
       paragraphs: [
-        "Trabajo cada proyecto desde el ritmo, la atmósfera y la emoción para que cada corte tenga una razón.",
-        "Bajo Flow nace para crear contenido con identidad: videos para YouTube, redes sociales, marcas e institucionales.",
+        "Soy un editor de video enfocado en transformar piezas audiovisuales en experiencias de alto impacto. Mi enfoque no se limita solo al montaje; me especializo en potenciar la narrativa visual a través de una corrección de color profesional y un tratamiento de sonido inmersivo.",
+        "Cuento con experiencia técnica avanzada en herramientas de estándar industrial como DaVinci Resolve, dominando sus módulos de Color y Fairlight para asegurar que cada proyecto tenga un acabado cinematográfico y una claridad sonora impecable.",
       ],
-      tags: ["Edición de video", "Color", "Post audio", "Redes sociales", "Institucionales"],
+      tags: ["Edición dinámica", "Color grading", "Postproducción de audio", "Versatilidad"],
       roomControls: [
         { label: "Inicio", view: "home" },
         { label: "Bio", view: "bio" },
@@ -181,20 +181,20 @@ export const siteCopy = {
       ],
       bioBlocks: [
         {
-          title: "Quién soy",
-          text: "Soy Lucas Leiva, editor audiovisual y creador visual detrás de Bajo Flow.",
+          title: "Edición Dinámica",
+          text: "Ritmo y fluidez adaptados al mensaje.",
         },
         {
-          title: "Qué hago",
-          text: "Transformo material crudo en piezas con ritmo, imagen, sonido y presencia para redes, marcas e institucionales.",
+          title: "Color Grading",
+          text: "Creación de atmósferas visuales y coherencia estética.",
         },
         {
-          title: "Cómo trabajo",
-          text: "Ordeno la narrativa, encuentro el pulso del corte y cuido color, audio, motion y entrega final.",
+          title: "Post-producción de Audio",
+          text: "Limpieza, mezcla y diseño sonoro.",
         },
         {
-          title: "Mi enfoque",
-          text: "Cada video tiene que sentirse claro, cinematográfico y con identidad, sin perder velocidad ni retención.",
+          title: "Versatilidad",
+          text: "Formatos: YouTube, Social Media, Institucionales.",
         },
       ],
       galleryItems: [
