@@ -44,10 +44,10 @@ type WallTextProps = {
   z?: number;
 };
 
-const wallAccent = "#f7e5c8";
-const wallAmber = "#ffb454";
-const wallInk = "#f6f2ea";
-const wallMuted = "#b9c0cc";
+const wallAccent = "#bdb6a5";
+const wallAmber = "#d6a15f";
+const wallInk = "#efe9dd";
+const wallMuted = "#9ea6b4";
 
 function openLink(href: string) {
   if (href.startsWith("#")) {
@@ -76,9 +76,9 @@ function WallSurfaceGroup({ children, wall }: WallSurfaceGroupProps) {
 }
 
 function WallPanel({
-  color = "#05080e",
+  color = "#03070d",
   height,
-  opacity = 0.84,
+  opacity = 0.68,
   width,
   x = 0,
   y = 0,
@@ -89,11 +89,11 @@ function WallPanel({
       <planeGeometry args={[width, height]} />
       <meshStandardMaterial
         color={color}
-        metalness={0.18}
+        metalness={0.1}
         opacity={opacity}
         polygonOffset
         polygonOffsetFactor={-1}
-        roughness={0.72}
+        roughness={0.82}
         side={DoubleSide}
         transparent
       />
@@ -103,12 +103,14 @@ function WallPanel({
 
 function WallGlowLine({
   height,
+  opacity = 0.22,
   width,
   x,
   y,
   z = 0.075,
 }: {
   height: number;
+  opacity?: number;
   width: number;
   x: number;
   y: number;
@@ -117,7 +119,12 @@ function WallGlowLine({
   return (
     <mesh position={[x, y, z]}>
       <boxGeometry args={[width, height, 0.012]} />
-      <meshBasicMaterial color={wallAccent} toneMapped={false} />
+      <meshBasicMaterial
+        color={wallAccent}
+        opacity={opacity}
+        toneMapped={false}
+        transparent
+      />
     </mesh>
   );
 }
@@ -133,7 +140,7 @@ function WallFrame({
   x?: number;
   y?: number;
 }) {
-  const thickness = 0.018;
+  const thickness = 0.009;
 
   return (
     <group>
@@ -305,11 +312,11 @@ function WallButton({
       <mesh onClick={handleClick}>
         <planeGeometry args={[1.12, 0.34]} />
         <meshStandardMaterial
-          color="#090d16"
-          emissive="#24170a"
-          emissiveIntensity={0.18}
-          metalness={0.22}
-          roughness={0.65}
+          color="#050911"
+          emissive="#100b06"
+          emissiveIntensity={0.06}
+          metalness={0.12}
+          roughness={0.78}
         />
       </mesh>
       <WallFrame height={0.34} width={1.12} />
@@ -326,7 +333,7 @@ function WallButton({
 function ToolChip({ label, x, y }: { label: string; x: number; y: number }) {
   return (
     <group position={[x, y, 0.1]}>
-      <WallPanel color="#0b111d" height={0.2} opacity={0.92} width={0.78} z={0} />
+      <WallPanel color="#060b13" height={0.2} opacity={0.7} width={0.78} z={0} />
       <WallText color={wallMuted} fontSize={0.045} maxWidth={0.66} textAlign="center" x={0} y={0} z={0.04}>
         {label}
       </WallText>
@@ -408,7 +415,7 @@ function BioBlock3D({
 }) {
   return (
     <group position={[x, y, 0.08]}>
-      <WallPanel color="#080d16" height={0.78} opacity={0.86} width={2.75} z={0} />
+      <WallPanel color="#050a12" height={0.78} opacity={0.72} width={2.75} z={0} />
       <WallFrame height={0.78} width={2.75} />
       <WallText color={wallAmber} fontSize={0.078} maxWidth={2.3} x={-1.17} y={0.21} z={0.045}>
         {title}
@@ -476,11 +483,11 @@ function GalleryCard3D({
       <mesh onClick={onClick}>
         <planeGeometry args={[1.42, 0.88]} />
         <meshStandardMaterial
-          color="#080d16"
-          emissive="#160d18"
-          emissiveIntensity={0.18}
-          metalness={0.18}
-          roughness={0.68}
+          color="#050a12"
+          emissive="#0d0810"
+          emissiveIntensity={0.06}
+          metalness={0.12}
+          roughness={0.78}
         />
       </mesh>
       <WallFrame height={0.88} width={1.42} />

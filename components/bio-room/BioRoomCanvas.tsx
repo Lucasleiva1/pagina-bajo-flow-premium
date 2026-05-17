@@ -72,10 +72,14 @@ function CameraRig() {
 
 /* ──────────────────────── Glow line helper ──────────────────────── */
 function GlowLine({
+  color = "#cfc8b8",
+  opacity = 0.16,
   position,
   rotation,
   scale,
 }: {
+  color?: string;
+  opacity?: number;
   position: [number, number, number];
   rotation?: [number, number, number];
   scale: [number, number, number];
@@ -84,10 +88,10 @@ function GlowLine({
     <mesh position={position} rotation={rotation} scale={scale}>
       <boxGeometry args={[1, 1, 1]} />
       <meshBasicMaterial
-        color="#f7e5c8"
+        color={color}
         toneMapped={false}
         transparent
-        opacity={0.9}
+        opacity={opacity}
       />
     </mesh>
   );
@@ -211,6 +215,39 @@ function RoomShell({
     ambientIntensity: { value: 0.35, min: 0, max: 2, step: 0.05, label: "Ambiente" },
   }, collapsedLevaFolder);
 
+  const cinemaLightControls = useControls("CINEMA LIGHT RIG", {
+    "Back Wall Wash": folder({
+      wallWashY: { value: 2.15, min: 0.1, max: 4.5, step: 0.05, label: "Y" },
+      wallWashZ: { value: -2.95, min: -5, max: 2, step: 0.05, label: "Z" },
+      wallWashIntensity: { value: 7.5, min: 0, max: 25, step: 0.25, label: "Intensidad" },
+      wallWashDistance: { value: 4.8, min: 0.5, max: 10, step: 0.1, label: "Distancia" },
+    }, collapsedLevaFolder),
+    "Side Wall Wash": folder({
+      sideWashY: { value: 1.35, min: 0.1, max: 4.5, step: 0.05, label: "Y" },
+      sideWashZ: { value: -0.2, min: -4, max: 4, step: 0.05, label: "Z" },
+      sideWashIntensity: { value: 3.4, min: 0, max: 15, step: 0.2, label: "Intensidad" },
+      sideWashDistance: { value: 3.6, min: 0.5, max: 8, step: 0.1, label: "Distancia" },
+    }, collapsedLevaFolder),
+    "Floor Bounce": folder({
+      floorBounceY: { value: 0.3, min: 0.05, max: 1.5, step: 0.05, label: "Y" },
+      floorBounceZ: { value: 0.92, min: -2, max: 4, step: 0.05, label: "Z" },
+      floorBounceIntensity: { value: 2.2, min: 0, max: 12, step: 0.2, label: "Intensidad" },
+      floorGlowOpacity: { value: 0.16, min: 0, max: 0.55, step: 0.01, label: "Glow piso" },
+    }, collapsedLevaFolder),
+    fogNear: { value: 4.8, min: 1, max: 10, step: 0.1, label: "Niebla inicio" },
+    fogFar: { value: 12, min: 5, max: 22, step: 0.1, label: "Niebla final" },
+    softboxOpacity: { value: 0.54, min: 0, max: 1, step: 0.01, label: "Softbox" },
+  }, collapsedLevaFolder);
+
+  const visualControls = useControls("ROOM VISUALS", {
+    wallMetalness: { value: 0.1, min: 0, max: 0.45, step: 0.01, label: "Metal paredes" },
+    wallRoughness: { value: 0.86, min: 0.3, max: 1, step: 0.01, label: "Rugosidad paredes" },
+    floorMetalness: { value: 0.18, min: 0, max: 0.55, step: 0.01, label: "Metal piso" },
+    floorRoughness: { value: 0.7, min: 0.25, max: 1, step: 0.01, label: "Rugosidad piso" },
+    guideOpacity: { value: 0.16, min: 0, max: 0.65, step: 0.01, label: "Lineas guia" },
+    panelOpacity: { value: 0.62, min: 0.2, max: 1, step: 0.01, label: "Panel fondo" },
+  }, collapsedLevaFolder);
+
   const W = roomControls.halfWidth;
   const D = roomControls.depth;
   const Zback = roomControls.zBack;
@@ -229,8 +266,11 @@ function RoomShell({
 
   return (
     <group>
-      <color attach="background" args={["#04060c"]} />
-      <fog attach="fog" args={["#04060c", 5, 11]} />
+      <color attach="background" args={["#03050a"]} />
+      <fog
+        attach="fog"
+        args={["#03050a", cinemaLightControls.fogNear, cinemaLightControls.fogFar]}
+      />
 
       {/* Ambient + directional lights */}
       <ambientLight intensity={lightControls.ambientIntensity} />
@@ -238,7 +278,7 @@ function RoomShell({
       {/* Main key light – warm overhead */}
       <spotLight
         angle={0.52}
-        color="#ffffff"
+        color="#fff2dd"
         intensity={lightControls.keyIntensity}
         penumbra={0.9}
         position={[lightControls.keyPosX, lightControls.keyPosY, lightControls.keyPosZ]}
@@ -247,7 +287,7 @@ function RoomShell({
 
       {/* Warm fill from behind-above for character rim */}
       <pointLight
-        color="#ffb454"
+        color="#8db6ff"
         intensity={lightControls.rimIntensity}
         position={[lightControls.rimPosX, lightControls.rimPosY, lightControls.rimPosZ]}
         distance={6}
@@ -269,29 +309,61 @@ function RoomShell({
         distance={7}
       />
 
+      <pointLight
+        color="#d69b55"
+        distance={cinemaLightControls.wallWashDistance}
+        intensity={cinemaLightControls.wallWashIntensity}
+        position={[0, cinemaLightControls.wallWashY, cinemaLightControls.wallWashZ]}
+      />
+
+      <pointLight
+        color="#678fff"
+        distance={cinemaLightControls.sideWashDistance}
+        intensity={cinemaLightControls.sideWashIntensity}
+        position={[-W + 0.55, cinemaLightControls.sideWashY, cinemaLightControls.sideWashZ]}
+      />
+
+      <pointLight
+        color="#9f72ff"
+        distance={cinemaLightControls.sideWashDistance}
+        intensity={cinemaLightControls.sideWashIntensity * 0.65}
+        position={[W - 0.55, cinemaLightControls.sideWashY, cinemaLightControls.sideWashZ]}
+      />
+
+      <pointLight
+        color="#d7a368"
+        distance={3.2}
+        intensity={cinemaLightControls.floorBounceIntensity}
+        position={[0, cinemaLightControls.floorBounceY, cinemaLightControls.floorBounceZ]}
+      />
+
       {/* Floor */}
       <mesh position={[0, 0, centerZ]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W * 2, D]} />
         <meshStandardMaterial
-          color="#070911"
-          metalness={0.28}
-          roughness={0.58}
+          color="#05070d"
+          metalness={visualControls.floorMetalness}
+          roughness={visualControls.floorRoughness}
         />
       </mesh>
 
       {/* Ceiling */}
       <mesh position={[0, H, centerZ]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W * 2, D]} />
-        <meshStandardMaterial color="#05060b" metalness={0.1} roughness={0.7} />
+        <meshStandardMaterial
+          color="#03050a"
+          metalness={visualControls.wallMetalness}
+          roughness={visualControls.wallRoughness}
+        />
       </mesh>
 
       {/* Back wall */}
       <mesh position={[0, H / 2, Zback]}>
         <planeGeometry args={[W * 2, H]} />
         <meshStandardMaterial
-          color="#080c14"
-          metalness={0.18}
-          roughness={0.74}
+          color="#050910"
+          metalness={visualControls.wallMetalness}
+          roughness={visualControls.wallRoughness}
         />
       </mesh>
 
@@ -299,27 +371,33 @@ function RoomShell({
       <mesh position={[0, H / 2, Zback + 0.018]}>
         <planeGeometry args={[W * 2 - 0.72, H - 0.48]} />
         <meshStandardMaterial
-          color="#05080e"
-          metalness={0.22}
-          roughness={0.7}
+          color="#03060b"
+          metalness={visualControls.wallMetalness + 0.04}
+          opacity={visualControls.panelOpacity}
+          roughness={visualControls.wallRoughness}
+          transparent
         />
       </mesh>
 
       <GlowLine
         position={[0, H - 0.28, Zback + 0.035]}
+        opacity={visualControls.guideOpacity}
         scale={[W * 2 - 0.95, 0.014, 0.014]}
       />
       <GlowLine
         position={[0, 0.28, Zback + 0.035]}
+        opacity={visualControls.guideOpacity}
         scale={[W * 2 - 0.95, 0.014, 0.014]}
       />
       <GlowLine
         position={[-W + 0.46, H / 2, Zback + 0.035]}
+        opacity={visualControls.guideOpacity}
         rotation={[0, 0, Math.PI / 2]}
         scale={[H - 0.72, 0.014, 0.014]}
       />
       <GlowLine
         position={[W - 0.46, H / 2, Zback + 0.035]}
+        opacity={visualControls.guideOpacity}
         rotation={[0, 0, Math.PI / 2]}
         scale={[H - 0.72, 0.014, 0.014]}
       />
@@ -331,9 +409,9 @@ function RoomShell({
       >
         <planeGeometry args={[D, H]} />
         <meshStandardMaterial
-          color="#070a12"
-          metalness={0.18}
-          roughness={0.76}
+          color="#04080f"
+          metalness={visualControls.wallMetalness}
+          roughness={visualControls.wallRoughness}
         />
       </mesh>
 
@@ -344,9 +422,9 @@ function RoomShell({
       >
         <planeGeometry args={[D, H]} />
         <meshStandardMaterial
-          color="#070a12"
-          metalness={0.18}
-          roughness={0.76}
+          color="#04080f"
+          metalness={visualControls.wallMetalness}
+          roughness={visualControls.wallRoughness}
         />
       </mesh>
 
@@ -361,23 +439,36 @@ function RoomShell({
           color="#fff4e4"
           map={softbox}
           transparent
-          opacity={0.95}
+          opacity={cinemaLightControls.softboxOpacity}
           toneMapped={false}
+        />
+      </mesh>
+
+      <mesh position={[0, 0.022, 0.86]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[1.18, 96]} />
+        <meshBasicMaterial
+          color="#d39a5d"
+          opacity={cinemaLightControls.floorGlowOpacity}
+          toneMapped={false}
+          transparent
         />
       </mesh>
 
       {/* Floor glow lines */}
       <GlowLine
         position={[0, 0.015, Zback + 0.1]}
+        opacity={visualControls.guideOpacity * 0.8}
         scale={[W * 2 - 0.6, 0.018, 0.018]}
       />
       <GlowLine
         position={[-W + 0.12, 0.015, centerZ]}
+        opacity={visualControls.guideOpacity * 0.65}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 0.6, 0.018, 0.018]}
       />
       <GlowLine
         position={[W - 0.12, 0.015, centerZ]}
+        opacity={visualControls.guideOpacity * 0.65}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 0.6, 0.018, 0.018]}
       />
@@ -385,15 +476,18 @@ function RoomShell({
       {/* Ceiling glow lines */}
       <GlowLine
         position={[0, H - 0.08, Zback + 0.2]}
+        opacity={visualControls.guideOpacity * 0.72}
         scale={[W * 2 - 1.2, 0.018, 0.018]}
       />
       <GlowLine
         position={[-W + 0.15, H - 0.08, centerZ]}
+        opacity={visualControls.guideOpacity * 0.6}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 1.2, 0.018, 0.018]}
       />
       <GlowLine
         position={[W - 0.15, H - 0.08, centerZ]}
+        opacity={visualControls.guideOpacity * 0.6}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 1.2, 0.018, 0.018]}
       />

@@ -1,19 +1,18 @@
-# Punto de restauracion actual
+# Punto de restauracion importante - Bio Room 3D Visuals & Tuning
 
-Fecha de registro: 2026-05-16 21:10:43 -03:00
+Fecha de guardado: 2026-05-16 21:10:43 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
-Remoto: origin/main
 Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
 
-## Version importante para volver
+## Nombre del guardado
 
-Tag previsto para esta version: important-bio-room-visuals-2026-05-16
+Tag previsto: important-bio-room-visuals-2026-05-16
 Mensaje del commit: feat: save bio room visuals and calibration checkpoint
 
-Esta es la versión importante posterior a la calibración fina de iluminación, resplandor del piso, opacidades de paneles y rugosidad de materiales. Si algo sale mal en cambios futuros, primero verificar el estado actual del proyecto y después volver a este tag solo si el usuario lo pide.
+Este guardado conserva la versión donde se calibraron las propiedades visuales y la iluminación cinemática premium de la Bio Room 3D, exponiendo una amplia variedad de controles finos en Leva para ajustar brillo, opacidad, rugosidad, metalicidad, resplandor del piso y líneas de guía.
 
-## Que contiene esta version
+## Que contiene este guardado
 
 - **Controles Visuales Avanzados en Leva**:
   - `wallMetalness` (Metalicidad de las paredes).
@@ -29,7 +28,11 @@ Esta es la versión importante posterior a la calibración fina de iluminación,
 - **Respeto absoluto al eje Z**:
   - Lucas se posiciona correctamente en profundidad (Z=0.6) respecto a los paneles 3D y la iluminación frontal y cenital.
 
-## Verificacion hecha antes de guardar
+## Estado visual
+
+El balance de luz cenital, de contorno y frontal junto a la metalicidad calibrada da un look cinemático y teatral premium. Con los nuevos sliders de Leva es extremadamente fácil realizar retoques estéticos menores en caliente.
+
+## Verificacion hecha antes del guardado
 
 - `npm run lint` pasó correctamente.
 - `npm run build` pasó correctamente (cero errores o warnings de compilación).
@@ -37,21 +40,21 @@ Esta es la versión importante posterior a la calibración fina de iluminación,
   - Los sliders de calibración responden de inmediato en tiempo real.
   - La profundidad de renderizado es perfecta.
 
-## Como volver a este punto
+## Como volver o comparar este punto
 
-Antes de restaurar, verificar siempre:
+Antes de restaurar o comparar, verificar siempre:
 
 1. `Get-Location`
 2. `git status -sb`
 3. `git log --oneline --decorate -5`
 
-Para comparar contra esta version:
+Para comparar contra esta versión:
 
 ```powershell
 git diff important-bio-room-visuals-2026-05-16 -- .
 ```
 
-Para volver exactamente a esta version solo si el usuario lo pide:
+Para volver exactamente a esta versión solo si el usuario lo pide:
 
 ```powershell
 git checkout important-bio-room-visuals-2026-05-16
@@ -59,6 +62,4 @@ git checkout important-bio-room-visuals-2026-05-16
 
 ## Regla importante para Codex
 
-PRIMERO ABRIR Y RESPETAR EL PROYECTO ACTUAL COMO ESTA EN DISCO. NO BUSCAR VERSIONES VIEJAS NI RECONSTRUIR DESDE MEMORIA.
-
-Este archivo es una referencia de restauración. No usar este tag para cambiar nada sin verificar primero el estado actual y sin que el usuario pida recuperar o comparar.
+PRIMERO ABRIR Y RESPETAR EL PROYECTO ACTUAL COMO ESTA EN DISCO. NO RECONSTRUIR DESDE MEMORIA NI VOLVER A TAGS VIEJOS SIN PEDIDO EXPLICITO DEL USUARIO.
