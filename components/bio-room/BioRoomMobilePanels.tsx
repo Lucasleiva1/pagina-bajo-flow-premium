@@ -3,10 +3,21 @@
 import Image from "next/image";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
+import { ResponsivePicture } from "@/components/ui/ResponsivePicture";
 
 type BioRoomMobilePanelsProps = {
   copy: SiteCopy["bio"];
 };
+
+const galleryWidths = [320, 480, 768, 960] as const;
+
+function getGalleryBasePath(src: string) {
+  return src.replace("/assets/bio-room/", "/images/bio-room/").replace(/\.(png|jpe?g)$/i, "");
+}
+
+function getGalleryFallbackPath(src: string) {
+  return `${getGalleryBasePath(src)}-480.webp`;
+}
 
 export function BioRoomMobilePanels({ copy }: BioRoomMobilePanelsProps) {
   const openGalleryItem = useBioRoomStore((state) => state.openGalleryItem);
@@ -50,7 +61,14 @@ export function BioRoomMobilePanels({ copy }: BioRoomMobilePanelsProps) {
           {copy.galleryItems.map((item) => (
             <button key={item.title} onClick={() => openGalleryItem(item)} type="button">
               <span className="bio-room-gallery-thumb">
-                <Image alt={item.title} fill loading="lazy" sizes="44vw" src={item.image} />
+                <ResponsivePicture
+                  alt={item.title}
+                  basePath={getGalleryBasePath(item.image)}
+                  className="responsive-picture"
+                  fallbackSrc={getGalleryFallbackPath(item.image)}
+                  sizes="(max-width: 860px) 44vw, 11rem"
+                  widths={galleryWidths}
+                />
               </span>
               <strong>{item.title}</strong>
               <small>{item.category}</small>

@@ -315,30 +315,52 @@ function getSocialIconKind(label: string): SocialIconKind | null {
 }
 
 const socialIconSources: Record<SocialIconKind, string> = {
-  facebook: "/assets/social-icons/social-facebook.png",
-  instagram: "/assets/social-icons/social-instagram.png",
-  tiktok: "/assets/social-icons/social-tiktok.png",
-  youtube: "/assets/social-icons/social-youtube.png",
+  facebook: "/images/social-icons/social-facebook-188.webp",
+  instagram: "/images/social-icons/social-instagram-188.webp",
+  tiktok: "/images/social-icons/social-tiktok-188.webp",
+  youtube: "/images/social-icons/social-youtube-188.webp",
 };
-const frontWallBackgroundSource = "/assets/bio-room/front-wall-background.png";
+
+function getFrontWallBackgroundSource() {
+  if (typeof window === "undefined") return "/images/bio-room/front-wall-background-1024.webp";
+
+  const targetWidth = window.innerWidth * Math.min(window.devicePixelRatio || 1, 2);
+  if (targetWidth <= 768) return "/images/bio-room/front-wall-background-768.webp";
+  if (targetWidth <= 1024) return "/images/bio-room/front-wall-background-1024.webp";
+  if (targetWidth <= 1440) return "/images/bio-room/front-wall-background-1440.webp";
+  return "/images/bio-room/front-wall-background-1672.webp";
+}
+
+function getGalleryTextureSource(src: string) {
+  return `${src.replace("/assets/bio-room/", "/images/bio-room/").replace(/\.(png|jpe?g)$/i, "")}-480.webp`;
+}
 
 function WallImageBackground({
   height,
   opacity = 0.72,
+  scaleX = 1,
+  scaleY = 1,
   width,
+  x = 0,
+  y = 0,
 }: {
   height: number;
   opacity?: number;
+  scaleX?: number;
+  scaleY?: number;
   width: number;
+  x?: number;
+  y?: number;
 }) {
+  const [frontWallBackgroundSource] = useState(getFrontWallBackgroundSource);
   const texture = useLoader(TextureLoader, frontWallBackgroundSource);
   texture.colorSpace = SRGBColorSpace;
   texture.minFilter = LinearFilter;
   texture.magFilter = LinearFilter;
 
   return (
-    <mesh position={[0, 0, 0.052]}>
-      <planeGeometry args={[width, height]} />
+    <mesh position={[x, y, 0.052]}>
+      <planeGeometry args={[width * scaleX, height * scaleY]} />
       <meshBasicMaterial
         map={texture}
         opacity={opacity}
@@ -487,18 +509,32 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
       socialTextY: { value: bioRoomPreset.frontWall.socialTextY, min: -1.1, max: 0.3, step: 0.02, label: "Bajada Y" },
     }, collapsedLevaFolder),
   }, collapsedLevaFolder);
+  const backgroundControls = useControls("pared-fondo", {
+    backgroundX: { value: bioRoomPreset.frontWall.backgroundX, min: -1.2, max: 1.2, step: 0.01, label: "Mover X" },
+    backgroundY: { value: bioRoomPreset.frontWall.backgroundY, min: -0.8, max: 0.8, step: 0.01, label: "Mover Y" },
+    backgroundScaleX: { value: bioRoomPreset.frontWall.backgroundScaleX, min: 0.7, max: 1.6, step: 0.01, label: "Escala ancho" },
+    backgroundScaleY: { value: bioRoomPreset.frontWall.backgroundScaleY, min: 0.7, max: 1.6, step: 0.01, label: "Escala alto" },
+  }, { collapsed: false });
 
   useEffect(() => {
     setPresetSection("frontWall", {
       ...leftControls,
       ...rightControls,
+      ...backgroundControls,
     });
-  }, [leftControls, rightControls, setPresetSection]);
+  }, [backgroundControls, leftControls, rightControls, setPresetSection]);
 
   return (
     <WallSurfaceGroup wall={wall}>
       <WallPanel height={wall.height - 0.48} width={wall.width - 0.72} />
-      <WallImageBackground height={wall.height - 0.6} width={wall.width - 0.88} />
+      <WallImageBackground
+        height={wall.height - 0.6}
+        scaleX={backgroundControls.backgroundScaleX}
+        scaleY={backgroundControls.backgroundScaleY}
+        width={wall.width - 0.88}
+        x={backgroundControls.backgroundX}
+        y={backgroundControls.backgroundY}
+      />
       <WallFrame height={wall.height - 0.56} width={wall.width - 0.84} />
 
       <group
@@ -690,7 +726,7 @@ function GalleryWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurfac
         return (
           <GalleryCard3D
             category={item.category}
-            image={item.image}
+            image={getGalleryTextureSource(item.image)}
             key={item.title}
             onClick={(event) => {
               event.stopPropagation();

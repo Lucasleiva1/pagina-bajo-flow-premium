@@ -88,6 +88,10 @@ function serializePreset(preset: BioRoomPreset) {
     panelOpacity: number;
   };
   frontWall: {
+    backgroundX: number;
+    backgroundY: number;
+    backgroundScaleX: number;
+    backgroundScaleY: number;
     leftX: number;
     leftY: number;
     leftScale: number;

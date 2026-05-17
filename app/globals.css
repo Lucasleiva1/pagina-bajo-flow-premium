@@ -460,16 +460,71 @@ p {
 }
 
 .work-bg {
+  --work-bg-image: url("/images/fondo-carrucel-768.webp");
+
   background:
     linear-gradient(180deg, rgba(3, 5, 10, 0.42), rgba(3, 5, 10, 0.72)),
     linear-gradient(90deg, rgba(3, 5, 10, 0.74), rgba(3, 5, 10, 0.16) 46%, rgba(3, 5, 10, 0.72)),
-    url("/fondo-carrucel.png") center / cover no-repeat,
+    var(--work-bg-image) center / cover no-repeat,
     #080b12;
   filter: none;
   inset: 0;
   opacity: 1;
   position: absolute;
   z-index: -3;
+}
+
+@supports (background-image: image-set(url("/images/fondo-carrucel-768.avif") type("image/avif"))) {
+  .work-bg {
+    --work-bg-image: image-set(
+      url("/images/fondo-carrucel-768.avif") type("image/avif"),
+      url("/images/fondo-carrucel-768.webp") type("image/webp")
+    );
+  }
+}
+
+@media (max-width: 520px) {
+  @supports (background-image: image-set(url("/images/fondo-carrucel-480.avif") type("image/avif"))) {
+    .work-bg {
+      --work-bg-image: image-set(
+        url("/images/fondo-carrucel-480.avif") type("image/avif"),
+        url("/images/fondo-carrucel-480.webp") type("image/webp")
+      );
+    }
+  }
+}
+
+@media (min-width: 900px) {
+  @supports (background-image: image-set(url("/images/fondo-carrucel-1024.avif") type("image/avif"))) {
+    .work-bg {
+      --work-bg-image: image-set(
+        url("/images/fondo-carrucel-1024.avif") type("image/avif"),
+        url("/images/fondo-carrucel-1024.webp") type("image/webp")
+      );
+    }
+  }
+}
+
+@media (min-width: 1280px) {
+  @supports (background-image: image-set(url("/images/fondo-carrucel-1440.avif") type("image/avif"))) {
+    .work-bg {
+      --work-bg-image: image-set(
+        url("/images/fondo-carrucel-1440.avif") type("image/avif"),
+        url("/images/fondo-carrucel-1440.webp") type("image/webp")
+      );
+    }
+  }
+}
+
+@media (min-width: 1600px) {
+  @supports (background-image: image-set(url("/images/fondo-carrucel-1672.avif") type("image/avif"))) {
+    .work-bg {
+      --work-bg-image: image-set(
+        url("/images/fondo-carrucel-1672.avif") type("image/avif"),
+        url("/images/fondo-carrucel-1672.webp") type("image/webp")
+      );
+    }
+  }
 }
 
 .work-bg::after {
@@ -1472,6 +1527,19 @@ p {
 
 .bio-room-gallery-thumb img {
   object-fit: cover;
+}
+
+.responsive-picture {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.responsive-picture img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
 .bio-room-center-chip {

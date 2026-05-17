@@ -58,6 +58,10 @@ export type BioRoomPreset = {
     panelOpacity: number;
   };
   frontWall: {
+    backgroundX: number;
+    backgroundY: number;
+    backgroundScaleX: number;
+    backgroundScaleY: number;
     leftX: number;
     leftY: number;
     leftScale: number;
@@ -108,7 +112,7 @@ export const bioRoomPreset: BioRoomPreset = {
     "halfWidth": 3.1,
     "depth": 8.1,
     "height": 3.6,
-    "zBack": -3.4
+    "zBack": -2.5999999999999996
   },
   "lights": {
     "keyPosX": 0,
@@ -147,12 +151,12 @@ export const bioRoomPreset: BioRoomPreset = {
     "softboxOpacity": 0.54
   },
   "visuals": {
-    "wallMetalness": 0.16,
+    "wallMetalness": 0.19,
     "wallRoughness": 0.63,
     "floorMetalness": 0.55,
     "floorRoughness": 0.7,
     "guideOpacity": 0.16,
-    "panelOpacity": 0.62
+    "panelOpacity": 0.56
   },
   "frontWall": {
     "leftX": -1.6600000000000001,
@@ -188,6 +192,10 @@ export const bioRoomPreset: BioRoomPreset = {
     "socialIconGap": 0.48,
     "socialLabelY": -0.37,
     "socialRowY": 0.24,
-    "socialTextY": -0.42
+    "socialTextY": -0.42,
+    "backgroundX": 0,
+    "backgroundY": -0.03,
+    "backgroundScaleX": 1.17,
+    "backgroundScaleY": 1.2
   }
 };

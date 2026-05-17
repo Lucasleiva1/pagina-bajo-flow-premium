@@ -17,6 +17,7 @@ import {
 import {
   createBioRoomLayout,
   type BioRoomLayout,
+  type WallSurface,
 } from "@/components/bio-room/BioRoomLayout";
 import { BioRoomWorldPanels } from "@/components/bio-room/BioRoomWorldPanels";
 import { bioRoomPreset } from "@/data/bioRoomPreset";
@@ -29,6 +30,10 @@ type BioRoomCanvasProps = {
 };
 
 const collapsedLevaFolder = { collapsed: true } as const;
+const bioLeftWallTexture = "/images/bio-room/bio-left-wall-source-1440.webp";
+const bioRightWallTexture = "/images/bio-room/bio-right-wall-source-1440.webp";
+const bioCeilingTexture = "/images/bio-room/bio-ceiling-source-1440.webp";
+const bioFloorTexture = "/images/bio-room/bio-floor-source-1440.webp";
 
 /* ──────────────────────── Camera states ──────────────────────── */
 /* Each state faces the target wall HEAD-ON so the Html panels
@@ -120,6 +125,99 @@ function SoftboxTexture() {
     texture.needsUpdate = true;
     return texture;
   }, []);
+}
+
+function useRoomDecorTexture(src: string) {
+  const texture = useLoader(TextureLoader, src);
+  texture.colorSpace = SRGBColorSpace;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+
+  return texture;
+}
+
+function WallDecorSurface({
+  opacity = 0.78,
+  src,
+  wall,
+}: {
+  opacity?: number;
+  src: string;
+  wall: WallSurface;
+}) {
+  const texture = useRoomDecorTexture(src);
+
+  return (
+    <group position={wall.position} rotation={wall.rotation}>
+      <mesh position={[0, 0, wall.surfaceOffset * 0.42]}>
+        <planeGeometry args={[wall.width, wall.height]} />
+        <meshBasicMaterial
+          map={texture}
+          opacity={opacity}
+          toneMapped={false}
+          transparent
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function CeilingDecorSurface({
+  depth,
+  halfWidth,
+  height,
+  opacity = 0.7,
+  src,
+  z,
+}: {
+  depth: number;
+  halfWidth: number;
+  height: number;
+  opacity?: number;
+  src: string;
+  z: number;
+}) {
+  const texture = useRoomDecorTexture(src);
+
+  return (
+    <mesh position={[0, height - 0.024, z]} rotation={[Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[halfWidth * 2, depth]} />
+      <meshBasicMaterial
+        map={texture}
+        opacity={opacity}
+        toneMapped={false}
+        transparent
+      />
+    </mesh>
+  );
+}
+
+function FloorDecorSurface({
+  depth,
+  halfWidth,
+  opacity = 0.82,
+  src,
+  z,
+}: {
+  depth: number;
+  halfWidth: number;
+  opacity?: number;
+  src: string;
+  z: number;
+}) {
+  const texture = useRoomDecorTexture(src);
+
+  return (
+    <mesh position={[0, 0.026, z]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[halfWidth * 2, depth]} />
+      <meshBasicMaterial
+        map={texture}
+        opacity={opacity}
+        toneMapped={false}
+        transparent
+      />
+    </mesh>
+  );
 }
 
 /* ──────────────────────── Lucas billboard ──────────────────────── */
@@ -370,6 +468,12 @@ function RoomShell({
           roughness={visualControls.floorRoughness}
         />
       </mesh>
+      <FloorDecorSurface
+        depth={D}
+        halfWidth={W}
+        src={bioFloorTexture}
+        z={centerZ}
+      />
 
       {/* Ceiling */}
       <mesh position={[0, H, centerZ]} rotation={[Math.PI / 2, 0, 0]}>
@@ -380,6 +484,13 @@ function RoomShell({
           roughness={visualControls.wallRoughness}
         />
       </mesh>
+      <CeilingDecorSurface
+        depth={D}
+        halfWidth={W}
+        height={H}
+        src={bioCeilingTexture}
+        z={centerZ}
+      />
 
       {/* Back wall */}
       <mesh position={[0, H / 2, Zback]}>
@@ -438,6 +549,11 @@ function RoomShell({
           roughness={visualControls.wallRoughness}
         />
       </mesh>
+      <WallDecorSurface
+        opacity={0.76}
+        src={bioLeftWallTexture}
+        wall={layout.walls.characterRightWall}
+      />
 
       {/* Right wall (character-left-wall = gallery) */}
       <mesh
@@ -451,6 +567,11 @@ function RoomShell({
           roughness={visualControls.wallRoughness}
         />
       </mesh>
+      <WallDecorSurface
+        opacity={0.7}
+        src={bioRightWallTexture}
+        wall={layout.walls.characterLeftWall}
+      />
 
       {/* Ceiling softbox (cinematic light panel) */}
       <mesh

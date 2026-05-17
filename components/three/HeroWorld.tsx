@@ -19,15 +19,23 @@ const DISPLACEMENT_INTENSITY = 0.15;
 const WIREFRAME = false;
 // ----------------------------------------------------
 
+function getHeroVideoSource() {
+  const width = window.visualViewport?.width ?? document.documentElement.clientWidth ?? window.innerWidth;
+  const variant = width <= 600 ? 480 : width <= 900 ? 768 : width <= 1400 ? 1280 : 1920;
+  const probe = document.createElement("video");
+  const supportsWebm = probe.canPlayType('video/webm; codecs="vp9, opus"') !== "";
+  return `/videos/reel-${variant}.${supportsWebm ? "webm" : "mp4"}`;
+}
+
 function CinemaScreen() {
   const [video] = useState(() => {
     const vid = document.createElement("video");
-    vid.src = "/assets/reel.mp4";
+    vid.src = getHeroVideoSource();
     vid.crossOrigin = "Anonymous";
     vid.loop = true;
     vid.muted = true;
     vid.playsInline = true;
-    vid.preload = "auto";
+    vid.preload = "metadata";
     return vid;
   });
 

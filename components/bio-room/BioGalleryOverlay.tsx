@@ -1,8 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
+import { ResponsivePicture } from "@/components/ui/ResponsivePicture";
+
+const galleryOverlayWidths = [480, 768, 960] as const;
+
+function getGalleryBasePath(src: string) {
+  return src.replace("/assets/bio-room/", "/images/bio-room/").replace(/\.(png|jpe?g)$/i, "");
+}
+
+function getGalleryFallbackPath(src: string) {
+  return `${getGalleryBasePath(src)}-960.webp`;
+}
 
 export function BioGalleryOverlay() {
   const selectedGalleryItem = useBioRoomStore((state) => state.selectedGalleryItem);
@@ -33,7 +43,15 @@ export function BioGalleryOverlay() {
               Cerrar
             </button>
             <div className="bio-room-overlay-image">
-              <Image alt={selectedGalleryItem.title} fill priority sizes="min(86vw, 920px)" src={selectedGalleryItem.image} />
+              <ResponsivePicture
+                alt={selectedGalleryItem.title}
+                basePath={getGalleryBasePath(selectedGalleryItem.image)}
+                className="responsive-picture"
+                fallbackSrc={getGalleryFallbackPath(selectedGalleryItem.image)}
+                loading="eager"
+                sizes="min(86vw, 920px)"
+                widths={galleryOverlayWidths}
+              />
             </div>
             <div className="bio-room-overlay-copy">
               <p>{selectedGalleryItem.category}</p>

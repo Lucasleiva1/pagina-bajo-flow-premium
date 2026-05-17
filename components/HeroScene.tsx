@@ -4,6 +4,7 @@ import { SceneShell } from "@/components/SceneShell";
 import { HeroWorld } from "@/components/three/HeroWorld";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { MagneticButton } from "@/components/ui/MagneticButton";
+import { ResponsiveVideo } from "@/components/ui/ResponsiveVideo";
 import type { SiteCopy } from "@/data/site";
 
 type HeroSceneProps = {
@@ -13,14 +14,10 @@ type HeroSceneProps = {
 export function HeroScene({ copy }: HeroSceneProps) {
   return (
     <SceneShell className="hero-scene" id="intro">
-      <video
-        autoPlay
+      <ResponsiveVideo
         className="hero-video"
-        loop
-        muted
-        playsInline
-        preload="auto"
-        src="/assets/reel.mp4"
+        name="reel"
+        preload="metadata"
       />
       <div className="hero-video-vignette" aria-hidden="true" />
       <HeroWorld />
