@@ -1092,6 +1092,58 @@ p {
   z-index: 1;
 }
 
+.bio-room-dev-save {
+  align-items: center;
+  display: flex;
+  gap: 0.55rem;
+  left: 1rem;
+  position: absolute;
+  top: 5.1rem;
+  z-index: 8;
+}
+
+.bio-room-dev-save button {
+  background:
+    linear-gradient(135deg, rgba(255, 180, 84, 0.34), rgba(255, 91, 167, 0.2)),
+    rgba(10, 12, 18, 0.88);
+  border: 1px solid rgba(255, 225, 184, 0.45);
+  color: #fff3df;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  min-height: 2.2rem;
+  padding: 0 0.9rem;
+  text-transform: uppercase;
+  transition:
+    border-color 180ms ease,
+    opacity 180ms ease,
+    transform 160ms ease;
+}
+
+.bio-room-dev-save button:hover {
+  border-color: rgba(255, 236, 207, 0.76);
+}
+
+.bio-room-dev-save button:active {
+  transform: scale(0.97);
+}
+
+.bio-room-dev-save button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.bio-room-dev-save span {
+  color: rgba(239, 233, 221, 0.74);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.bio-room-dev-save .bio-room-dev-save-error {
+  color: #ffb5b5;
+}
+
 .bio-room-panel {
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);

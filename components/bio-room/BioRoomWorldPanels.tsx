@@ -1,16 +1,21 @@
 "use client";
 
-import { type ReactNode, useMemo } from "react";
-import { type ThreeEvent, useLoader } from "@react-three/fiber";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
+import { folder, useControls } from "leva";
 import {
   CanvasTexture,
   DoubleSide,
   LinearFilter,
+  MathUtils,
   SRGBColorSpace,
   TextureLoader,
+  type Group,
 } from "three";
 import type { BioRoomLayout, WallSurface } from "@/components/bio-room/BioRoomLayout";
+import { bioRoomPreset } from "@/data/bioRoomPreset";
 import type { SiteCopy } from "@/data/site";
+import { useBioRoomPresetStore } from "@/lib/useBioRoomPresetStore";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
 
 type BioRoomWorldPanelsProps = {
@@ -39,15 +44,19 @@ type WallTextProps = {
   fontSize: number;
   maxWidth?: number;
   textAlign?: "left" | "center" | "right";
+  fontFamily?: string;
   x: number;
   y: number;
   z?: number;
 };
 
+type SocialIconKind = "facebook" | "instagram" | "tiktok" | "youtube";
+
 const wallAccent = "#bdb6a5";
 const wallAmber = "#d6a15f";
 const wallInk = "#efe9dd";
 const wallMuted = "#9ea6b4";
+const collapsedLevaFolder = { collapsed: true } as const;
 
 function openLink(href: string) {
   if (href.startsWith("#")) {
@@ -155,6 +164,7 @@ function WallFrame({
 function WallText({
   children,
   color = wallInk,
+  fontFamily = "Arial",
   fontSize,
   maxWidth,
   textAlign = "left",
@@ -165,6 +175,7 @@ function WallText({
   const text = typeof children === "string" ? children : String(children ?? "");
   const { height, texture, width } = useWallTextTexture({
     color,
+    fontFamily,
     fontSize,
     maxWidth,
     text,
@@ -189,12 +200,14 @@ function WallText({
 
 function useWallTextTexture({
   color,
+  fontFamily,
   fontSize,
   maxWidth,
   text,
   textAlign,
 }: {
   color: string;
+  fontFamily: string;
   fontSize: number;
   maxWidth?: number;
   text: string;
@@ -208,6 +221,9 @@ function useWallTextTexture({
     const paddingY = Math.round(fontPx * 0.32);
     const lineHeightPx = Math.round(fontPx * 1.18);
     const canvasWidth = Math.ceil(width * pixelsPerUnit);
+    const formattedFontFamily = fontFamily.includes(" ")
+      ? `"${fontFamily}", Arial, sans-serif`
+      : `${fontFamily}, Arial, sans-serif`;
 
     const measureCanvas = document.createElement("canvas");
     const measureContext = measureCanvas.getContext("2d");
@@ -217,7 +233,7 @@ function useWallTextTexture({
       return { height: fontSize, texture: emptyTexture, width };
     }
 
-    measureContext.font = `700 ${fontPx}px Arial, sans-serif`;
+    measureContext.font = `700 ${fontPx}px ${formattedFontFamily}`;
     const lines = wrapCanvasText(text, measureContext, canvasWidth - paddingX * 2);
     const canvasHeight = Math.max(
       Math.ceil(fontPx * 1.35),
@@ -230,7 +246,7 @@ function useWallTextTexture({
 
     if (context) {
       context.clearRect(0, 0, canvas.width, canvas.height);
-      context.font = `700 ${fontPx}px Arial, sans-serif`;
+      context.font = `700 ${fontPx}px ${formattedFontFamily}`;
       context.fillStyle = color;
       context.textBaseline = "middle";
       context.textAlign = textAlign;
@@ -262,7 +278,7 @@ function useWallTextTexture({
       texture,
       width,
     };
-  }, [color, fontSize, maxWidth, text, textAlign]);
+  }, [color, fontFamily, fontSize, maxWidth, text, textAlign]);
 }
 
 function wrapCanvasText(
@@ -289,52 +305,123 @@ function wrapCanvasText(
   return lines.length > 0 ? lines : [text];
 }
 
-function WallButton({
-  handle,
+function getSocialIconKind(label: string): SocialIconKind | null {
+  const normalized = label.toLowerCase();
+  if (normalized.includes("youtube")) return "youtube";
+  if (normalized.includes("instagram")) return "instagram";
+  if (normalized.includes("facebook")) return "facebook";
+  if (normalized.includes("tiktok")) return "tiktok";
+  return null;
+}
+
+const socialIconSources: Record<SocialIconKind, string> = {
+  facebook: "/assets/social-icons/social-facebook.png",
+  instagram: "/assets/social-icons/social-instagram.png",
+  tiktok: "/assets/social-icons/social-tiktok.png",
+  youtube: "/assets/social-icons/social-youtube.png",
+};
+const frontWallBackgroundSource = "/assets/bio-room/front-wall-background.png";
+
+function WallImageBackground({
+  height,
+  opacity = 0.72,
+  width,
+}: {
+  height: number;
+  opacity?: number;
+  width: number;
+}) {
+  const texture = useLoader(TextureLoader, frontWallBackgroundSource);
+  texture.colorSpace = SRGBColorSpace;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+
+  return (
+    <mesh position={[0, 0, 0.052]}>
+      <planeGeometry args={[width, height]} />
+      <meshBasicMaterial
+        map={texture}
+        opacity={opacity}
+        toneMapped={false}
+        transparent
+      />
+    </mesh>
+  );
+}
+
+function SocialIconButton({
   href,
+  kind,
   label,
+  labelY,
+  size,
   x,
   y,
 }: {
-  handle: string;
   href: string;
+  kind: SocialIconKind;
   label: string;
+  labelY: number;
+  size: number;
   x: number;
   y: number;
 }) {
+  const groupRef = useRef<Group>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const texture = useLoader(TextureLoader, socialIconSources[kind]);
+  texture.colorSpace = SRGBColorSpace;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+
+    const targetScale = isHovered ? 1.16 : 1;
+    const targetZ = isHovered ? 0.24 : 0.14;
+    const targetRotationZ = isHovered
+      ? Math.sin(state.clock.elapsedTime * 4.2) * 0.045
+      : 0;
+
+    const scale = MathUtils.damp(groupRef.current.scale.x, targetScale, 9, delta);
+    groupRef.current.scale.setScalar(scale);
+    groupRef.current.position.z = MathUtils.damp(groupRef.current.position.z, targetZ, 9, delta);
+    groupRef.current.rotation.z = MathUtils.damp(groupRef.current.rotation.z, targetRotationZ, 8, delta);
+  });
+
   function handleClick(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
     openLink(href);
   }
 
+  function handlePointerOver(event: ThreeEvent<PointerEvent>) {
+    event.stopPropagation();
+    setIsHovered(true);
+    document.body.style.cursor = "pointer";
+  }
+
+  function handlePointerOut(event: ThreeEvent<PointerEvent>) {
+    event.stopPropagation();
+    setIsHovered(false);
+    document.body.style.cursor = "";
+  }
+
   return (
-    <group position={[x, y, 0.09]}>
-      <mesh onClick={handleClick}>
-        <planeGeometry args={[1.12, 0.34]} />
-        <meshStandardMaterial
-          color="#050911"
-          emissive="#100b06"
-          emissiveIntensity={0.06}
-          metalness={0.12}
-          roughness={0.78}
+    <group
+      onClick={handleClick}
+      onPointerOut={handlePointerOut}
+      onPointerOver={handlePointerOver}
+      position={[x, y, 0.14]}
+      ref={groupRef}
+    >
+      <mesh>
+        <planeGeometry args={[size, size]} />
+        <meshBasicMaterial
+          map={texture}
+          toneMapped={false}
+          transparent
         />
       </mesh>
-      <WallFrame height={0.34} width={1.12} />
-      <WallText fontSize={0.075} maxWidth={0.95} x={-0.46} y={0.055} z={0.13}>
-        {label}
-      </WallText>
-      <WallText color={wallMuted} fontSize={0.052} maxWidth={0.95} x={-0.46} y={-0.075} z={0.13}>
-        {handle}
-      </WallText>
-    </group>
-  );
-}
-
-function ToolChip({ label, x, y }: { label: string; x: number; y: number }) {
-  return (
-    <group position={[x, y, 0.1]}>
-      <WallPanel color="#060b13" height={0.2} opacity={0.7} width={0.78} z={0} />
-      <WallText color={wallMuted} fontSize={0.045} maxWidth={0.66} textAlign="center" x={0} y={0} z={0.04}>
+      <WallText color={wallMuted} fontSize={0.038} maxWidth={0.7} textAlign="center" x={0} y={labelY} z={0.05}>
         {label}
       </WallText>
     </group>
@@ -342,62 +429,141 @@ function ToolChip({ label, x, y }: { label: string; x: number; y: number }) {
 }
 
 function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
-  const tools = copy.tools.slice(0, 10);
+  const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
+  const socialLinks = copy.contactLinks
+    .map((link) => ({ ...link, kind: getSocialIconKind(link.label) }))
+    .filter((link): link is typeof link & { kind: SocialIconKind } => Boolean(link.kind))
+    .sort((a, b) => {
+      const order: SocialIconKind[] = ["youtube", "instagram", "facebook", "tiktok"];
+      return order.indexOf(a.kind) - order.indexOf(b.kind);
+    });
+  const leftControls = useControls("FRONT WALL LEFT", {
+    position: folder({
+      leftX: { value: bioRoomPreset.frontWall.leftX, min: -4, max: 0, step: 0.02, label: "X" },
+      leftY: { value: bioRoomPreset.frontWall.leftY, min: -1.5, max: 1.5, step: 0.02, label: "Y" },
+      leftScale: { value: bioRoomPreset.frontWall.leftScale, min: 0.45, max: 1.8, step: 0.01, label: "Escala" },
+    }, collapsedLevaFolder),
+    box: folder({
+      leftPanelWidth: { value: bioRoomPreset.frontWall.leftPanelWidth, min: 1, max: 3.4, step: 0.02, label: "Ancho caja" },
+      leftPanelHeight: { value: bioRoomPreset.frontWall.leftPanelHeight, min: 0.7, max: 2.4, step: 0.02, label: "Alto caja" },
+      leftPanelOpacity: { value: bioRoomPreset.frontWall.leftPanelOpacity, min: 0, max: 0.9, step: 0.01, label: "Opacidad" },
+    }, collapsedLevaFolder),
+    text: folder({
+      leftTextX: { value: bioRoomPreset.frontWall.leftTextX, min: -1.5, max: 0.1, step: 0.02, label: "Texto X" },
+      leftKickerSize: { value: bioRoomPreset.frontWall.leftKickerSize, min: 0.035, max: 0.12, step: 0.005, label: "Kicker" },
+      leftTitleSize: { value: bioRoomPreset.frontWall.leftTitleSize, min: 0.12, max: 0.5, step: 0.005, label: "Titulo" },
+      leftSubtitleSize: { value: bioRoomPreset.frontWall.leftSubtitleSize, min: 0.035, max: 0.12, step: 0.005, label: "Subtitulo" },
+      leftBodySize: { value: bioRoomPreset.frontWall.leftBodySize, min: 0.04, max: 0.14, step: 0.005, label: "Frase" },
+      leftSmallSize: { value: bioRoomPreset.frontWall.leftSmallSize, min: 0.03, max: 0.1, step: 0.005, label: "Texto chico" },
+      leftKickerY: { value: bioRoomPreset.frontWall.leftKickerY, min: -1.2, max: 1.2, step: 0.02, label: "Kicker Y" },
+      leftTitleY: { value: bioRoomPreset.frontWall.leftTitleY, min: -1.2, max: 1.2, step: 0.02, label: "Titulo Y" },
+      leftSubtitleY: { value: bioRoomPreset.frontWall.leftSubtitleY, min: -1.2, max: 1.2, step: 0.02, label: "Subtitulo Y" },
+      leftBodyY: { value: bioRoomPreset.frontWall.leftBodyY, min: -1.4, max: 1.2, step: 0.02, label: "Frase Y" },
+      leftSmallY: { value: bioRoomPreset.frontWall.leftSmallY, min: -1.4, max: 1.2, step: 0.02, label: "Texto chico Y" },
+      leftFont: { value: bioRoomPreset.frontWall.leftFont, label: "Fuente instalada" },
+    }, collapsedLevaFolder),
+  }, collapsedLevaFolder);
+  const rightControls = useControls("FRONT WALL SOCIALS", {
+    position: folder({
+      rightX: { value: bioRoomPreset.frontWall.rightX, min: 0, max: 4, step: 0.02, label: "X" },
+      rightY: { value: bioRoomPreset.frontWall.rightY, min: -1.5, max: 1.5, step: 0.02, label: "Y" },
+      rightScale: { value: bioRoomPreset.frontWall.rightScale, min: 0.45, max: 1.8, step: 0.01, label: "Escala" },
+    }, collapsedLevaFolder),
+    box: folder({
+      rightPanelWidth: { value: bioRoomPreset.frontWall.rightPanelWidth, min: 1, max: 3.4, step: 0.02, label: "Ancho caja" },
+      rightPanelHeight: { value: bioRoomPreset.frontWall.rightPanelHeight, min: 0.7, max: 2.4, step: 0.02, label: "Alto caja" },
+      rightPanelOpacity: { value: bioRoomPreset.frontWall.rightPanelOpacity, min: 0, max: 0.9, step: 0.01, label: "Opacidad" },
+    }, collapsedLevaFolder),
+    textAndIcons: folder({
+      rightTextX: { value: bioRoomPreset.frontWall.rightTextX, min: -1.4, max: 0.2, step: 0.02, label: "Texto X" },
+      rightTitleSize: { value: bioRoomPreset.frontWall.rightTitleSize, min: 0.06, max: 0.2, step: 0.005, label: "Titulo" },
+      rightTitleY: { value: bioRoomPreset.frontWall.rightTitleY, min: -0.2, max: 1, step: 0.02, label: "Titulo Y" },
+      rightBodySize: { value: bioRoomPreset.frontWall.rightBodySize, min: 0.03, max: 0.1, step: 0.005, label: "Texto" },
+      rightFont: { value: bioRoomPreset.frontWall.rightFont, label: "Fuente instalada" },
+      socialIconSize: { value: bioRoomPreset.frontWall.socialIconSize, min: 0.28, max: 0.9, step: 0.01, label: "Iconos" },
+      socialIconGap: { value: bioRoomPreset.frontWall.socialIconGap, min: 0.32, max: 0.9, step: 0.01, label: "Separacion" },
+      socialLabelY: { value: bioRoomPreset.frontWall.socialLabelY, min: -0.8, max: -0.1, step: 0.01, label: "Label Y" },
+      socialRowY: { value: bioRoomPreset.frontWall.socialRowY, min: -0.5, max: 0.7, step: 0.02, label: "Fila Y" },
+      socialTextY: { value: bioRoomPreset.frontWall.socialTextY, min: -1.1, max: 0.3, step: 0.02, label: "Bajada Y" },
+    }, collapsedLevaFolder),
+  }, collapsedLevaFolder);
+
+  useEffect(() => {
+    setPresetSection("frontWall", {
+      ...leftControls,
+      ...rightControls,
+    });
+  }, [leftControls, rightControls, setPresetSection]);
 
   return (
     <WallSurfaceGroup wall={wall}>
       <WallPanel height={wall.height - 0.48} width={wall.width - 0.72} />
+      <WallImageBackground height={wall.height - 0.6} width={wall.width - 0.88} />
       <WallFrame height={wall.height - 0.56} width={wall.width - 0.84} />
 
-      <WallText color={wallAmber} fontSize={0.14} maxWidth={1.6} textAlign="center" x={0} y={1.08}>
-        {copy.kicker}
-      </WallText>
-      <WallText fontSize={0.38} maxWidth={3.4} textAlign="center" x={0} y={0.78}>
-        BAJO FLOW
-      </WallText>
-      <WallText color={wallMuted} fontSize={0.085} maxWidth={4.7} textAlign="center" x={0} y={0.49}>
-        {copy.identitySubtitle}
-      </WallText>
+      <group
+        position={[leftControls.leftX, leftControls.leftY, 0]}
+        scale={[leftControls.leftScale, leftControls.leftScale, 1]}
+      >
+        <WallPanel
+          color="#02050a"
+          height={leftControls.leftPanelHeight}
+          opacity={leftControls.leftPanelOpacity}
+          width={leftControls.leftPanelWidth}
+        />
+        <WallGlowLine
+          height={leftControls.leftPanelHeight * 0.78}
+          opacity={0.34}
+          width={0.014}
+          x={-leftControls.leftPanelWidth / 2 + 0.18}
+          y={0.01}
+        />
+        <WallText color={wallAmber} fontFamily={leftControls.leftFont} fontSize={leftControls.leftKickerSize} maxWidth={1.7} x={leftControls.leftTextX} y={leftControls.leftKickerY}>
+          {copy.kicker}
+        </WallText>
+        <WallText fontFamily={leftControls.leftFont} fontSize={leftControls.leftTitleSize} maxWidth={2.24} x={leftControls.leftTextX} y={leftControls.leftTitleY}>
+          BAJO FLOW
+        </WallText>
+        <WallText color={wallMuted} fontFamily={leftControls.leftFont} fontSize={leftControls.leftSubtitleSize} maxWidth={2.06} x={leftControls.leftTextX} y={leftControls.leftSubtitleY}>
+          {copy.identitySubtitle}
+        </WallText>
+        <WallText fontFamily={leftControls.leftFont} fontSize={leftControls.leftBodySize} maxWidth={1.96} x={leftControls.leftTextX} y={leftControls.leftBodyY}>
+          {copy.paragraphs[0]}
+        </WallText>
+        <WallText color={wallMuted} fontFamily={leftControls.leftFont} fontSize={leftControls.leftSmallSize} maxWidth={1.96} x={leftControls.leftTextX} y={leftControls.leftSmallY}>
+          {copy.paragraphs[1]}
+        </WallText>
+      </group>
 
-      <WallPanel height={1.18} opacity={0.72} width={1.88} x={-2.35} y={-0.15} />
-      <WallFrame height={1.18} width={1.88} x={-2.35} y={-0.15} />
-      <WallText fontSize={0.092} maxWidth={1.55} x={-3.12} y={0.2}>
-        {copy.paragraphs[0]}
-      </WallText>
-      <WallText color={wallMuted} fontSize={0.061} maxWidth={1.55} x={-3.12} y={-0.29}>
-        {copy.paragraphs[1]}
-      </WallText>
-
-      {copy.contactLinks.map((link, index) => {
-        const col = index % 2;
-        const row = Math.floor(index / 2);
-        return (
-          <WallButton
-            handle={link.handle}
+      <group
+        position={[rightControls.rightX, rightControls.rightY, 0]}
+        scale={[rightControls.rightScale, rightControls.rightScale, 1]}
+      >
+        <WallPanel
+          color="#02050a"
+          height={rightControls.rightPanelHeight}
+          opacity={rightControls.rightPanelOpacity}
+          width={rightControls.rightPanelWidth}
+        />
+        <WallText fontFamily={rightControls.rightFont} fontSize={rightControls.rightTitleSize} maxWidth={1.8} x={rightControls.rightTextX} y={rightControls.rightTitleY}>
+          Redes Sociales
+        </WallText>
+        {socialLinks.map((link, index) => (
+          <SocialIconButton
             href={link.href}
             key={link.label}
+            kind={link.kind}
             label={link.label}
-            x={1.62 + col * 1.22}
-            y={0.24 - row * 0.43}
+            labelY={rightControls.socialLabelY}
+            size={rightControls.socialIconSize}
+            x={-(socialLinks.length - 1) * rightControls.socialIconGap / 2 + index * rightControls.socialIconGap}
+            y={rightControls.socialRowY}
           />
-        );
-      })}
-
-      <WallText color={wallAmber} fontSize={0.075} maxWidth={1.5} x={1.02} y={-1.05}>
-        Skills & Expertise
-      </WallText>
-      {tools.map((tool, index) => {
-        const col = index % 5;
-        const row = Math.floor(index / 5);
-        return (
-          <ToolChip
-            key={tool}
-            label={tool}
-            x={1.15 + col * 0.83}
-            y={-1.28 - row * 0.26}
-          />
-        );
-      })}
+        ))}
+        <WallText color={wallMuted} fontFamily={rightControls.rightFont} fontSize={rightControls.rightBodySize} maxWidth={1.86} x={rightControls.rightTextX} y={rightControls.socialTextY}>
+          Seguime para ver piezas, procesos, color y cortes pensados para marcas, artistas y contenido digital.
+        </WallText>
+      </group>
     </WallSurfaceGroup>
   );
 }

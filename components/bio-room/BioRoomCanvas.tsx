@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useMemo, useRef } from "react";
+import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { useControls, folder, Leva } from "leva";
@@ -19,7 +19,9 @@ import {
   type BioRoomLayout,
 } from "@/components/bio-room/BioRoomLayout";
 import { BioRoomWorldPanels } from "@/components/bio-room/BioRoomWorldPanels";
+import { bioRoomPreset } from "@/data/bioRoomPreset";
 import type { SiteCopy } from "@/data/site";
+import { useBioRoomPresetStore } from "@/lib/useBioRoomPresetStore";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
 
 type BioRoomCanvasProps = {
@@ -122,6 +124,7 @@ function SoftboxTexture() {
 
 /* ──────────────────────── Lucas billboard ──────────────────────── */
 function LucasBillboard() {
+  const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
   const texture = useLoader(
     TextureLoader,
     "/assets/bio-room/lucas-fullbody-cutout.png",
@@ -133,13 +136,17 @@ function LucasBillboard() {
 
   // Leva controls for Lucas
   const lucasControls = useControls("🧍 LUCAS (Billboard)", {
-    posX: { value: 0, min: -4, max: 4, step: 0.05, label: "X" },
-    posY: { value: 1.12, min: 0, max: 3, step: 0.05, label: "Y" },
-    posZ: { value: 0.6, min: -3.5, max: 4, step: 0.05, label: "Z" },
-    width: { value: 1.74, min: 0.5, max: 4, step: 0.05, label: "Ancho" },
-    height: { value: 2.55, min: 0.5, max: 5, step: 0.05, label: "Alto" },
-    emissiveIntensity: { value: 0.08, min: 0, max: 0.5, step: 0.01, label: "Brillo" },
+    posX: { value: bioRoomPreset.lucas.posX, min: -4, max: 4, step: 0.05, label: "X" },
+    posY: { value: bioRoomPreset.lucas.posY, min: 0, max: 3, step: 0.05, label: "Y" },
+    posZ: { value: bioRoomPreset.lucas.posZ, min: -3.5, max: 4, step: 0.05, label: "Z" },
+    width: { value: bioRoomPreset.lucas.width, min: 0.5, max: 4, step: 0.05, label: "Ancho" },
+    height: { value: bioRoomPreset.lucas.height, min: 0.5, max: 5, step: 0.05, label: "Alto" },
+    emissiveIntensity: { value: bioRoomPreset.lucas.emissiveIntensity, min: 0, max: 0.5, step: 0.01, label: "Brillo" },
   }, collapsedLevaFolder);
+
+  useEffect(() => {
+    setPresetSection("lucas", lucasControls);
+  }, [lucasControls, setPresetSection]);
 
   return (
     <group position={[lucasControls.posX, lucasControls.posY, lucasControls.posZ]}>
@@ -176,77 +183,94 @@ function RoomShell({
 }: {
   children?: (layout: BioRoomLayout) => ReactNode;
 }) {
+  const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
   const softbox = SoftboxTexture();
 
   // Leva controls for Room dimensions
   const roomControls = useControls("🏠 ROOM (Habitación)", {
-    halfWidth: { value: 4, min: 2, max: 8, step: 0.1, label: "Mitad Ancho (W)" },
-    depth: { value: 8, min: 4, max: 14, step: 0.1, label: "Profundidad (D)" },
-    height: { value: 3.2, min: 2, max: 6, step: 0.1, label: "Altura (H)" },
-    zBack: { value: -3.5, min: -8, max: 0, step: 0.1, label: "Z Pared Fondo" },
+    halfWidth: { value: bioRoomPreset.room.halfWidth, min: 2, max: 8, step: 0.1, label: "Mitad Ancho (W)" },
+    depth: { value: bioRoomPreset.room.depth, min: 4, max: 14, step: 0.1, label: "Profundidad (D)" },
+    height: { value: bioRoomPreset.room.height, min: 2, max: 6, step: 0.1, label: "Altura (H)" },
+    zBack: { value: bioRoomPreset.room.zBack, min: -8, max: 0, step: 0.1, label: "Z Pared Fondo" },
   }, collapsedLevaFolder);
 
   // Leva controls for Lights
   const lightControls = useControls("💡 LUCES", {
     "Key Light (Cenital)": folder({
-      keyPosX: { value: 0, min: -5, max: 5, step: 0.1, label: "X" },
-      keyPosY: { value: 3.3, min: 0, max: 6, step: 0.1, label: "Y" },
-      keyPosZ: { value: 1, min: -5, max: 8, step: 0.1, label: "Z" },
-      keyIntensity: { value: 22, min: 0, max: 50, step: 0.5, label: "Intensidad" },
+      keyPosX: { value: bioRoomPreset.lights.keyPosX, min: -5, max: 5, step: 0.1, label: "X" },
+      keyPosY: { value: bioRoomPreset.lights.keyPosY, min: 0, max: 6, step: 0.1, label: "Y" },
+      keyPosZ: { value: bioRoomPreset.lights.keyPosZ, min: -5, max: 8, step: 0.1, label: "Z" },
+      keyIntensity: { value: bioRoomPreset.lights.keyIntensity, min: 0, max: 50, step: 0.5, label: "Intensidad" },
     }, collapsedLevaFolder),
     "Warm Rim (Contorno)": folder({
-      rimPosX: { value: 0, min: -5, max: 5, step: 0.1, label: "X" },
-      rimPosY: { value: 2.6, min: 0, max: 5, step: 0.1, label: "Y" },
-      rimPosZ: { value: -1.8, min: -5, max: 5, step: 0.1, label: "Z" },
-      rimIntensity: { value: 12, min: 0, max: 30, step: 0.5, label: "Intensidad" },
+      rimPosX: { value: bioRoomPreset.lights.rimPosX, min: -5, max: 5, step: 0.1, label: "X" },
+      rimPosY: { value: bioRoomPreset.lights.rimPosY, min: 0, max: 5, step: 0.1, label: "Y" },
+      rimPosZ: { value: bioRoomPreset.lights.rimPosZ, min: -5, max: 5, step: 0.1, label: "Z" },
+      rimIntensity: { value: bioRoomPreset.lights.rimIntensity, min: 0, max: 30, step: 0.5, label: "Intensidad" },
     }, collapsedLevaFolder),
     "Cool Accent (Azul)": folder({
-      coolPosX: { value: 3.2, min: -5, max: 5, step: 0.1, label: "X" },
-      coolPosY: { value: 1.8, min: 0, max: 5, step: 0.1, label: "Y" },
-      coolPosZ: { value: 1.5, min: -5, max: 8, step: 0.1, label: "Z" },
-      coolIntensity: { value: 5, min: 0, max: 20, step: 0.5, label: "Intensidad" },
+      coolPosX: { value: bioRoomPreset.lights.coolPosX, min: -5, max: 5, step: 0.1, label: "X" },
+      coolPosY: { value: bioRoomPreset.lights.coolPosY, min: 0, max: 5, step: 0.1, label: "Y" },
+      coolPosZ: { value: bioRoomPreset.lights.coolPosZ, min: -5, max: 8, step: 0.1, label: "Z" },
+      coolIntensity: { value: bioRoomPreset.lights.coolIntensity, min: 0, max: 20, step: 0.5, label: "Intensidad" },
     }, collapsedLevaFolder),
     "Front Fill (Frontal)": folder({
-      fillPosX: { value: 0, min: -5, max: 5, step: 0.1, label: "X" },
-      fillPosY: { value: 1.6, min: 0, max: 5, step: 0.1, label: "Y" },
-      fillPosZ: { value: 4.5, min: -2, max: 10, step: 0.1, label: "Z" },
-      fillIntensity: { value: 6, min: 0, max: 20, step: 0.5, label: "Intensidad" },
+      fillPosX: { value: bioRoomPreset.lights.fillPosX, min: -5, max: 5, step: 0.1, label: "X" },
+      fillPosY: { value: bioRoomPreset.lights.fillPosY, min: 0, max: 5, step: 0.1, label: "Y" },
+      fillPosZ: { value: bioRoomPreset.lights.fillPosZ, min: -2, max: 10, step: 0.1, label: "Z" },
+      fillIntensity: { value: bioRoomPreset.lights.fillIntensity, min: 0, max: 20, step: 0.5, label: "Intensidad" },
     }, collapsedLevaFolder),
-    ambientIntensity: { value: 0.35, min: 0, max: 2, step: 0.05, label: "Ambiente" },
+    ambientIntensity: { value: bioRoomPreset.lights.ambientIntensity, min: 0, max: 2, step: 0.05, label: "Ambiente" },
   }, collapsedLevaFolder);
 
   const cinemaLightControls = useControls("CINEMA LIGHT RIG", {
     "Back Wall Wash": folder({
-      wallWashY: { value: 2.15, min: 0.1, max: 4.5, step: 0.05, label: "Y" },
-      wallWashZ: { value: -2.95, min: -5, max: 2, step: 0.05, label: "Z" },
-      wallWashIntensity: { value: 7.5, min: 0, max: 25, step: 0.25, label: "Intensidad" },
-      wallWashDistance: { value: 4.8, min: 0.5, max: 10, step: 0.1, label: "Distancia" },
+      wallWashY: { value: bioRoomPreset.cinemaLights.wallWashY, min: 0.1, max: 4.5, step: 0.05, label: "Y" },
+      wallWashZ: { value: bioRoomPreset.cinemaLights.wallWashZ, min: -5, max: 2, step: 0.05, label: "Z" },
+      wallWashIntensity: { value: bioRoomPreset.cinemaLights.wallWashIntensity, min: 0, max: 25, step: 0.25, label: "Intensidad" },
+      wallWashDistance: { value: bioRoomPreset.cinemaLights.wallWashDistance, min: 0.5, max: 10, step: 0.1, label: "Distancia" },
     }, collapsedLevaFolder),
     "Side Wall Wash": folder({
-      sideWashY: { value: 1.35, min: 0.1, max: 4.5, step: 0.05, label: "Y" },
-      sideWashZ: { value: -0.2, min: -4, max: 4, step: 0.05, label: "Z" },
-      sideWashIntensity: { value: 3.4, min: 0, max: 15, step: 0.2, label: "Intensidad" },
-      sideWashDistance: { value: 3.6, min: 0.5, max: 8, step: 0.1, label: "Distancia" },
+      sideWashY: { value: bioRoomPreset.cinemaLights.sideWashY, min: 0.1, max: 4.5, step: 0.05, label: "Y" },
+      sideWashZ: { value: bioRoomPreset.cinemaLights.sideWashZ, min: -4, max: 4, step: 0.05, label: "Z" },
+      sideWashIntensity: { value: bioRoomPreset.cinemaLights.sideWashIntensity, min: 0, max: 15, step: 0.2, label: "Intensidad" },
+      sideWashDistance: { value: bioRoomPreset.cinemaLights.sideWashDistance, min: 0.5, max: 8, step: 0.1, label: "Distancia" },
     }, collapsedLevaFolder),
     "Floor Bounce": folder({
-      floorBounceY: { value: 0.3, min: 0.05, max: 1.5, step: 0.05, label: "Y" },
-      floorBounceZ: { value: 0.92, min: -2, max: 4, step: 0.05, label: "Z" },
-      floorBounceIntensity: { value: 2.2, min: 0, max: 12, step: 0.2, label: "Intensidad" },
-      floorGlowOpacity: { value: 0.16, min: 0, max: 0.55, step: 0.01, label: "Glow piso" },
+      floorBounceY: { value: bioRoomPreset.cinemaLights.floorBounceY, min: 0.05, max: 1.5, step: 0.05, label: "Y" },
+      floorBounceZ: { value: bioRoomPreset.cinemaLights.floorBounceZ, min: -2, max: 4, step: 0.05, label: "Z" },
+      floorBounceIntensity: { value: bioRoomPreset.cinemaLights.floorBounceIntensity, min: 0, max: 12, step: 0.2, label: "Intensidad" },
+      floorGlowOpacity: { value: bioRoomPreset.cinemaLights.floorGlowOpacity, min: 0, max: 0.55, step: 0.01, label: "Glow piso" },
     }, collapsedLevaFolder),
-    fogNear: { value: 4.8, min: 1, max: 10, step: 0.1, label: "Niebla inicio" },
-    fogFar: { value: 12, min: 5, max: 22, step: 0.1, label: "Niebla final" },
-    softboxOpacity: { value: 0.54, min: 0, max: 1, step: 0.01, label: "Softbox" },
+    fogNear: { value: bioRoomPreset.cinemaLights.fogNear, min: 1, max: 10, step: 0.1, label: "Niebla inicio" },
+    fogFar: { value: bioRoomPreset.cinemaLights.fogFar, min: 5, max: 22, step: 0.1, label: "Niebla final" },
+    softboxOpacity: { value: bioRoomPreset.cinemaLights.softboxOpacity, min: 0, max: 1, step: 0.01, label: "Softbox" },
   }, collapsedLevaFolder);
 
   const visualControls = useControls("ROOM VISUALS", {
-    wallMetalness: { value: 0.1, min: 0, max: 0.45, step: 0.01, label: "Metal paredes" },
-    wallRoughness: { value: 0.86, min: 0.3, max: 1, step: 0.01, label: "Rugosidad paredes" },
-    floorMetalness: { value: 0.18, min: 0, max: 0.55, step: 0.01, label: "Metal piso" },
-    floorRoughness: { value: 0.7, min: 0.25, max: 1, step: 0.01, label: "Rugosidad piso" },
-    guideOpacity: { value: 0.16, min: 0, max: 0.65, step: 0.01, label: "Lineas guia" },
-    panelOpacity: { value: 0.62, min: 0.2, max: 1, step: 0.01, label: "Panel fondo" },
+    wallMetalness: { value: bioRoomPreset.visuals.wallMetalness, min: 0, max: 0.45, step: 0.01, label: "Metal paredes" },
+    wallRoughness: { value: bioRoomPreset.visuals.wallRoughness, min: 0.3, max: 1, step: 0.01, label: "Rugosidad paredes" },
+    floorMetalness: { value: bioRoomPreset.visuals.floorMetalness, min: 0, max: 0.55, step: 0.01, label: "Metal piso" },
+    floorRoughness: { value: bioRoomPreset.visuals.floorRoughness, min: 0.25, max: 1, step: 0.01, label: "Rugosidad piso" },
+    guideOpacity: { value: bioRoomPreset.visuals.guideOpacity, min: 0, max: 0.65, step: 0.01, label: "Lineas guia" },
+    panelOpacity: { value: bioRoomPreset.visuals.panelOpacity, min: 0.2, max: 1, step: 0.01, label: "Panel fondo" },
   }, collapsedLevaFolder);
+
+  useEffect(() => {
+    setPresetSection("room", roomControls);
+  }, [roomControls, setPresetSection]);
+
+  useEffect(() => {
+    setPresetSection("lights", lightControls);
+  }, [lightControls, setPresetSection]);
+
+  useEffect(() => {
+    setPresetSection("cinemaLights", cinemaLightControls);
+  }, [cinemaLightControls, setPresetSection]);
+
+  useEffect(() => {
+    setPresetSection("visuals", visualControls);
+  }, [setPresetSection, visualControls]);
 
   const W = roomControls.halfWidth;
   const D = roomControls.depth;
@@ -519,6 +543,25 @@ function SceneContent({ copy }: BioRoomCanvasProps) {
   );
 }
 
+function BioRoomSaveButton() {
+  const error = useBioRoomPresetStore((state) => state.error);
+  const isSaving = useBioRoomPresetStore((state) => state.isSaving);
+  const lastSavedAt = useBioRoomPresetStore((state) => state.lastSavedAt);
+  const savePreset = useBioRoomPresetStore((state) => state.savePreset);
+
+  if (process.env.NODE_ENV !== "development") return null;
+
+  return (
+    <div className="bio-room-dev-save">
+      <button disabled={isSaving} onClick={savePreset} type="button">
+        {isSaving ? "Guardando..." : "Guardar 3D"}
+      </button>
+      {lastSavedAt ? <span>Guardado {lastSavedAt}</span> : null}
+      {error ? <span className="bio-room-dev-save-error">{error}</span> : null}
+    </div>
+  );
+}
+
 export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
   return (
     <div className="bio-room-canvas">
@@ -528,6 +571,7 @@ export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
         oneLineLabels
         titleBar={{ title: "🎬 Bio Room Controls" }}
       />
+      <BioRoomSaveButton />
       <Canvas
         dpr={[1, 1.5]}
         gl={{
