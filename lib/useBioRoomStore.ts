@@ -4,7 +4,7 @@ import { create } from "zustand";
 import type { SiteCopy } from "@/data/site";
 
 export type BioRoomView = "home" | "bio" | "gallery" | "contact";
-export type BioGalleryItem = SiteCopy["bio"]["galleryItems"][number];
+export type BioGalleryItem = SiteCopy["bio"]["skillItems"][number];
 
 type BioRoomState = {
   activeRoomView: BioRoomView;

@@ -1,5 +1,45 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-18 14:36:54 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: muro Habilidades con videos
+
+Tag de esta version: important-skills-wall-videos-2026-05-18-1436
+Mensaje del commit: feat: save skills video wall checkpoint
+
+Esta version deja guardada la seccion Habilidades dentro de la Bio Room 3D como un mural/pantalla fisica premium, con los tres videos del usuario conectados visualmente como nodos.
+
+## Que contiene esta version actual
+
+- El boton `Galeria` fue reemplazado por `Habilidades`.
+- El muro lateral de Habilidades ahora muestra tres nodos de video conectados:
+  - `Correccion y Tratamiento de Color` con `https://www.youtube.com/watch?v=POrDJhEuTSM`
+  - `Edicion y Diseno de Sonido` con `https://www.youtube.com/watch?v=JlxFvORQOa0`
+  - `Motion Graphics en Fusion` con `https://www.youtube.com/watch?v=fhYi33V2uf8`
+- Los posters de los videos quedaron guardados localmente en `public/images/skills/`.
+- Al tocar un nodo se abre el overlay de Habilidades, primero con poster local y boton `Reproducir video`.
+- El iframe de YouTube se carga solo despues de tocar `Reproducir video`.
+- La version mobile de Habilidades tambien muestra los posters de video.
+- Los controles Leva quedan ocultos por defecto para no tapar el mural; se pueden activar con `?debug3d=1`.
+- El servidor correcto para abrir esta version sigue siendo `http://127.0.0.1:3000/#bio`.
+
+## Verificacion de esta version actual
+
+- `npm.cmd run lint` paso correctamente antes de guardar.
+- `npm.cmd run build` paso correctamente antes de guardar.
+- La prueba con navegador verifico:
+  - boton `Habilidades`;
+  - tres nodos de video en el muro;
+  - posters locales `/images/skills/color.jpg`, `/images/skills/sound.jpg`, `/images/skills/fusion.jpg`;
+  - overlay al tocar un video;
+  - iframe de YouTube cargando el video correspondiente despues de tocar `Reproducir video`.
+
+---
+
 Fecha de guardado importante: 2026-05-17 02:45:55 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
@@ -72,19 +112,36 @@ git status -sb
 3. Abrir el proyecto actual desde disco con Next, no una version estatica:
 
 ```powershell
-npm.cmd run dev -- -p 3000
+npm.cmd run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
-4. Verificar:
+Si Codex necesita dejar el servidor vivo y el proceso normal se corta al terminar la ejecucion, usar un proceso detached desde Node:
+
+```javascript
+const { spawn } = await import("node:child_process");
+const fs = await import("node:fs");
+const cwd = "C:\\Users\\jaell\\Desktop\\pagina-bajo-flow-premium";
+const out = fs.openSync(`${cwd}\\.next-dev.out.log`, "a");
+const err = fs.openSync(`${cwd}\\.next-dev.err.log`, "a");
+const p = spawn(
+  "cmd.exe",
+  ["/c", "C:\\Program Files\\nodejs\\npm.cmd", "run", "dev", "--", "--hostname", "127.0.0.1", "--port", "3000"],
+  { cwd, detached: true, stdio: ["ignore", out, err] }
+);
+p.unref();
+```
+
+4. Verificar que devuelva `200`:
 
 ```powershell
 Invoke-WebRequest -Uri http://127.0.0.1:3000/#bio -UseBasicParsing
 ```
 
-5. Abrir:
+5. Abrir o copiar este numero de puerto:
 
 ```text
 http://127.0.0.1:3000/#bio
+puerto: 3000
 ```
 
 ## Como comparar o volver

@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { Html } from "@react-three/drei";
 import { type ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
 import { folder, useControls } from "leva";
 import {
@@ -111,6 +112,7 @@ function WallPanel({
 }
 
 function WallGlowLine({
+  color = wallAccent,
   height,
   opacity = 0.22,
   width,
@@ -130,7 +132,7 @@ function WallGlowLine({
     <mesh position={[x, y, z]}>
       <boxGeometry args={[width, height, 0.012]} />
       <meshBasicMaterial
-        color={wallAccent}
+        color={color}
         opacity={opacity}
         toneMapped={false}
         transparent
@@ -330,10 +332,6 @@ function getFrontWallBackgroundSource() {
   if (targetWidth <= 1024) return "/images/bio-room/front-wall-background-1024.webp";
   if (targetWidth <= 1440) return "/images/bio-room/front-wall-background-1440.webp";
   return "/images/bio-room/front-wall-background-1672.webp";
-}
-
-function getGalleryTextureSource(src: string) {
-  return `${src.replace("/assets/bio-room/", "/images/bio-room/").replace(/\.(png|jpe?g)$/i, "")}-480.webp`;
 }
 
 function WallImageBackground({
@@ -565,10 +563,10 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
           {copy.identitySubtitle}
         </WallText>
         <WallText fontFamily={leftControls.leftFont} fontSize={leftControls.leftBodySize} maxWidth={1.96} x={leftControls.leftTextX} y={leftControls.leftBodyY}>
-          {copy.paragraphs[0]}
+          {copy.frontParagraphs[0]}
         </WallText>
         <WallText color={wallMuted} fontFamily={leftControls.leftFont} fontSize={leftControls.leftSmallSize} maxWidth={1.96} x={leftControls.leftTextX} y={leftControls.leftSmallY}>
-          {copy.paragraphs[1]}
+          {copy.frontParagraphs[1]}
         </WallText>
       </group>
 
@@ -615,7 +613,7 @@ function BioContributionRow3D({
   y: number;
 }) {
   return (
-    <group position={[-2.88, y, 0.12]}>
+    <group position={[-2.38, y, 0.12]}>
       <WallText color={wallInk} fontSize={0.058} maxWidth={1.22} x={0} y={0} z={0.04}>
         {`${title}:`}
       </WallText>
@@ -631,20 +629,20 @@ function BioWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface })
     <WallSurfaceGroup wall={wall}>
       <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} />
       <WallFrame height={wall.height - 0.66} width={wall.width - 0.86} />
-      <group position={[-1.32, 0.01, 0.08]}>
+      <group position={[-0.82, 0.01, 0.08]}>
         <WallPanel color="#030611" height={2.98} opacity={0.62} width={4.55} z={0} />
         <WallGlowLine color="#00f0ff" height={0.84} opacity={0.9} width={0.018} x={-2.12} y={-0.67} z={0.055} />
       </group>
-      <WallText fontSize={0.17} maxWidth={3.9} x={-3.24} y={1.18} z={0.16}>
+      <WallText fontSize={0.16} maxWidth={3.42} x={-2.74} y={1.18} z={0.16}>
         {copy.title}
       </WallText>
-      <WallText color={wallMuted} fontSize={0.075} maxWidth={3.82} x={-3.24} y={0.62} z={0.16}>
+      <WallText color={wallMuted} fontSize={0.066} maxWidth={3.48} x={-2.74} y={0.62} z={0.16}>
         {copy.paragraphs[0]}
       </WallText>
-      <WallText color={wallMuted} fontSize={0.075} maxWidth={3.82} x={-3.24} y={-0.03} z={0.16}>
+      <WallText color={wallMuted} fontSize={0.066} maxWidth={3.48} x={-2.74} y={-0.03} z={0.16}>
         {copy.paragraphs[1]}
       </WallText>
-      <WallText color="#00f0ff" fontSize={0.082} maxWidth={3.5} x={-2.9} y={-0.58} z={0.16}>
+      <WallText color="#00f0ff" fontSize={0.078} maxWidth={3.5} x={-2.4} y={-0.58} z={0.16}>
         LO QUE APORTO A CADA PROYECTO:
       </WallText>
       {copy.bioBlocks.map((block, index) => (
@@ -659,84 +657,52 @@ function BioWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface })
   );
 }
 
-function GalleryCard3D({
-  category,
-  image,
-  onClick,
-  title,
-  x,
-  y,
-}: {
-  category: string;
-  image: string;
-  onClick: (event: ThreeEvent<MouseEvent>) => void;
-  title: string;
-  x: number;
-  y: number;
-}) {
-  const texture = useLoader(TextureLoader, image);
-  texture.colorSpace = SRGBColorSpace;
-  texture.minFilter = LinearFilter;
-  texture.magFilter = LinearFilter;
-
-  return (
-    <group position={[x, y, 0.09]}>
-      <mesh onClick={onClick}>
-        <planeGeometry args={[1.42, 0.88]} />
-        <meshStandardMaterial
-          color="#050a12"
-          emissive="#0d0810"
-          emissiveIntensity={0.06}
-          metalness={0.12}
-          roughness={0.78}
-        />
-      </mesh>
-      <WallFrame height={0.88} width={1.42} />
-      <mesh position={[0, 0.13, 0.04]}>
-        <planeGeometry args={[1.18, 0.52]} />
-        <meshBasicMaterial map={texture} toneMapped={false} />
-      </mesh>
-      <WallText fontSize={0.062} maxWidth={1.1} textAlign="center" x={0} y={-0.23} z={0.05}>
-        {title}
-      </WallText>
-      <WallText color={wallMuted} fontSize={0.042} maxWidth={1.1} textAlign="center" x={0} y={-0.36} z={0.05}>
-        {category}
-      </WallText>
-    </group>
-  );
+function getSkillThumbnail(videoId: string) {
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 }
 
-function GalleryWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
+function getSkillPoster(item: SiteCopy["bio"]["skillItems"][number]) {
+  return item.poster ?? (item.videoId ? getSkillThumbnail(item.videoId) : "");
+}
+
+function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
   const openGalleryItem = useBioRoomStore((state) => state.openGalleryItem);
 
   return (
     <WallSurfaceGroup wall={wall}>
       <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} />
+      <WallPanel color="#05060c" height={2.86} opacity={0.78} width={5.28} y={-0.05} z={0.07} />
       <WallFrame height={wall.height - 0.66} width={wall.width - 0.86} />
-      <WallText color={wallAmber} fontSize={0.09} maxWidth={1.8} x={-3.34} y={1.08}>
-        Galeria visual
-      </WallText>
-      <WallText fontSize={0.22} maxWidth={3.2} x={-3.34} y={0.8}>
-        Trabajos
-      </WallText>
-      {copy.galleryItems.map((item, index) => {
-        const col = index % 3;
-        const row = Math.floor(index / 3);
-        return (
-          <GalleryCard3D
-            category={item.category}
-            image={getGalleryTextureSource(item.image)}
-            key={item.title}
-            onClick={(event) => {
-              event.stopPropagation();
-              openGalleryItem(item);
-            }}
-            title={item.title}
-            x={-2.15 + col * 1.62}
-            y={0.18 - row * 1.02}
-          />
-        );
-      })}
+      <Html center className="skills-wall-html-anchor" distanceFactor={5.2} position={[0, -0.03, 0.16]} scale={0.34} transform>
+        <section className="skills-wall-mural">
+          <div className="skills-wall-head">
+            <span>SHOWCASE TÉCNICO</span>
+            <h3>HABILIDADES</h3>
+            <p>Nodos técnicos conectados por sonido, color y motion.</p>
+          </div>
+          <div className="skills-wall-network" aria-hidden="true">
+            <i className="line line-a" />
+            <i className="line line-b" />
+            <i className="line line-c" />
+            <i className="dot dot-a" />
+            <i className="dot dot-b" />
+            <i className="dot dot-c" />
+          </div>
+          {copy.skillItems.map((item, index) => (
+            <article className={`skills-video-node node-${index + 1}`} key={item.title}>
+              <button className="skills-video-frame" onClick={() => openGalleryItem(item)} type="button">
+                {item.videoId ? <img alt="" src={getSkillPoster(item)} /> : null}
+                <span className="skills-play">▶</span>
+              </button>
+              <div className="skills-video-copy">
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <h4>{item.title}</h4>
+                <p>{item.description}</p>
+              </div>
+            </article>
+          ))}
+        </section>
+      </Html>
     </WallSurfaceGroup>
   );
 }
@@ -746,7 +712,7 @@ export function BioRoomWorldPanels({ copy, layout }: BioRoomWorldPanelsProps) {
     <>
       <FrontWall3D copy={copy} wall={layout.walls.backWall} />
       <BioWall3D copy={copy} wall={layout.walls.characterRightWall} />
-      <GalleryWall3D copy={copy} wall={layout.walls.characterLeftWall} />
+      <SkillsWall3D copy={copy} wall={layout.walls.characterLeftWall} />
     </>
   );
 }

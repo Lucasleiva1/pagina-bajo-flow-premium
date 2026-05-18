@@ -3,20 +3,13 @@
 import Image from "next/image";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
-import { ResponsivePicture } from "@/components/ui/ResponsivePicture";
 
 type BioRoomMobilePanelsProps = {
   copy: SiteCopy["bio"];
 };
 
-const galleryWidths = [320, 480, 768, 960] as const;
-
-function getGalleryBasePath(src: string) {
-  return src.replace("/assets/bio-room/", "/images/bio-room/").replace(/\.(png|jpe?g)$/i, "");
-}
-
-function getGalleryFallbackPath(src: string) {
-  return `${getGalleryBasePath(src)}-480.webp`;
+function getVideoPoster(item: SiteCopy["bio"]["skillItems"][number]) {
+  return item.poster ?? (item.videoId ? `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg` : "");
 }
 
 export function BioRoomMobilePanels({ copy }: BioRoomMobilePanelsProps) {
@@ -56,22 +49,16 @@ export function BioRoomMobilePanels({ copy }: BioRoomMobilePanelsProps) {
       </section>
 
       <section className="bio-room-mobile-panel">
-        <h3>Visual gallery</h3>
+        <h3>Habilidades</h3>
         <div className="bio-room-gallery-grid">
-          {copy.galleryItems.map((item) => (
+          {copy.skillItems.map((item) => (
             <button key={item.title} onClick={() => openGalleryItem(item)} type="button">
-              <span className="bio-room-gallery-thumb">
-                <ResponsivePicture
-                  alt={item.title}
-                  basePath={getGalleryBasePath(item.image)}
-                  className="responsive-picture"
-                  fallbackSrc={getGalleryFallbackPath(item.image)}
-                  sizes="(max-width: 860px) 44vw, 11rem"
-                  widths={galleryWidths}
-                />
+              <span className={`bio-room-gallery-thumb bio-room-skill-thumb ${item.accent}`}>
+                {item.videoId ? <img alt="" src={getVideoPoster(item)} /> : null}
+                <span className="bio-room-skill-thumb-play">▶</span>
               </span>
               <strong>{item.title}</strong>
-              <small>{item.category}</small>
+              <small>{item.videoId ? "Ver video" : item.description}</small>
             </button>
           ))}
         </div>

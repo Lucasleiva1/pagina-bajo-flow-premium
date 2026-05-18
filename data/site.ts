@@ -152,11 +152,15 @@ export const siteCopy = {
         "Soy un editor de video enfocado en transformar piezas audiovisuales en experiencias de alto impacto. Mi enfoque no se limita solo al montaje; me especializo en potenciar la narrativa visual a través de una corrección de color profesional y un tratamiento de sonido inmersivo.",
         "Cuento con experiencia técnica avanzada en herramientas de estándar industrial como DaVinci Resolve, dominando sus módulos de Color y Fairlight para asegurar que cada proyecto tenga un acabado cinematográfico y una claridad sonora impecable.",
       ],
+      frontParagraphs: [
+        "Trabajo cada proyecto desde el ritmo, la atmósfera y la emoción para que cada corte tenga una razón.",
+        "Bajo Flow nace para crear contenido con identidad: videos para YouTube, redes sociales, marcas e institucionales.",
+      ],
       tags: ["Edición dinámica", "Color grading", "Postproducción de audio", "Versatilidad"],
       roomControls: [
         { label: "Inicio", view: "home" },
         { label: "Bio", view: "bio" },
-        { label: "Galería", view: "gallery" },
+        { label: "Habilidades", view: "gallery" },
         { label: "Contacto", view: "contact" },
       ],
       contactLinks: [
@@ -197,13 +201,31 @@ export const siteCopy = {
           text: "Formatos: YouTube, Social Media, Institucionales.",
         },
       ],
-      galleryItems: [
-        { title: "Ritmo visual", category: "Placeholder", image: "/assets/bio-room/gallery-01.png" },
-        { title: "Color y atmósfera", category: "Placeholder", image: "/assets/bio-room/gallery-02.png" },
-        { title: "Motion", category: "Placeholder", image: "/assets/bio-room/gallery-03.png" },
-        { title: "Postproducción", category: "Placeholder", image: "/assets/bio-room/gallery-04.png" },
-        { title: "Social cuts", category: "Placeholder", image: "/assets/bio-room/gallery-05.png" },
-        { title: "Identidad visual", category: "Placeholder", image: "/assets/bio-room/gallery-06.png" },
+      skillItems: [
+        {
+          title: "Corrección y Tratamiento de Color",
+          description: "Aplico técnicas profesionales de colorización en DaVinci Resolve.",
+          accent: "blue",
+          poster: "/images/skills/color.jpg",
+          videoId: "POrDJhEuTSM",
+          videoTitle: "Cinematográfico Secreto: Crea un Color Gradiente Épico en DaVinci Resolve",
+        },
+        {
+          title: "Edición y Diseño de Sonido",
+          description: "Trabajo el sonido con precisión para que cada proyecto tenga identidad propia.",
+          accent: "cyan",
+          poster: "/images/skills/sound.jpg",
+          videoId: "JlxFvORQOa0",
+          videoTitle: "El Secreto para Mezclas Impecables en DaVinci Resolve (Fairlight)",
+        },
+        {
+          title: "Motion Graphics en Fusion",
+          description: "Creo animaciones dinámicas, limpias y modernas usando Fusion.",
+          accent: "violet",
+          poster: "/images/skills/fusion.jpg",
+          videoId: "fhYi33V2uf8",
+          videoTitle: "Animación Avanzada con Fusion",
+        },
       ],
     },
     contact: {
@@ -337,11 +359,15 @@ export const siteCopy = {
         "I approach every project through rhythm, atmosphere, and emotion so every cut has a reason.",
         "Bajo Flow was created to build content with identity: videos for YouTube, social media, brands, and institutions.",
       ],
+      frontParagraphs: [
+        "I approach every project through rhythm, atmosphere, and emotion so every cut has a reason.",
+        "Bajo Flow was created to build content with identity: videos for YouTube, social media, brands, and institutions.",
+      ],
       tags: ["Video editing", "Color grading", "Post audio", "Social media", "Institutional"],
       roomControls: [
         { label: "Home", view: "home" },
         { label: "Bio", view: "bio" },
-        { label: "Gallery", view: "gallery" },
+        { label: "Skills", view: "gallery" },
         { label: "Contact", view: "contact" },
       ],
       contactLinks: [
@@ -382,13 +408,31 @@ export const siteCopy = {
           text: "Every video should feel clear, cinematic, and identifiable without losing pace or retention.",
         },
       ],
-      galleryItems: [
-        { title: "Visual rhythm", category: "Placeholder", image: "/assets/bio-room/gallery-01.png" },
-        { title: "Color and atmosphere", category: "Placeholder", image: "/assets/bio-room/gallery-02.png" },
-        { title: "Motion", category: "Placeholder", image: "/assets/bio-room/gallery-03.png" },
-        { title: "Post-production", category: "Placeholder", image: "/assets/bio-room/gallery-04.png" },
-        { title: "Social cuts", category: "Placeholder", image: "/assets/bio-room/gallery-05.png" },
-        { title: "Visual identity", category: "Placeholder", image: "/assets/bio-room/gallery-06.png" },
+      skillItems: [
+        {
+          title: "Color Correction and Treatment",
+          description: "I apply professional color techniques in DaVinci Resolve.",
+          accent: "blue",
+          poster: "/images/skills/color.jpg",
+          videoId: "POrDJhEuTSM",
+          videoTitle: "Cinematográfico Secreto: Crea un Color Gradiente Épico en DaVinci Resolve",
+        },
+        {
+          title: "Sound Editing and Design",
+          description: "I shape sound with precision so every project has its own identity.",
+          accent: "cyan",
+          poster: "/images/skills/sound.jpg",
+          videoId: "JlxFvORQOa0",
+          videoTitle: "El Secreto para Mezclas Impecables en DaVinci Resolve (Fairlight)",
+        },
+        {
+          title: "Motion Graphics in Fusion",
+          description: "I create dynamic, clean, modern animations using Fusion.",
+          accent: "violet",
+          poster: "/images/skills/fusion.jpg",
+          videoId: "fhYi33V2uf8",
+          videoTitle: "Animación Avanzada con Fusion",
+        },
       ],
     },
     contact: {
@@ -522,11 +566,15 @@ export const siteCopy = {
         "Trabalho cada projeto a partir do ritmo, da atmosfera e da emoção para que cada corte tenha uma razão.",
         "Bajo Flow nasce para criar conteúdo com identidade: vídeos para YouTube, redes sociais, marcas e institucionais.",
       ],
+      frontParagraphs: [
+        "Trabalho cada projeto a partir do ritmo, da atmosfera e da emoção para que cada corte tenha uma razão.",
+        "Bajo Flow nasce para criar conteúdo com identidade: vídeos para YouTube, redes sociais, marcas e institucionais.",
+      ],
       tags: ["Edição de vídeo", "Cor", "Pós-áudio", "Redes sociais", "Institucionais"],
       roomControls: [
         { label: "Início", view: "home" },
         { label: "Bio", view: "bio" },
-        { label: "Galeria", view: "gallery" },
+        { label: "Habilidades", view: "gallery" },
         { label: "Contato", view: "contact" },
       ],
       contactLinks: [
@@ -567,13 +615,31 @@ export const siteCopy = {
           text: "Cada vídeo precisa parecer claro, cinematográfico e com identidade, sem perder velocidade nem retenção.",
         },
       ],
-      galleryItems: [
-        { title: "Ritmo visual", category: "Placeholder", image: "/assets/bio-room/gallery-01.png" },
-        { title: "Cor e atmosfera", category: "Placeholder", image: "/assets/bio-room/gallery-02.png" },
-        { title: "Motion", category: "Placeholder", image: "/assets/bio-room/gallery-03.png" },
-        { title: "Pós-produção", category: "Placeholder", image: "/assets/bio-room/gallery-04.png" },
-        { title: "Cortes sociais", category: "Placeholder", image: "/assets/bio-room/gallery-05.png" },
-        { title: "Identidade visual", category: "Placeholder", image: "/assets/bio-room/gallery-06.png" },
+      skillItems: [
+        {
+          title: "Correção e Tratamento de Cor",
+          description: "Aplico técnicas profissionais de colorização no DaVinci Resolve.",
+          accent: "blue",
+          poster: "/images/skills/color.jpg",
+          videoId: "POrDJhEuTSM",
+          videoTitle: "Cinematográfico Secreto: Crea un Color Gradiente Épico en DaVinci Resolve",
+        },
+        {
+          title: "Edição e Design de Som",
+          description: "Trabalho o som com precisão para que cada projeto tenha identidade própria.",
+          accent: "cyan",
+          poster: "/images/skills/sound.jpg",
+          videoId: "JlxFvORQOa0",
+          videoTitle: "El Secreto para Mezclas Impecables en DaVinci Resolve (Fairlight)",
+        },
+        {
+          title: "Motion Graphics em Fusion",
+          description: "Crio animações dinâmicas, limpas e modernas usando Fusion.",
+          accent: "violet",
+          poster: "/images/skills/fusion.jpg",
+          videoId: "fhYi33V2uf8",
+          videoTitle: "Animación Avanzada con Fusion",
+        },
       ],
     },
     contact: {
@@ -641,12 +707,20 @@ export const siteCopy = {
     title: string;
     identitySubtitle: string;
     paragraphs: string[];
+    frontParagraphs: string[];
     tags: string[];
     roomControls: Array<{ label: string; view: "home" | "bio" | "gallery" | "contact" }>;
     contactLinks: Array<{ label: string; handle: string; href: string }>;
     tools: string[];
     bioBlocks: Array<{ title: string; text: string }>;
-    galleryItems: Array<{ title: string; category: string; image: string }>;
+    skillItems: Array<{
+      title: string;
+      description: string;
+      accent: "pink" | "blue" | "violet" | "cyan" | "amber" | "green";
+      poster?: string;
+      videoId?: string;
+      videoTitle?: string;
+    }>;
   };
   contact: {
     kicker: string;

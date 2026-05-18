@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useMemo, useRef } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { useControls, folder, Leva } from "leva";
@@ -726,11 +726,18 @@ function BioRoomSaveButton() {
 }
 
 export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
+  const [showDebugControls, setShowDebugControls] = useState(false);
+
+  useEffect(() => {
+    setShowDebugControls(new URLSearchParams(window.location.search).has("debug3d"));
+  }, []);
+
   return (
     <div className="bio-room-canvas">
-      {/* Leva GUI panel — visible in dev mode */}
+      {/* Add ?debug3d=1 to the URL when the manual room controls are needed. */}
       <Leva
-        collapsed={false}
+        collapsed
+        hidden={!showDebugControls}
         oneLineLabels
         titleBar={{ title: "🎬 Bio Room Controls" }}
       />
