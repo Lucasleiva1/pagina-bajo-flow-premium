@@ -726,18 +726,11 @@ function BioRoomSaveButton() {
 }
 
 export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
-  const [showDebugControls, setShowDebugControls] = useState(false);
-
-  useEffect(() => {
-    setShowDebugControls(new URLSearchParams(window.location.search).has("debug3d"));
-  }, []);
-
   return (
     <div className="bio-room-canvas">
-      {/* Add ?debug3d=1 to the URL when the manual room controls are needed. */}
+      {/* Leva GUI panel — visible in dev mode */}
       <Leva
-        collapsed
-        hidden={!showDebugControls}
+        collapsed={false}
         oneLineLabels
         titleBar={{ title: "🎬 Bio Room Controls" }}
       />

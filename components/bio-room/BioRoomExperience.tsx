@@ -1,8 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from "react";
 import { BioRoomCanvas } from "@/components/bio-room/BioRoomCanvas";
 import { BioRoomControls } from "@/components/bio-room/BioRoomControls";
 import { BioGalleryOverlay } from "@/components/bio-room/BioGalleryOverlay";
@@ -14,43 +12,13 @@ type BioRoomExperienceProps = {
   copy: SiteCopy["bio"];
 };
 
-const viewOrder: BioRoomView[] = ["home", "bio", "gallery", "contact"];
-
 export function BioRoomExperience({ copy }: BioRoomExperienceProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const wheelLock = useRef(false);
   const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
   const adjustSideWallZoom = useBioRoomStore((state) => state.adjustSideWallZoom);
   const resetSideWallZoom = useBioRoomStore((state) => state.resetSideWallZoom);
   const setActiveRoomView = useBioRoomStore((state) => state.setActiveRoomView);
   const isSideRoomView = activeRoomView === "bio" || activeRoomView === "gallery";
-
-  const moveBy = useCallback(
-    (direction: number) => {
-      const currentIndex = viewOrder.indexOf(activeRoomView);
-      const nextIndex = Math.max(0, Math.min(viewOrder.length - 1, currentIndex + direction));
-      setActiveRoomView(viewOrder[nextIndex]);
-    },
-    [activeRoomView, setActiveRoomView],
-  );
-
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    const ctx = gsap.context(() => {
-      viewOrder.forEach((view, index) => {
-        ScrollTrigger.create({
-          end: `${(index + 1) * 24}% top`,
-          onEnter: () => setActiveRoomView(view),
-          onEnterBack: () => setActiveRoomView(view),
-          start: `${index * 24}% top`,
-          trigger: sectionRef.current,
-        });
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, [setActiveRoomView]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -86,23 +54,7 @@ export function BioRoomExperience({ copy }: BioRoomExperienceProps) {
         event.preventDefault();
         event.stopPropagation();
         adjustSideWallZoom(event.deltaY > 0 ? 0.045 : -0.045);
-        return;
       }
-
-      if (Math.abs(event.deltaY) < 28 || wheelLock.current) return;
-
-      const currentIndex = viewOrder.indexOf(activeRoomView);
-      const nextIndex = Math.max(0, Math.min(viewOrder.length - 1, currentIndex + (event.deltaY > 0 ? 1 : -1)));
-      if (nextIndex !== currentIndex) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-
-      wheelLock.current = true;
-      moveBy(event.deltaY > 0 ? 1 : -1);
-      window.setTimeout(() => {
-        wheelLock.current = false;
-      }, 560);
     }
 
     element.addEventListener("wheel", handleWheel, { passive: false });
@@ -110,7 +62,7 @@ export function BioRoomExperience({ copy }: BioRoomExperienceProps) {
     return () => {
       element.removeEventListener("wheel", handleWheel);
     };
-  }, [activeRoomView, adjustSideWallZoom, isSideRoomView, moveBy]);
+  }, [adjustSideWallZoom, isSideRoomView]);
 
 
   function handleReturnHome() {

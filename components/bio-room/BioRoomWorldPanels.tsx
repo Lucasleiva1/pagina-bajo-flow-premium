@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { Html } from "@react-three/drei";
 import { type ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
 import { folder, useControls } from "leva";
 import {
@@ -657,6 +656,15 @@ function BioWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface })
   );
 }
 
+const accentColors: Record<string, string> = {
+  blue: "#5ea1ff",
+  cyan: "#00d4f5",
+  violet: "#9f7bff",
+  pink: "#ff4d8d",
+  amber: "#d6a15f",
+  green: "#4dffb4",
+};
+
 function getSkillThumbnail(videoId: string) {
   return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 }
@@ -665,44 +673,163 @@ function getSkillPoster(item: SiteCopy["bio"]["skillItems"][number]) {
   return item.poster ?? (item.videoId ? getSkillThumbnail(item.videoId) : "");
 }
 
+function SkillThumbnail({
+  item,
+  onClick,
+  width,
+  x,
+  y,
+}: {
+  item: SiteCopy["bio"]["skillItems"][number];
+  onClick: () => void;
+  width: number;
+  x: number;
+  y: number;
+}) {
+  const groupRef = useRef<Group>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const posterSrc = getSkillPoster(item);
+  const texture = useLoader(TextureLoader, posterSrc || "/images/bio-room/front-wall-background-768.webp");
+  texture.colorSpace = SRGBColorSpace;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  const height = width * (9 / 16);
+  const accent = accentColors[item.accent] ?? "#5ea1ff";
+
+  useFrame((_, delta) => {
+    if (!groupRef.current) return;
+    const targetZ = isHovered ? 0.2 : 0.1;
+    groupRef.current.position.z = MathUtils.damp(groupRef.current.position.z, targetZ, 8, delta);
+  });
+
+  return (
+    <group
+      onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onClick(); }}
+      onPointerOut={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setIsHovered(false); document.body.style.cursor = ""; }}
+      onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setIsHovered(true); document.body.style.cursor = "pointer"; }}
+      position={[x, y, 0.1]}
+      ref={groupRef}
+    >
+      {/* Dark background — slightly behind the image */}
+      <mesh position={[0, 0, -0.012]}>
+        <planeGeometry args={[width + 0.08, height + 0.08]} />
+        <meshBasicMaterial color="#010208" polygonOffset polygonOffsetFactor={2} polygonOffsetUnits={2} />
+      </mesh>
+      {/* Thumbnail image */}
+      <mesh>
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial
+          map={texture}
+          polygonOffset
+          polygonOffsetFactor={1}
+          polygonOffsetUnits={1}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Border frame using WallFrame primitives */}
+      <WallGlowLine color={isHovered ? accent : wallAccent} height={height + 0.08} opacity={isHovered ? 0.86 : 0.28} width={0.009} x={-width / 2 - 0.04} y={0} z={0.015} />
+      <WallGlowLine color={isHovered ? accent : wallAccent} height={height + 0.08} opacity={isHovered ? 0.86 : 0.28} width={0.009} x={width / 2 + 0.04} y={0} z={0.015} />
+      <WallGlowLine color={isHovered ? accent : wallAccent} height={0.009} opacity={isHovered ? 0.72 : 0.22} width={width + 0.08} x={0} y={height / 2 + 0.04} z={0.015} />
+      <WallGlowLine color={isHovered ? accent : wallAccent} height={0.009} opacity={isHovered ? 0.72 : 0.22} width={width + 0.08} x={0} y={-height / 2 - 0.04} z={0.015} />
+    </group>
+  );
+}
+
 function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
   const openGalleryItem = useBioRoomStore((state) => state.openGalleryItem);
 
+  // The camera lateral view shows roughly ±1.6 units from center X.
+  // Layout: header row top-center, 3 cards in a horizontal row below.
+  // Each card = thumbnail + number + title + description below it.
+
+  const thumbW = 1.28;           // thumbnail width
+  const thumbH = thumbW * (9 / 16); // ~0.72
+  const cardGap = 0.24;           // horizontal gap between cards
+  const numCards = copy.skillItems.length; // 3
+  const totalRowW = numCards * thumbW + (numCards - 1) * cardGap; // ~4.32
+  const firstCardX = -totalRowW / 2 + thumbW / 2; // leftmost card center X
+  const cardsY = -0.18;          // vertical center of the card row
+  const headerY = 1.16;           // top of header area
+
   return (
     <WallSurfaceGroup wall={wall}>
-      <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} />
-      <WallPanel color="#05060c" height={2.86} opacity={0.78} width={5.28} y={-0.05} z={0.07} />
-      <WallFrame height={wall.height - 0.66} width={wall.width - 0.86} />
-      <Html center className="skills-wall-html-anchor" distanceFactor={5.2} position={[0, -0.03, 0.16]} scale={0.34} transform>
-        <section className="skills-wall-mural">
-          <div className="skills-wall-head">
-            <span>SHOWCASE TÉCNICO</span>
-            <h3>HABILIDADES</h3>
-            <p>Nodos técnicos conectados por sonido, color y motion.</p>
-          </div>
-          <div className="skills-wall-network" aria-hidden="true">
-            <i className="line line-a" />
-            <i className="line line-b" />
-            <i className="line line-c" />
-            <i className="dot dot-a" />
-            <i className="dot dot-b" />
-            <i className="dot dot-c" />
-          </div>
-          {copy.skillItems.map((item, index) => (
-            <article className={`skills-video-node node-${index + 1}`} key={item.title}>
-              <button className="skills-video-frame" onClick={() => openGalleryItem(item)} type="button">
-                {item.videoId ? <img alt="" src={getSkillPoster(item)} /> : null}
-                <span className="skills-play">▶</span>
-              </button>
-              <div className="skills-video-copy">
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <h4>{item.title}</h4>
-                <p>{item.description}</p>
-              </div>
-            </article>
-          ))}
-        </section>
-      </Html>
+      {/* Base wall panel */}
+      <WallPanel height={wall.height - 0.48} width={wall.width - 0.72} />
+      {/* Dark inner panel — tighter to the visible camera area */}
+      <WallPanel color="#030611" height={wall.height - 0.62} opacity={0.78} width={5.2} z={0.04} />
+      {/* Outer frame around visible content */}
+      <WallFrame height={wall.height - 0.58} width={5.08} />
+
+      {/* ── HEADER ── centered */}
+      {/* Kicker */}
+      <WallText color="#9f7bff" fontSize={0.058} maxWidth={2.4} textAlign="center" x={0} y={headerY} z={0.22}>
+        SHOWCASE TÉCNICO
+      </WallText>
+      {/* Main title */}
+      <WallText fontSize={0.26} maxWidth={2.8} textAlign="center" x={0} y={headerY - 0.34} z={0.20}>
+        HABILIDADES
+      </WallText>
+      {/* Subtitle */}
+      <WallText color={wallMuted} fontSize={0.063} maxWidth={2.8} textAlign="center" x={0} y={headerY - 0.72} z={0.18}>
+        Nodos técnicos conectados por sonido, color y motion.
+      </WallText>
+
+      {/* Divider */}
+      <WallGlowLine color="#9f7bff" height={0.006} opacity={0.38} width={3.6} x={0} y={headerY - 0.96} z={0.16} />
+
+      {/* ── SKILL CARDS — horizontal row ── */}
+      {copy.skillItems.map((item, index) => {
+        const accent = accentColors[item.accent] ?? "#5ea1ff";
+        const numLabel = String(index + 1).padStart(2, "0");
+        const cardX = firstCardX + index * (thumbW + cardGap);
+
+        return (
+          <group key={item.title}>
+            {/* Number badge */}
+            <WallText color={accent} fontSize={0.054} maxWidth={0.28} textAlign="center" x={cardX} y={cardsY + thumbH / 2 + 0.14} z={0.24}>
+              {numLabel}
+            </WallText>
+
+            {/* Thumbnail */}
+            <SkillThumbnail
+              item={item}
+              onClick={() => openGalleryItem(item)}
+              width={thumbW}
+              x={cardX}
+              y={cardsY}
+            />
+
+            {/* Title below thumbnail */}
+            <WallText fontSize={0.068} maxWidth={thumbW} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.2} z={0.20}>
+              {item.title}
+            </WallText>
+
+            {/* Description below title */}
+            <WallText color={wallMuted} fontSize={0.054} maxWidth={thumbW - 0.04} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.52} z={0.18}>
+              {item.description}
+            </WallText>
+
+            {/* "Ver ▶" CTA */}
+            <WallText color={accent} fontSize={0.052} maxWidth={0.6} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.72} z={0.22}>
+              Ver ▶
+            </WallText>
+
+            {/* Vertical separator between cards */}
+            {index < numCards - 1 && (
+              <WallGlowLine
+                color={wallAccent}
+                height={thumbH + 0.8}
+                opacity={0.14}
+                width={0.007}
+                x={cardX + thumbW / 2 + cardGap / 2}
+                y={cardsY - 0.12}
+                z={0.1}
+              />
+            )}
+          </group>
+        );
+      })}
+
     </WallSurfaceGroup>
   );
 }
