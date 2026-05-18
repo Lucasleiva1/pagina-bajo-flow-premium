@@ -1,5 +1,28 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-18 17:16:27 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Ajustes de layout Muro de Habilidades
+
+Tag de esta version: important-skills-wall-layout-2026-05-18-1716
+Mensaje del commit: fix: bio room skills wall layout spacing and artifacts
+
+Esta version corrige el layout horizontal del muro de Habilidades, eliminando artefactos visuales (shimmering/z-fighting) y solucionando el espaciado vertical que causaba cortes y solapamiento en el borde inferior.
+
+## Que contiene esta version actual
+
+- Eliminacion de lineas separadoras verticales e inferiores cruzadas (\`WallGlowLine\`) que cortaban visualmente la interfaz y causaban aberraciones.
+- Incremento en el espaciado Z (\`polygonOffset\` y posiciones \`z\`) de cada capa de texto de las tarjetas para prevenir parpadeos y z-fighting.
+- Eliminacion de la capa superpuesta oscura en los thumbnails que afectaba la lectura.
+- Reduccion del \`maxWidth\` del titulo general (HABILIDADES) a un valor razonable (2.8).
+- Correccion del posicionamiento vertical de las tarjetas (\`cardsY\` subido) para asegurar que el boton de CTA (\`Ver >\`) no sobresalga del marco visible.
+
+---
+
 Fecha de guardado importante: 2026-05-18 14:36:54 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
