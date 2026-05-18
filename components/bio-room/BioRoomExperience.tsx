@@ -6,7 +6,7 @@ import { BioRoomControls } from "@/components/bio-room/BioRoomControls";
 import { BioGalleryOverlay } from "@/components/bio-room/BioGalleryOverlay";
 import { BioRoomMobilePanels } from "@/components/bio-room/BioRoomMobilePanels";
 import type { SiteCopy } from "@/data/site";
-import { type BioRoomView, useBioRoomStore } from "@/lib/useBioRoomStore";
+import { useBioRoomStore } from "@/lib/useBioRoomStore";
 
 type BioRoomExperienceProps = {
   copy: SiteCopy["bio"];

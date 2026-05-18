@@ -93,9 +93,67 @@ export type BioRoomPreset = {
     rightFont: string;
     socialIconSize: number;
     socialIconGap: number;
-    socialLabelY: number;
     socialRowY: number;
     socialTextY: number;
+  };
+  bioWall: {
+    contentX: number;
+    contentY: number;
+    contentScale: number;
+    panelX: number;
+    panelY: number;
+    panelWidth: number;
+    panelHeight: number;
+    panelOpacity: number;
+    titleX: number;
+    titleY: number;
+    titleSize: number;
+    paragraphX: number;
+    paragraphOneY: number;
+    paragraphTwoY: number;
+    paragraphSize: number;
+    contributionLabelX: number;
+    contributionLabelY: number;
+    contributionRowsX: number;
+    contributionStartY: number;
+    contributionGap: number;
+    contributionSize: number;
+    sittingImageX: number;
+    sittingImageY: number;
+    sittingImageWidth: number;
+    sittingImageHeight: number;
+    sittingImageScale: number;
+    sittingImageOpacity: number;
+  };
+  skillsWall: {
+    showFrame: boolean;
+    contentX: number;
+    contentY: number;
+    contentScale: number;
+    panelWidth: number;
+    panelHeight: number;
+    panelOpacity: number;
+    frameWidth: number;
+    frameHeight: number;
+    headerY: number;
+    kickerSize: number;
+    titleSize: number;
+    subtitleSize: number;
+    dividerWidth: number;
+    dividerY: number;
+    cardsY: number;
+    thumbWidth: number;
+    cardGap: number;
+    numberSize: number;
+    cardTitleSize: number;
+    cardDescriptionSize: number;
+    ctaSize: number;
+    thumbnailLiftZ: number;
+    thumbnailHoverZ: number;
+    sittingImageX: number;
+    sittingImageY: number;
+    sittingImageScale: number;
+    sittingImageOpacity: number;
   };
 };
 
@@ -131,7 +189,7 @@ export const bioRoomPreset: BioRoomPreset = {
     "fillPosY": 1.6,
     "fillPosZ": 4.5,
     "fillIntensity": 6,
-    "ambientIntensity": 1.35
+    "ambientIntensity": 1.9500000000000002
   },
   "cinemaLights": {
     "wallWashY": 2.15,
@@ -161,16 +219,16 @@ export const bioRoomPreset: BioRoomPreset = {
   "frontWall": {
     "leftX": -1.6600000000000001,
     "leftY": 0.12,
-    "leftScale": 1,
-    "leftPanelWidth": 2.38,
+    "leftScale": 1.05,
+    "leftPanelWidth": 2.46,
     "leftPanelHeight": 1.54,
-    "leftPanelOpacity": 0.36,
+    "leftPanelOpacity": 0,
     "leftTextX": -0.86,
-    "leftKickerSize": 0.077,
+    "leftKickerSize": 0.087,
     "leftTitleSize": 0.23500000000000001,
-    "leftSubtitleSize": 0.07,
-    "leftBodySize": 0.083,
-    "leftSmallSize": 0.067,
+    "leftSubtitleSize": 0.08,
+    "leftBodySize": 0.08800000000000001,
+    "leftSmallSize": 0.07200000000000001,
     "leftKickerY": 0.79,
     "leftTitleY": 0.5,
     "leftSubtitleY": 0.2,
@@ -178,24 +236,82 @@ export const bioRoomPreset: BioRoomPreset = {
     "leftSmallY": -0.76,
     "leftFont": "Montserrat",
     "rightX": 1.63,
-    "rightY": -0.28,
+    "rightY": -0.32,
     "rightScale": 0.89,
     "rightPanelWidth": 2.26,
-    "rightPanelHeight": 1.15,
-    "rightPanelOpacity": 0.43,
+    "rightPanelHeight": 1.19,
+    "rightPanelOpacity": 0.010000000000000009,
     "rightTextX": -0.99,
     "rightTitleSize": 0.11,
     "rightTitleY": 0.6000000000000001,
-    "rightBodySize": 0.072,
+    "rightBodySize": 0.077,
     "rightFont": "Montserrat",
-    "socialIconSize": 0.43000000000000005,
+    "socialIconSize": 0.44000000000000006,
     "socialIconGap": 0.48,
-    "socialLabelY": -0.37,
     "socialRowY": 0.24,
-    "socialTextY": -0.42,
+    "socialTextY": -0.38,
     "backgroundX": 0,
     "backgroundY": -0.03,
     "backgroundScaleX": 1.17,
     "backgroundScaleY": 1.2
+  },
+  "bioWall": {
+    "contentX": 0.58,
+    "contentY": 0,
+    "contentScale": 1.04,
+    "panelX": -0.72,
+    "panelY": 0.03,
+    "panelWidth": 4.71,
+    "panelHeight": 3.04,
+    "panelOpacity": 0.16999999999999998,
+    "titleX": -1.3000000000000003,
+    "titleY": 1.2,
+    "titleSize": 0.165,
+    "paragraphX": -2.08,
+    "paragraphOneY": 0.62,
+    "paragraphTwoY": 0.030000000000000002,
+    "paragraphSize": 0.08600000000000001,
+    "contributionLabelX": -1.88,
+    "contributionLabelY": -0.52,
+    "contributionRowsX": -1.96,
+    "contributionStartY": -0.72,
+    "contributionGap": 0.17,
+    "contributionSize": 0.063,
+    "sittingImageX": -2.34,
+    "sittingImageY": -0.9600000000000001,
+    "sittingImageWidth": 1.2,
+    "sittingImageHeight": 0.68,
+    "sittingImageScale": 2.02,
+    "sittingImageOpacity": 1
+  },
+  "skillsWall": {
+    "showFrame": false,
+    "contentX": 0,
+    "contentY": 0,
+    "contentScale": 1.1,
+    "panelWidth": 5.8,
+    "panelHeight": 2.98,
+    "panelOpacity": 0,
+    "frameWidth": 5.8,
+    "frameHeight": 3.24,
+    "headerY": 1.16,
+    "kickerSize": 0.058,
+    "titleSize": 0.26,
+    "subtitleSize": 0.063,
+    "dividerWidth": 3.75,
+    "dividerY": 0.4,
+    "cardsY": -0.24,
+    "thumbWidth": 1.32,
+    "cardGap": 0.38,
+    "numberSize": 0.064,
+    "cardTitleSize": 0.068,
+    "cardDescriptionSize": 0.059,
+    "ctaSize": 0.052,
+    "thumbnailLiftZ": 0.07,
+    "thumbnailHoverZ": 0.18000000000000002,
+    "sittingImageX": 2.62,
+    "sittingImageY": -1.01,
+    "sittingImageScale": 2.28,
+    "sittingImageOpacity": 1
   }
 };

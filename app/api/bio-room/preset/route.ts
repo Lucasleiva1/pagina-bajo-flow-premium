@@ -5,11 +5,11 @@ import type { BioRoomPreset } from "@/data/bioRoomPreset";
 
 const presetPath = path.join(process.cwd(), "data", "bioRoomPreset.ts");
 
-function isPresetSectionRecord(value: unknown): value is Record<string, number | string> {
+function isPresetSectionRecord(value: unknown): value is Record<string, boolean | number | string> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   return Object.values(value).every((entry) => {
     if (typeof entry === "number") return Number.isFinite(entry);
-    return typeof entry === "string";
+    return typeof entry === "boolean" || typeof entry === "string";
   });
 }
 
@@ -23,7 +23,9 @@ function isBioRoomPreset(value: unknown): value is BioRoomPreset {
     isPresetSectionRecord(preset.lights) &&
     isPresetSectionRecord(preset.cinemaLights) &&
     isPresetSectionRecord(preset.visuals) &&
-    isPresetSectionRecord(preset.frontWall)
+    isPresetSectionRecord(preset.frontWall) &&
+    isPresetSectionRecord(preset.bioWall) &&
+    isPresetSectionRecord(preset.skillsWall)
   );
 }
 
@@ -123,9 +125,67 @@ function serializePreset(preset: BioRoomPreset) {
     rightFont: string;
     socialIconSize: number;
     socialIconGap: number;
-    socialLabelY: number;
     socialRowY: number;
     socialTextY: number;
+  };
+  bioWall: {
+    contentX: number;
+    contentY: number;
+    contentScale: number;
+    panelX: number;
+    panelY: number;
+    panelWidth: number;
+    panelHeight: number;
+    panelOpacity: number;
+    titleX: number;
+    titleY: number;
+    titleSize: number;
+    paragraphX: number;
+    paragraphOneY: number;
+    paragraphTwoY: number;
+    paragraphSize: number;
+    contributionLabelX: number;
+    contributionLabelY: number;
+    contributionRowsX: number;
+    contributionStartY: number;
+    contributionGap: number;
+    contributionSize: number;
+    sittingImageX: number;
+    sittingImageY: number;
+    sittingImageWidth: number;
+    sittingImageHeight: number;
+    sittingImageScale: number;
+    sittingImageOpacity: number;
+  };
+  skillsWall: {
+    showFrame: boolean;
+    contentX: number;
+    contentY: number;
+    contentScale: number;
+    panelWidth: number;
+    panelHeight: number;
+    panelOpacity: number;
+    frameWidth: number;
+    frameHeight: number;
+    headerY: number;
+    kickerSize: number;
+    titleSize: number;
+    subtitleSize: number;
+    dividerWidth: number;
+    dividerY: number;
+    cardsY: number;
+    thumbWidth: number;
+    cardGap: number;
+    numberSize: number;
+    cardTitleSize: number;
+    cardDescriptionSize: number;
+    ctaSize: number;
+    thumbnailLiftZ: number;
+    thumbnailHoverZ: number;
+    sittingImageX: number;
+    sittingImageY: number;
+    sittingImageScale: number;
+    sittingImageOpacity: number;
   };
 };
 

@@ -372,16 +372,12 @@ function WallImageBackground({
 function SocialIconButton({
   href,
   kind,
-  label,
-  labelY,
   size,
   x,
   y,
 }: {
   href: string;
   kind: SocialIconKind;
-  label: string;
-  labelY: number;
   size: number;
   x: number;
   y: number;
@@ -441,9 +437,6 @@ function SocialIconButton({
           transparent
         />
       </mesh>
-      <WallText color={wallMuted} fontSize={0.038} maxWidth={0.7} textAlign="center" x={0} y={labelY} z={0.05}>
-        {label}
-      </WallText>
     </group>
   );
 }
@@ -502,7 +495,6 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
       rightFont: { value: bioRoomPreset.frontWall.rightFont, label: "Fuente instalada" },
       socialIconSize: { value: bioRoomPreset.frontWall.socialIconSize, min: 0.28, max: 0.9, step: 0.01, label: "Iconos" },
       socialIconGap: { value: bioRoomPreset.frontWall.socialIconGap, min: 0.32, max: 0.9, step: 0.01, label: "Separacion" },
-      socialLabelY: { value: bioRoomPreset.frontWall.socialLabelY, min: -0.8, max: -0.1, step: 0.01, label: "Label Y" },
       socialRowY: { value: bioRoomPreset.frontWall.socialRowY, min: -0.5, max: 0.7, step: 0.02, label: "Fila Y" },
       socialTextY: { value: bioRoomPreset.frontWall.socialTextY, min: -1.1, max: 0.3, step: 0.02, label: "Bajada Y" },
     }, collapsedLevaFolder),
@@ -587,8 +579,6 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
             href={link.href}
             key={link.label}
             kind={link.kind}
-            label={link.label}
-            labelY={rightControls.socialLabelY}
             size={rightControls.socialIconSize}
             x={-(socialLinks.length - 1) * rightControls.socialIconGap / 2 + index * rightControls.socialIconGap}
             y={rightControls.socialRowY}
@@ -605,53 +595,153 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
 function BioContributionRow3D({
   text,
   title,
+  fontSize,
+  x,
   y,
 }: {
   text: string;
   title: string;
+  fontSize: number;
+  x: number;
   y: number;
 }) {
   return (
-    <group position={[-2.38, y, 0.12]}>
-      <WallText color={wallInk} fontSize={0.058} maxWidth={1.22} x={0} y={0} z={0.04}>
+    <group position={[x, y, 0.12]}>
+      <WallText color={wallInk} fontSize={fontSize} maxWidth={1.22} x={0} y={0} z={0.04}>
         {`${title}:`}
       </WallText>
-      <WallText color={wallMuted} fontSize={0.058} maxWidth={2.58} x={1.06} y={0} z={0.04}>
+      <WallText color={wallMuted} fontSize={fontSize} maxWidth={2.58} x={1.06} y={0} z={0.04}>
         {text}
       </WallText>
     </group>
   );
 }
 
+function WallPngImage3D({
+  height,
+  opacity,
+  scale = 1,
+  src,
+  width,
+  x,
+  y,
+  z = 0.2,
+}: {
+  height: number;
+  opacity: number;
+  scale?: number;
+  src: string;
+  width: number;
+  x: number;
+  y: number;
+  z?: number;
+}) {
+  const texture = useLoader(TextureLoader, src);
+  texture.colorSpace = SRGBColorSpace;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+
+  return (
+    <mesh position={[x, y, z]}>
+      <planeGeometry args={[width * scale, height * scale]} />
+      <meshBasicMaterial
+        alphaTest={0.02}
+        map={texture}
+        opacity={opacity}
+        side={DoubleSide}
+        toneMapped={false}
+        transparent
+      />
+    </mesh>
+  );
+}
+
 function BioWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
+  const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
+  const controls = useControls("MURO IZQUIERDO (Bio)", {
+    "Contenido general": folder({
+      contentX: { value: bioRoomPreset.bioWall.contentX, min: -1.5, max: 1.5, step: 0.02, label: "Mover X" },
+      contentY: { value: bioRoomPreset.bioWall.contentY, min: -1.2, max: 1.2, step: 0.02, label: "Mover Y" },
+      contentScale: { value: bioRoomPreset.bioWall.contentScale, min: 0.65, max: 1.45, step: 0.01, label: "Escala" },
+    }, collapsedLevaFolder),
+    "Panel fondo": folder({
+      panelX: { value: bioRoomPreset.bioWall.panelX, min: -2, max: 2, step: 0.02, label: "X" },
+      panelY: { value: bioRoomPreset.bioWall.panelY, min: -1.2, max: 1.2, step: 0.02, label: "Y" },
+      panelWidth: { value: bioRoomPreset.bioWall.panelWidth, min: 2.5, max: 5.4, step: 0.02, label: "Ancho" },
+      panelHeight: { value: bioRoomPreset.bioWall.panelHeight, min: 1.8, max: 3.4, step: 0.02, label: "Alto" },
+      panelOpacity: { value: bioRoomPreset.bioWall.panelOpacity, min: 0, max: 0.95, step: 0.01, label: "Opacidad" },
+    }, collapsedLevaFolder),
+    "Textos": folder({
+      titleX: { value: bioRoomPreset.bioWall.titleX, min: -3, max: -0.3, step: 0.02, label: "Titulo X" },
+      titleY: { value: bioRoomPreset.bioWall.titleY, min: -0.2, max: 1.5, step: 0.02, label: "Titulo Y" },
+      titleSize: { value: bioRoomPreset.bioWall.titleSize, min: 0.09, max: 0.28, step: 0.005, label: "Titulo tamano" },
+      paragraphX: { value: bioRoomPreset.bioWall.paragraphX, min: -3, max: -0.3, step: 0.02, label: "Parrafos X" },
+      paragraphOneY: { value: bioRoomPreset.bioWall.paragraphOneY, min: -0.5, max: 1.2, step: 0.02, label: "Parrafo 1 Y" },
+      paragraphTwoY: { value: bioRoomPreset.bioWall.paragraphTwoY, min: -1, max: 0.7, step: 0.02, label: "Parrafo 2 Y" },
+      paragraphSize: { value: bioRoomPreset.bioWall.paragraphSize, min: 0.04, max: 0.11, step: 0.005, label: "Parrafo tamano" },
+    }, collapsedLevaFolder),
+    "Aportes": folder({
+      contributionLabelX: { value: bioRoomPreset.bioWall.contributionLabelX, min: -3, max: 0.4, step: 0.02, label: "Titulo aportes X" },
+      contributionLabelY: { value: bioRoomPreset.bioWall.contributionLabelY, min: -1.2, max: 0.4, step: 0.02, label: "Titulo aportes Y" },
+      contributionRowsX: { value: bioRoomPreset.bioWall.contributionRowsX, min: -3, max: 0.4, step: 0.02, label: "Filas aportes X" },
+      contributionStartY: { value: bioRoomPreset.bioWall.contributionStartY, min: -1.4, max: 0.2, step: 0.02, label: "Inicio filas Y" },
+      contributionGap: { value: bioRoomPreset.bioWall.contributionGap, min: 0.1, max: 0.3, step: 0.01, label: "Separacion" },
+      contributionSize: { value: bioRoomPreset.bioWall.contributionSize, min: 0.04, max: 0.09, step: 0.005, label: "Tamano" },
+    }, collapsedLevaFolder),
+    "Imagen sentado": folder({
+      sittingImageX: { value: bioRoomPreset.bioWall.sittingImageX, min: -3, max: 0.6, step: 0.02, label: "Imagen X" },
+      sittingImageY: { value: bioRoomPreset.bioWall.sittingImageY, min: -1.5, max: 0.4, step: 0.02, label: "Imagen Y" },
+      sittingImageWidth: { value: bioRoomPreset.bioWall.sittingImageWidth, min: 0.4, max: 2.6, step: 0.02, label: "Ancho" },
+      sittingImageHeight: { value: bioRoomPreset.bioWall.sittingImageHeight, min: 0.25, max: 1.6, step: 0.02, label: "Alto" },
+      sittingImageScale: { value: bioRoomPreset.bioWall.sittingImageScale, min: 0.35, max: 3.6, step: 0.02, label: "Escala uniforme" },
+      sittingImageOpacity: { value: bioRoomPreset.bioWall.sittingImageOpacity, min: 0, max: 1, step: 0.01, label: "Opacidad" },
+    }, collapsedLevaFolder),
+  }, collapsedLevaFolder);
+
+  useEffect(() => {
+    setPresetSection("bioWall", controls);
+  }, [controls, setPresetSection]);
+
   return (
     <WallSurfaceGroup wall={wall}>
       <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} />
-      <WallFrame height={wall.height - 0.66} width={wall.width - 0.86} />
-      <group position={[-0.82, 0.01, 0.08]}>
-        <WallPanel color="#030611" height={2.98} opacity={0.62} width={4.55} z={0} />
+      <group position={[controls.contentX, controls.contentY, 0]} scale={controls.contentScale}>
+      <group position={[controls.panelX, controls.panelY, 0.08]}>
+        <WallPanel color="#030611" height={controls.panelHeight} opacity={controls.panelOpacity} width={controls.panelWidth} z={0} />
         <WallGlowLine color="#00f0ff" height={0.84} opacity={0.9} width={0.018} x={-2.12} y={-0.67} z={0.055} />
       </group>
-      <WallText fontSize={0.16} maxWidth={3.42} x={-2.74} y={1.18} z={0.16}>
+      <WallText fontSize={controls.titleSize} maxWidth={3.42} x={controls.titleX} y={controls.titleY} z={0.16}>
         {copy.title}
       </WallText>
-      <WallText color={wallMuted} fontSize={0.066} maxWidth={3.48} x={-2.74} y={0.62} z={0.16}>
+      <WallText color={wallMuted} fontSize={controls.paragraphSize} maxWidth={3.48} x={controls.paragraphX} y={controls.paragraphOneY} z={0.16}>
         {copy.paragraphs[0]}
       </WallText>
-      <WallText color={wallMuted} fontSize={0.066} maxWidth={3.48} x={-2.74} y={-0.03} z={0.16}>
+      <WallText color={wallMuted} fontSize={controls.paragraphSize} maxWidth={3.48} x={controls.paragraphX} y={controls.paragraphTwoY} z={0.16}>
         {copy.paragraphs[1]}
       </WallText>
-      <WallText color="#00f0ff" fontSize={0.078} maxWidth={3.5} x={-2.4} y={-0.58} z={0.16}>
+      <WallText color="#00f0ff" fontSize={0.078} maxWidth={3.5} x={controls.contributionLabelX} y={controls.contributionLabelY} z={0.16}>
         LO QUE APORTO A CADA PROYECTO:
       </WallText>
       {copy.bioBlocks.map((block, index) => (
         <BioContributionRow3D
           key={block.title}
+          fontSize={controls.contributionSize}
           text={block.text}
           title={block.title}
-          y={-0.84 - index * 0.16}
+          x={controls.contributionRowsX}
+          y={controls.contributionStartY - index * controls.contributionGap}
         />
       ))}
+      <WallPngImage3D
+        height={controls.sittingImageHeight}
+        opacity={controls.sittingImageOpacity}
+        scale={controls.sittingImageScale}
+        src="/assets/bio-room/lucas-sentado.png"
+        width={controls.sittingImageWidth}
+        x={controls.sittingImageX}
+        y={controls.sittingImageY}
+      />
+      </group>
     </WallSurfaceGroup>
   );
 }
@@ -676,12 +766,16 @@ function getSkillPoster(item: SiteCopy["bio"]["skillItems"][number]) {
 function SkillThumbnail({
   item,
   onClick,
+  restZ,
+  hoverZ,
   width,
   x,
   y,
 }: {
   item: SiteCopy["bio"]["skillItems"][number];
   onClick: () => void;
+  restZ: number;
+  hoverZ: number;
   width: number;
   x: number;
   y: number;
@@ -698,7 +792,7 @@ function SkillThumbnail({
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    const targetZ = isHovered ? 0.2 : 0.1;
+    const targetZ = isHovered ? hoverZ : restZ;
     groupRef.current.position.z = MathUtils.damp(groupRef.current.position.z, targetZ, 8, delta);
   });
 
@@ -707,7 +801,7 @@ function SkillThumbnail({
       onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onClick(); }}
       onPointerOut={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setIsHovered(false); document.body.style.cursor = ""; }}
       onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setIsHovered(true); document.body.style.cursor = "pointer"; }}
-      position={[x, y, 0.1]}
+      position={[x, y, restZ]}
       ref={groupRef}
     >
       {/* Dark background — slightly behind the image */}
@@ -737,45 +831,104 @@ function SkillThumbnail({
 
 function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
   const openGalleryItem = useBioRoomStore((state) => state.openGalleryItem);
+  const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
+  const controls = useControls("MURO DERECHO (Habilidades)", {
+    "Contenido general": folder({
+      showFrame: { value: bioRoomPreset.skillsWall.showFrame, label: "Mostrar marco" },
+      contentX: { value: bioRoomPreset.skillsWall.contentX, min: -1.5, max: 1.5, step: 0.02, label: "Mover X" },
+      contentY: { value: bioRoomPreset.skillsWall.contentY, min: -1.2, max: 1.2, step: 0.02, label: "Mover Y" },
+      contentScale: { value: bioRoomPreset.skillsWall.contentScale, min: 0.65, max: 1.45, step: 0.01, label: "Escala" },
+    }, collapsedLevaFolder),
+    "Panel mural": folder({
+      panelWidth: { value: bioRoomPreset.skillsWall.panelWidth, min: 3.4, max: 5.8, step: 0.02, label: "Panel ancho" },
+      panelHeight: { value: bioRoomPreset.skillsWall.panelHeight, min: 2.2, max: 3.4, step: 0.02, label: "Panel alto" },
+      panelOpacity: { value: bioRoomPreset.skillsWall.panelOpacity, min: 0, max: 0.95, step: 0.01, label: "Opacidad" },
+      frameWidth: { value: bioRoomPreset.skillsWall.frameWidth, min: 3.4, max: 5.8, step: 0.02, label: "Marco ancho" },
+      frameHeight: { value: bioRoomPreset.skillsWall.frameHeight, min: 2.2, max: 3.4, step: 0.02, label: "Marco alto" },
+    }, collapsedLevaFolder),
+    "Titulo": folder({
+      headerY: { value: bioRoomPreset.skillsWall.headerY, min: 0.25, max: 1.45, step: 0.02, label: "Bloque Y" },
+      kickerSize: { value: bioRoomPreset.skillsWall.kickerSize, min: 0.035, max: 0.1, step: 0.005, label: "Showcase" },
+      titleSize: { value: bioRoomPreset.skillsWall.titleSize, min: 0.12, max: 0.38, step: 0.005, label: "Habilidades" },
+      subtitleSize: { value: bioRoomPreset.skillsWall.subtitleSize, min: 0.035, max: 0.1, step: 0.005, label: "Subtitulo" },
+      dividerWidth: { value: bioRoomPreset.skillsWall.dividerWidth, min: 1.2, max: 4.8, step: 0.05, label: "Linea ancho" },
+      dividerY: { value: bioRoomPreset.skillsWall.dividerY, min: -0.1, max: 0.6, step: 0.02, label: "Linea Y" },
+    }, collapsedLevaFolder),
+    "Tarjetas": folder({
+      cardsY: { value: bioRoomPreset.skillsWall.cardsY, min: -0.75, max: 0.45, step: 0.02, label: "Fila Y" },
+      thumbWidth: { value: bioRoomPreset.skillsWall.thumbWidth, min: 0.75, max: 1.65, step: 0.02, label: "Video ancho" },
+      cardGap: { value: bioRoomPreset.skillsWall.cardGap, min: -0.1, max: 0.7, step: 0.02, label: "Separacion" },
+      numberSize: { value: bioRoomPreset.skillsWall.numberSize, min: 0.035, max: 0.09, step: 0.005, label: "Numero" },
+      cardTitleSize: { value: bioRoomPreset.skillsWall.cardTitleSize, min: 0.04, max: 0.11, step: 0.005, label: "Titulo" },
+      cardDescriptionSize: { value: bioRoomPreset.skillsWall.cardDescriptionSize, min: 0.035, max: 0.09, step: 0.005, label: "Descripcion" },
+      ctaSize: { value: bioRoomPreset.skillsWall.ctaSize, min: 0.035, max: 0.08, step: 0.005, label: "Ver" },
+    }, collapsedLevaFolder),
+    "Profundidad": folder({
+      thumbnailLiftZ: { value: bioRoomPreset.skillsWall.thumbnailLiftZ, min: 0.04, max: 0.28, step: 0.01, label: "Video Z" },
+      thumbnailHoverZ: { value: bioRoomPreset.skillsWall.thumbnailHoverZ, min: 0.08, max: 0.38, step: 0.01, label: "Hover Z" },
+    }, collapsedLevaFolder),
+    "Imagen sentado": folder({
+      sittingImageX: { value: bioRoomPreset.skillsWall.sittingImageX, min: -0.4, max: 3.2, step: 0.02, label: "Imagen X" },
+      sittingImageY: { value: bioRoomPreset.skillsWall.sittingImageY, min: -1.5, max: 0.6, step: 0.02, label: "Imagen Y" },
+      sittingImageScale: { value: bioRoomPreset.skillsWall.sittingImageScale, min: 0.35, max: 3.6, step: 0.02, label: "Escala uniforme" },
+      sittingImageOpacity: { value: bioRoomPreset.skillsWall.sittingImageOpacity, min: 0, max: 1, step: 0.01, label: "Opacidad" },
+    }, collapsedLevaFolder),
+  }, collapsedLevaFolder);
+
+  useEffect(() => {
+    setPresetSection("skillsWall", controls);
+  }, [controls, setPresetSection]);
 
   // The camera lateral view shows roughly ±1.6 units from center X.
   // Layout: header row top-center, 3 cards in a horizontal row below.
   // Each card = thumbnail + number + title + description below it.
 
-  const thumbW = 1.28;           // thumbnail width
+  const thumbW = controls.thumbWidth;           // thumbnail width
   const thumbH = thumbW * (9 / 16); // ~0.72
-  const cardGap = 0.24;           // horizontal gap between cards
+  const cardGap = controls.cardGap;           // horizontal gap between cards
   const numCards = copy.skillItems.length; // 3
   const totalRowW = numCards * thumbW + (numCards - 1) * cardGap; // ~4.32
   const firstCardX = -totalRowW / 2 + thumbW / 2; // leftmost card center X
-  const cardsY = -0.18;          // vertical center of the card row
-  const headerY = 1.16;           // top of header area
+  const cardsY = controls.cardsY;          // vertical center of the card row
+  const headerY = controls.headerY;           // top of header area
 
   return (
     <WallSurfaceGroup wall={wall}>
       {/* Base wall panel */}
       <WallPanel height={wall.height - 0.48} width={wall.width - 0.72} />
       {/* Dark inner panel — tighter to the visible camera area */}
-      <WallPanel color="#030611" height={wall.height - 0.62} opacity={0.78} width={5.2} z={0.04} />
+      <WallPanel color="#030611" height={controls.panelHeight} opacity={controls.panelOpacity} width={controls.panelWidth} z={0.04} />
       {/* Outer frame around visible content */}
-      <WallFrame height={wall.height - 0.58} width={5.08} />
+      {controls.showFrame ? <WallFrame height={controls.frameHeight} width={controls.frameWidth} /> : null}
+      <WallPngImage3D
+        height={0.7}
+        opacity={controls.sittingImageOpacity}
+        scale={controls.sittingImageScale}
+        src="/assets/bio-room/lucas-sentado-blanco.png"
+        width={1.24}
+        x={controls.sittingImageX}
+        y={controls.sittingImageY}
+        z={0.23}
+      />
+
+      <group position={[controls.contentX, controls.contentY, 0]} scale={controls.contentScale}>
 
       {/* ── HEADER ── centered */}
       {/* Kicker */}
-      <WallText color="#9f7bff" fontSize={0.058} maxWidth={2.4} textAlign="center" x={0} y={headerY} z={0.22}>
+      <WallText color="#9f7bff" fontSize={controls.kickerSize} maxWidth={2.4} textAlign="center" x={0} y={headerY} z={0.22}>
         SHOWCASE TÉCNICO
       </WallText>
       {/* Main title */}
-      <WallText fontSize={0.26} maxWidth={2.8} textAlign="center" x={0} y={headerY - 0.34} z={0.20}>
+      <WallText fontSize={controls.titleSize} maxWidth={2.8} textAlign="center" x={0} y={headerY - 0.34} z={0.20}>
         HABILIDADES
       </WallText>
       {/* Subtitle */}
-      <WallText color={wallMuted} fontSize={0.063} maxWidth={2.8} textAlign="center" x={0} y={headerY - 0.72} z={0.18}>
+      <WallText color={wallMuted} fontSize={controls.subtitleSize} maxWidth={2.8} textAlign="center" x={0} y={headerY - 0.72} z={0.18}>
         Nodos técnicos conectados por sonido, color y motion.
       </WallText>
 
       {/* Divider */}
-      <WallGlowLine color="#9f7bff" height={0.006} opacity={0.38} width={3.6} x={0} y={headerY - 0.96} z={0.16} />
+      <WallGlowLine color="#9f7bff" height={0.006} opacity={0.38} width={controls.dividerWidth} x={0} y={controls.dividerY} z={0.16} />
 
       {/* ── SKILL CARDS — horizontal row ── */}
       {copy.skillItems.map((item, index) => {
@@ -786,31 +939,33 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
         return (
           <group key={item.title}>
             {/* Number badge */}
-            <WallText color={accent} fontSize={0.054} maxWidth={0.28} textAlign="center" x={cardX} y={cardsY + thumbH / 2 + 0.14} z={0.24}>
+            <WallText color={accent} fontSize={controls.numberSize} maxWidth={0.28} textAlign="center" x={cardX} y={cardsY + thumbH / 2 + 0.14} z={0.24}>
               {numLabel}
             </WallText>
 
             {/* Thumbnail */}
             <SkillThumbnail
+              hoverZ={controls.thumbnailHoverZ}
               item={item}
               onClick={() => openGalleryItem(item)}
+              restZ={controls.thumbnailLiftZ}
               width={thumbW}
               x={cardX}
               y={cardsY}
             />
 
             {/* Title below thumbnail */}
-            <WallText fontSize={0.068} maxWidth={thumbW} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.2} z={0.20}>
+            <WallText fontSize={controls.cardTitleSize} maxWidth={thumbW} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.2} z={0.20}>
               {item.title}
             </WallText>
 
             {/* Description below title */}
-            <WallText color={wallMuted} fontSize={0.054} maxWidth={thumbW - 0.04} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.52} z={0.18}>
+            <WallText color={wallMuted} fontSize={controls.cardDescriptionSize} maxWidth={thumbW - 0.04} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.52} z={0.18}>
               {item.description}
             </WallText>
 
             {/* "Ver ▶" CTA */}
-            <WallText color={accent} fontSize={0.052} maxWidth={0.6} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.72} z={0.22}>
+            <WallText color={accent} fontSize={controls.ctaSize} maxWidth={0.6} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.72} z={0.22}>
               Ver ▶
             </WallText>
 
@@ -830,6 +985,7 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
         );
       })}
 
+      </group>
     </WallSurfaceGroup>
   );
 }

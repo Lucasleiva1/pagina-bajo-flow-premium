@@ -1,5 +1,37 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-18 20:07:09 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Bio Room con imagenes y controles de muros
+
+Tag de esta version: important-bio-room-images-controls-2026-05-18-2007
+Mensaje del commit: feat: save bio room images and wall controls checkpoint
+
+Esta version queda como punto fuerte para arrancar desde aca. Conserva la Bio Room 3D con los muros Bio y Habilidades ajustables desde Leva, imagenes PNG del usuario montadas en los muros y escala uniforme ampliada para poder agrandarlas mejor.
+
+## Que contiene esta version actual
+
+- Muro Bio con imagen PNG sentado en camisa roja, ubicada abajo a la izquierda y servida desde `public/assets/bio-room/lucas-sentado.png`.
+- Muro Habilidades con imagen PNG sentado en camisa blanca, ubicada abajo a la derecha y servida desde `public/assets/bio-room/lucas-sentado-blanco.png`.
+- Control `Escala uniforme` en `MURO IZQUIERDO (Bio) > Imagen sentado`.
+- Control `Escala uniforme` en `MURO DERECHO (Habilidades) > Imagen sentado`.
+- Rango de escala ampliado hasta `3.6` para poder agrandar mucho mas ambas imagenes.
+- Controles de posicion, opacidad y layout de los muros guardables con `GUARDAR 3D`.
+- Muro Habilidades mantiene videos/posters y navegacion lateral.
+- Muro Bio conserva ajustes recientes de textos, aportes, fondo y remocion del borde general.
+
+## Verificacion de esta version actual
+
+- `npm.cmd run lint` paso correctamente antes de guardar.
+- `npm.cmd run build` paso correctamente antes de guardar.
+- Verificacion en navegador sobre `http://127.0.0.1:3000/` confirmo que la imagen nueva de Habilidades carga como PNG (`200`) y se ve en el muro.
+
+---
+
 Fecha de guardado importante: 2026-05-18 17:16:27 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main

@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { useControls, folder, Leva } from "leva";
