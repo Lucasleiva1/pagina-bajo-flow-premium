@@ -99,6 +99,7 @@ export type BioRoomPreset = {
   bioWall: {
     contentX: number;
     contentY: number;
+    contentZ: number;
     contentScale: number;
     panelX: number;
     panelY: number;
@@ -258,12 +259,13 @@ export const bioRoomPreset: BioRoomPreset = {
   "bioWall": {
     "contentX": 0.58,
     "contentY": 0,
+    "contentZ": 0.26,
     "contentScale": 1.04,
     "panelX": -0.72,
     "panelY": 0.03,
     "panelWidth": 4.71,
     "panelHeight": 3.04,
-    "panelOpacity": 0.16999999999999998,
+    "panelOpacity": 0.78,
     "titleX": -1.3000000000000003,
     "titleY": 1.2,
     "titleSize": 0.165,
@@ -277,21 +279,21 @@ export const bioRoomPreset: BioRoomPreset = {
     "contributionStartY": -0.72,
     "contributionGap": 0.17,
     "contributionSize": 0.063,
-    "sittingImageX": -2.34,
-    "sittingImageY": -0.9600000000000001,
+    "sittingImageX": -2.36,
+    "sittingImageY": -0.6200000000000001,
     "sittingImageWidth": 1.2,
     "sittingImageHeight": 0.68,
-    "sittingImageScale": 2.02,
+    "sittingImageScale": 2.64,
     "sittingImageOpacity": 1
   },
   "skillsWall": {
     "showFrame": false,
-    "contentX": 0,
+    "contentX": -0.4,
     "contentY": 0,
     "contentScale": 1.1,
     "panelWidth": 5.8,
     "panelHeight": 2.98,
-    "panelOpacity": 0,
+    "panelOpacity": 0.78,
     "frameWidth": 5.8,
     "frameHeight": 3.24,
     "headerY": 1.16,
@@ -309,9 +311,9 @@ export const bioRoomPreset: BioRoomPreset = {
     "ctaSize": 0.052,
     "thumbnailLiftZ": 0.07,
     "thumbnailHoverZ": 0.18000000000000002,
-    "sittingImageX": 2.62,
+    "sittingImageX": 2.44,
     "sittingImageY": -1.01,
-    "sittingImageScale": 2.28,
+    "sittingImageScale": 2.5599999999999996,
     "sittingImageOpacity": 1
   }
 };

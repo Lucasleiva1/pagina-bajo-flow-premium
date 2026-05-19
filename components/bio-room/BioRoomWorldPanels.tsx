@@ -1,19 +1,20 @@
 "use client";
 
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { type ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
+import { type ThreeEvent, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { folder, useControls } from "leva";
 import {
   CanvasTexture,
   DoubleSide,
   LinearFilter,
+  LinearMipmapLinearFilter,
   MathUtils,
   SRGBColorSpace,
   TextureLoader,
   type Group,
 } from "three";
 import type { BioRoomLayout, WallSurface } from "@/components/bio-room/BioRoomLayout";
-import { bioRoomPreset } from "@/data/bioRoomPreset";
+import { bioRoomPreset, type BioRoomPreset } from "@/data/bioRoomPreset";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomPresetStore } from "@/lib/useBioRoomPresetStore";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
@@ -51,6 +52,7 @@ type WallTextProps = {
 };
 
 type SocialIconKind = "facebook" | "instagram" | "tiktok" | "youtube";
+type BioWallControls = BioRoomPreset["bioWall"];
 
 const wallAccent = "#bdb6a5";
 const wallAmber = "#d6a15f";
@@ -175,7 +177,10 @@ function WallText({
   z = 0.105,
 }: WallTextProps) {
   const text = typeof children === "string" ? children : String(children ?? "");
+  const { gl } = useThree();
+  const textAnisotropy = Math.min(gl.capabilities.getMaxAnisotropy(), 8);
   const { height, texture, width } = useWallTextTexture({
+    anisotropy: textAnisotropy,
     color,
     fontFamily,
     fontSize,
@@ -191,7 +196,6 @@ function WallText({
       <planeGeometry args={[width, height]} />
       <meshBasicMaterial
         depthTest
-        depthWrite
         map={texture}
         toneMapped={false}
         transparent
@@ -201,6 +205,7 @@ function WallText({
 }
 
 function useWallTextTexture({
+  anisotropy,
   color,
   fontFamily,
   fontSize,
@@ -208,6 +213,7 @@ function useWallTextTexture({
   text,
   textAlign,
 }: {
+  anisotropy: number;
   color: string;
   fontFamily: string;
   fontSize: number;
@@ -216,7 +222,9 @@ function useWallTextTexture({
   textAlign: "left" | "center" | "right";
 }) {
   return useMemo(() => {
-    const pixelsPerUnit = 920;
+    const isWideViewport =
+      typeof window !== "undefined" && window.matchMedia("(min-width: 900px)").matches;
+    const pixelsPerUnit = isWideViewport ? 1320 : 980;
     const width = Math.max(maxWidth ?? Math.min(2.8, Math.max(0.65, text.length * fontSize * 0.58)), 0.42);
     const fontPx = Math.max(18, Math.round(fontSize * pixelsPerUnit));
     const paddingX = Math.round(fontPx * 0.45);
@@ -232,6 +240,10 @@ function useWallTextTexture({
 
     if (!measureContext) {
       const emptyTexture = new CanvasTexture(measureCanvas);
+      emptyTexture.colorSpace = SRGBColorSpace;
+      emptyTexture.minFilter = LinearMipmapLinearFilter;
+      emptyTexture.magFilter = LinearFilter;
+      emptyTexture.anisotropy = anisotropy;
       return { height: fontSize, texture: emptyTexture, width };
     }
 
@@ -248,6 +260,8 @@ function useWallTextTexture({
 
     if (context) {
       context.clearRect(0, 0, canvas.width, canvas.height);
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
       context.font = `700 ${fontPx}px ${formattedFontFamily}`;
       context.fillStyle = color;
       context.textBaseline = "middle";
@@ -271,8 +285,9 @@ function useWallTextTexture({
 
     const texture = new CanvasTexture(canvas);
     texture.colorSpace = SRGBColorSpace;
-    texture.minFilter = LinearFilter;
+    texture.minFilter = LinearMipmapLinearFilter;
     texture.magFilter = LinearFilter;
+    texture.anisotropy = anisotropy;
     texture.needsUpdate = true;
 
     return {
@@ -280,7 +295,7 @@ function useWallTextTexture({
       texture,
       width,
     };
-  }, [color, fontFamily, fontSize, maxWidth, text, textAlign]);
+  }, [anisotropy, color, fontFamily, fontSize, maxWidth, text, textAlign]);
 }
 
 function wrapCanvasText(
@@ -656,12 +671,66 @@ function WallPngImage3D({
   );
 }
 
-function BioWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
+function BioWallContent3D({
+  controls,
+  copy,
+  wall,
+}: {
+  controls: BioWallControls;
+  copy: SiteCopy["bio"];
+  wall: WallSurface;
+}) {
+  return (
+    <WallSurfaceGroup wall={wall}>
+      <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} z={0.14} />
+      <group position={[controls.contentX, controls.contentY, controls.contentZ]} scale={controls.contentScale}>
+      <group position={[controls.panelX, controls.panelY, 0.08]}>
+        <WallPanel color="#030611" height={controls.panelHeight} opacity={controls.panelOpacity} width={controls.panelWidth} z={0} />
+        <WallGlowLine color="#00f0ff" height={0.84} opacity={0.9} width={0.018} x={-2.12} y={-0.67} z={0.055} />
+      </group>
+      <WallText fontSize={controls.titleSize} maxWidth={3.42} x={controls.titleX} y={controls.titleY} z={0.16}>
+        {copy.title}
+      </WallText>
+      <WallText color={wallMuted} fontSize={controls.paragraphSize} maxWidth={3.48} x={controls.paragraphX} y={controls.paragraphOneY} z={0.16}>
+        {copy.paragraphs[0]}
+      </WallText>
+      <WallText color={wallMuted} fontSize={controls.paragraphSize} maxWidth={3.48} x={controls.paragraphX} y={controls.paragraphTwoY} z={0.16}>
+        {copy.paragraphs[1]}
+      </WallText>
+      <WallText color="#00f0ff" fontSize={0.078} maxWidth={3.5} x={controls.contributionLabelX} y={controls.contributionLabelY} z={0.16}>
+        LO QUE APORTO A CADA PROYECTO:
+      </WallText>
+      {copy.bioBlocks.map((block, index) => (
+        <BioContributionRow3D
+          key={block.title}
+          fontSize={controls.contributionSize}
+          text={block.text}
+          title={block.title}
+          x={controls.contributionRowsX}
+          y={controls.contributionStartY - index * controls.contributionGap}
+        />
+      ))}
+      <WallPngImage3D
+        height={controls.sittingImageHeight}
+        opacity={controls.sittingImageOpacity}
+        scale={controls.sittingImageScale}
+        src="/assets/bio-room/lucas-sentado.png"
+        width={controls.sittingImageWidth}
+        x={controls.sittingImageX}
+        y={controls.sittingImageY}
+      />
+      </group>
+    </WallSurfaceGroup>
+  );
+}
+
+function BioWallWithLeva3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
   const controls = useControls("MURO IZQUIERDO (Bio)", {
     "Contenido general": folder({
       contentX: { value: bioRoomPreset.bioWall.contentX, min: -1.5, max: 1.5, step: 0.02, label: "Mover X" },
       contentY: { value: bioRoomPreset.bioWall.contentY, min: -1.2, max: 1.2, step: 0.02, label: "Mover Y" },
+      contentZ: { value: bioRoomPreset.bioWall.contentZ, min: 0.02, max: 0.75, step: 0.01, label: "Separar de pared" },
       contentScale: { value: bioRoomPreset.bioWall.contentScale, min: 0.65, max: 1.45, step: 0.01, label: "Escala" },
     }, collapsedLevaFolder),
     "Panel fondo": folder({
@@ -702,47 +771,22 @@ function BioWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface })
     setPresetSection("bioWall", controls);
   }, [controls, setPresetSection]);
 
-  return (
-    <WallSurfaceGroup wall={wall}>
-      <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} />
-      <group position={[controls.contentX, controls.contentY, 0]} scale={controls.contentScale}>
-      <group position={[controls.panelX, controls.panelY, 0.08]}>
-        <WallPanel color="#030611" height={controls.panelHeight} opacity={controls.panelOpacity} width={controls.panelWidth} z={0} />
-        <WallGlowLine color="#00f0ff" height={0.84} opacity={0.9} width={0.018} x={-2.12} y={-0.67} z={0.055} />
-      </group>
-      <WallText fontSize={controls.titleSize} maxWidth={3.42} x={controls.titleX} y={controls.titleY} z={0.16}>
-        {copy.title}
-      </WallText>
-      <WallText color={wallMuted} fontSize={controls.paragraphSize} maxWidth={3.48} x={controls.paragraphX} y={controls.paragraphOneY} z={0.16}>
-        {copy.paragraphs[0]}
-      </WallText>
-      <WallText color={wallMuted} fontSize={controls.paragraphSize} maxWidth={3.48} x={controls.paragraphX} y={controls.paragraphTwoY} z={0.16}>
-        {copy.paragraphs[1]}
-      </WallText>
-      <WallText color="#00f0ff" fontSize={0.078} maxWidth={3.5} x={controls.contributionLabelX} y={controls.contributionLabelY} z={0.16}>
-        LO QUE APORTO A CADA PROYECTO:
-      </WallText>
-      {copy.bioBlocks.map((block, index) => (
-        <BioContributionRow3D
-          key={block.title}
-          fontSize={controls.contributionSize}
-          text={block.text}
-          title={block.title}
-          x={controls.contributionRowsX}
-          y={controls.contributionStartY - index * controls.contributionGap}
-        />
-      ))}
-      <WallPngImage3D
-        height={controls.sittingImageHeight}
-        opacity={controls.sittingImageOpacity}
-        scale={controls.sittingImageScale}
-        src="/assets/bio-room/lucas-sentado.png"
-        width={controls.sittingImageWidth}
-        x={controls.sittingImageX}
-        y={controls.sittingImageY}
-      />
-      </group>
-    </WallSurfaceGroup>
+  return <BioWallContent3D controls={controls} copy={copy} wall={wall} />;
+}
+
+function BioWallWithoutLeva3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
+  const controls = useBioRoomPresetStore((state) => state.preset.bioWall);
+
+  return <BioWallContent3D controls={controls} copy={copy} wall={wall} />;
+}
+
+function BioWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
+  const isBioLevaDisabled = useBioRoomStore((state) => state.isBioLevaDisabled);
+
+  return isBioLevaDisabled ? (
+    <BioWallWithoutLeva3D copy={copy} wall={wall} />
+  ) : (
+    <BioWallWithLeva3D copy={copy} wall={wall} />
   );
 }
 
@@ -832,6 +876,7 @@ function SkillThumbnail({
 function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
   const openGalleryItem = useBioRoomStore((state) => state.openGalleryItem);
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
+  const wallSeparation = 0.26;
   const controls = useControls("MURO DERECHO (Habilidades)", {
     "Contenido general": folder({
       showFrame: { value: bioRoomPreset.skillsWall.showFrame, label: "Mostrar marco" },
@@ -895,9 +940,9 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
   return (
     <WallSurfaceGroup wall={wall}>
       {/* Base wall panel */}
-      <WallPanel height={wall.height - 0.48} width={wall.width - 0.72} />
+      <WallPanel height={wall.height - 0.48} width={wall.width - 0.72} z={0.14} />
       {/* Dark inner panel — tighter to the visible camera area */}
-      <WallPanel color="#030611" height={controls.panelHeight} opacity={controls.panelOpacity} width={controls.panelWidth} z={0.04} />
+      <WallPanel color="#030611" height={controls.panelHeight} opacity={controls.panelOpacity} width={controls.panelWidth} z={wallSeparation + 0.04} />
       {/* Outer frame around visible content */}
       {controls.showFrame ? <WallFrame height={controls.frameHeight} width={controls.frameWidth} /> : null}
       <WallPngImage3D
@@ -908,10 +953,10 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
         width={1.24}
         x={controls.sittingImageX}
         y={controls.sittingImageY}
-        z={0.23}
+        z={wallSeparation + 0.34}
       />
 
-      <group position={[controls.contentX, controls.contentY, 0]} scale={controls.contentScale}>
+      <group position={[controls.contentX, controls.contentY, wallSeparation]} scale={controls.contentScale}>
 
       {/* ── HEADER ── centered */}
       {/* Kicker */}

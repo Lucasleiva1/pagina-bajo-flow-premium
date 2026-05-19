@@ -6,14 +6,14 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { languageOptions, siteCopy, type Language } from "@/data/site";
 import { BioScene } from "@/components/BioScene";
 import { ContactScene } from "@/components/ContactScene";
-import { CraftScene } from "@/components/CraftScene";
 import { FooterScene } from "@/components/FooterScene";
 import { Header } from "@/components/Header";
 import { HeroScene } from "@/components/HeroScene";
+import { ServicesScene } from "@/components/ServicesScene";
 import { WorkScene } from "@/components/WorkScene";
 import { useActiveScene } from "@/lib/useActiveScene";
 
-const sceneIds = ["intro", "work", "craft", "bio", "contact", "footer"];
+const sceneIds = ["intro", "work", "bio", "services", "contact", "footer"];
 
 export function ExperiencePage() {
   const activeScene = useActiveScene(sceneIds);
@@ -82,8 +82,8 @@ export function ExperiencePage() {
       <main className="snap-stage">
         <HeroScene copy={copy.hero} />
         <WorkScene copy={copy.work} />
-        <CraftScene copy={copy.craft} />
         <BioScene copy={copy.bio} />
+        <ServicesScene copy={copy.services} />
         <ContactScene copy={copy.contact} />
         <FooterScene copy={copy.footer} />
       </main>

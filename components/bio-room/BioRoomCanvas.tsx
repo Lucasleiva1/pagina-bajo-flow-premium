@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useMemo, useRef } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { useControls, folder, Leva } from "leva";
@@ -10,6 +10,7 @@ import {
   DoubleSide,
   Group,
   LinearFilter,
+  LinearMipmapLinearFilter,
   MathUtils,
   SRGBColorSpace,
   TextureLoader,
@@ -164,10 +165,13 @@ function SoftboxTexture() {
 }
 
 function useRoomDecorTexture(src: string) {
+  const { gl } = useThree();
   const texture = useLoader(TextureLoader, src);
   texture.colorSpace = SRGBColorSpace;
-  texture.minFilter = LinearFilter;
+  texture.minFilter = LinearMipmapLinearFilter;
   texture.magFilter = LinearFilter;
+  texture.generateMipmaps = true;
+  texture.anisotropy = Math.min(gl.capabilities.getMaxAnisotropy(), 8);
 
   return texture;
 }
@@ -317,6 +321,7 @@ function RoomShell({
 }: {
   children?: (layout: BioRoomLayout) => ReactNode;
 }) {
+  const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
   const softbox = SoftboxTexture();
 
@@ -410,6 +415,10 @@ function RoomShell({
   const D = roomControls.depth;
   const Zback = roomControls.zBack;
   const H = roomControls.height;
+  const isSideContentView = activeRoomView === "bio" || activeRoomView === "gallery";
+  const guideOpacity = visualControls.guideOpacity * (isSideContentView ? 0.12 : 1);
+  const bioWallTextureOpacity = activeRoomView === "bio" ? 0.18 : 0.76;
+  const skillsWallTextureOpacity = activeRoomView === "gallery" ? 0.18 : 0.7;
   const layout = useMemo(
     () =>
       createBioRoomLayout({
@@ -552,23 +561,23 @@ function RoomShell({
 
       <GlowLine
         position={[0, H - 0.28, Zback + 0.035]}
-        opacity={visualControls.guideOpacity}
+        opacity={guideOpacity}
         scale={[W * 2 - 0.95, 0.014, 0.014]}
       />
       <GlowLine
         position={[0, 0.28, Zback + 0.035]}
-        opacity={visualControls.guideOpacity}
+        opacity={guideOpacity}
         scale={[W * 2 - 0.95, 0.014, 0.014]}
       />
       <GlowLine
         position={[-W + 0.46, H / 2, Zback + 0.035]}
-        opacity={visualControls.guideOpacity}
+        opacity={guideOpacity}
         rotation={[0, 0, Math.PI / 2]}
         scale={[H - 0.72, 0.014, 0.014]}
       />
       <GlowLine
         position={[W - 0.46, H / 2, Zback + 0.035]}
-        opacity={visualControls.guideOpacity}
+        opacity={guideOpacity}
         rotation={[0, 0, Math.PI / 2]}
         scale={[H - 0.72, 0.014, 0.014]}
       />
@@ -586,7 +595,7 @@ function RoomShell({
         />
       </mesh>
       <WallDecorSurface
-        opacity={0.76}
+        opacity={bioWallTextureOpacity}
         src={bioLeftWallTexture}
         wall={layout.walls.characterRightWall}
       />
@@ -604,7 +613,7 @@ function RoomShell({
         />
       </mesh>
       <WallDecorSurface
-        opacity={0.7}
+        opacity={skillsWallTextureOpacity}
         src={bioRightWallTexture}
         wall={layout.walls.characterLeftWall}
       />
@@ -638,18 +647,18 @@ function RoomShell({
       {/* Floor glow lines */}
       <GlowLine
         position={[0, 0.015, Zback + 0.1]}
-        opacity={visualControls.guideOpacity * 0.8}
+        opacity={guideOpacity * 0.8}
         scale={[W * 2 - 0.6, 0.018, 0.018]}
       />
       <GlowLine
         position={[-W + 0.12, 0.015, centerZ]}
-        opacity={visualControls.guideOpacity * 0.65}
+        opacity={guideOpacity * 0.65}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 0.6, 0.018, 0.018]}
       />
       <GlowLine
         position={[W - 0.12, 0.015, centerZ]}
-        opacity={visualControls.guideOpacity * 0.65}
+        opacity={guideOpacity * 0.65}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 0.6, 0.018, 0.018]}
       />
@@ -657,18 +666,18 @@ function RoomShell({
       {/* Ceiling glow lines */}
       <GlowLine
         position={[0, H - 0.08, Zback + 0.2]}
-        opacity={visualControls.guideOpacity * 0.72}
+        opacity={guideOpacity * 0.72}
         scale={[W * 2 - 1.2, 0.018, 0.018]}
       />
       <GlowLine
         position={[-W + 0.15, H - 0.08, centerZ]}
-        opacity={visualControls.guideOpacity * 0.6}
+        opacity={guideOpacity * 0.6}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 1.2, 0.018, 0.018]}
       />
       <GlowLine
         position={[W - 0.15, H - 0.08, centerZ]}
-        opacity={visualControls.guideOpacity * 0.6}
+        opacity={guideOpacity * 0.6}
         rotation={[0, Math.PI / 2, 0]}
         scale={[D - 1.2, 0.018, 0.018]}
       />
@@ -708,9 +717,11 @@ function SceneContent({ copy }: BioRoomCanvasProps) {
 
 function BioRoomSaveButton() {
   const error = useBioRoomPresetStore((state) => state.error);
+  const isBioLevaDisabled = useBioRoomStore((state) => state.isBioLevaDisabled);
   const isSaving = useBioRoomPresetStore((state) => state.isSaving);
   const lastSavedAt = useBioRoomPresetStore((state) => state.lastSavedAt);
   const savePreset = useBioRoomPresetStore((state) => state.savePreset);
+  const toggleBioLevaDisabled = useBioRoomStore((state) => state.toggleBioLevaDisabled);
 
   if (process.env.NODE_ENV !== "development") return null;
 
@@ -719,13 +730,38 @@ function BioRoomSaveButton() {
       <button disabled={isSaving} onClick={savePreset} type="button">
         {isSaving ? "Guardando..." : "Guardar 3D"}
       </button>
+      <button
+        aria-pressed={isBioLevaDisabled}
+        className={isBioLevaDisabled ? "is-active" : undefined}
+        onClick={toggleBioLevaDisabled}
+        type="button"
+      >
+        {isBioLevaDisabled ? "Bio sin Leva" : "Bio con Leva"}
+      </button>
       {lastSavedAt ? <span>Guardado {lastSavedAt}</span> : null}
       {error ? <span className="bio-room-dev-save-error">{error}</span> : null}
     </div>
   );
 }
 
+function useBioRoomDpr(): [number, number] {
+  const [dpr, setDpr] = useState<[number, number]>([1, 1.5]);
+
+  useEffect(() => {
+    const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
+    const isCompactViewport = window.matchMedia("(max-width: 768px)").matches;
+    const isTouchDevice = navigator.maxTouchPoints > 0;
+    const maxDpr = isCompactViewport || isTouchDevice || deviceMemory <= 4 ? 1.5 : 2;
+
+    setDpr([1, maxDpr]);
+  }, []);
+
+  return dpr;
+}
+
 export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
+  const dpr = useBioRoomDpr();
+
   return (
     <div className="bio-room-canvas">
       {/* Leva GUI panel — visible in dev mode */}
@@ -736,7 +772,7 @@ export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
       />
       <BioRoomSaveButton />
       <Canvas
-        dpr={[1, 1.5]}
+        dpr={dpr}
         gl={{
           alpha: false,
           antialias: true,

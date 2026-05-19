@@ -144,8 +144,7 @@ video {
 .project-type,
 .tool-row,
 .bio-tags,
-.social-card,
-.process-step small {
+.social-card {
   text-transform: uppercase;
 }
 
@@ -540,8 +539,7 @@ h3 {
 }
 
 .main-card::after,
-.side-card::after,
-.process-step::after {
+.side-card::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -552,8 +550,7 @@ h3 {
 }
 
 .main-card:hover::after,
-.side-card:hover::after,
-.process-step:hover::after {
+.side-card:hover::after {
   opacity: 1;
 }
 
@@ -698,53 +695,6 @@ h3 {
   background: linear-gradient(90deg, var(--pink), var(--blue));
 }
 
-.craft-scene {
-  background:
-    radial-gradient(circle at 78% 40%, rgba(94, 161, 255, 0.16), transparent 34%),
-    linear-gradient(180deg, rgba(7, 10, 17, 0.94), rgba(3, 4, 8, 1));
-}
-
-.process-rail {
-  position: relative;
-  z-index: 5;
-  width: min(1320px, 100%);
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
-  margin-top: 44px;
-}
-
-.process-step {
-  position: relative;
-  min-height: 330px;
-  overflow: hidden;
-  padding: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 12px;
-  background:
-    linear-gradient(180deg, rgba(18, 24, 38, 0.76), rgba(5, 7, 12, 0.72)),
-    radial-gradient(circle at 50% 15%, rgba(255, 77, 141, 0.16), transparent 38%);
-  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.34);
-  transform-style: preserve-3d;
-}
-
-.process-icon {
-  position: relative;
-  width: 54px;
-  height: 54px;
-  display: block;
-  margin-bottom: 58px;
-  color: #fff;
-  filter: drop-shadow(0 0 20px rgba(94, 161, 255, 0.42));
-}
-
-.icon-cut::before,
-.icon-cut::after,
-.icon-ingest::before,
-.icon-ingest::after,
-.icon-wave::before,
-.icon-deliver::before,
-.icon-deliver::after,
 .icon-play::before,
 .icon-frame::before,
 .icon-frame::after,
@@ -752,93 +702,6 @@ h3 {
 .icon-bolt::before {
   content: "";
   position: absolute;
-}
-
-.icon-ingest {
-  position: relative;
-}
-
-.icon-ingest::before {
-  inset: 11px 8px;
-  border: 2px solid currentColor;
-  border-radius: 8px;
-}
-
-.icon-ingest::after {
-  left: 17px;
-  right: 17px;
-  top: 18px;
-  height: 2px;
-  background: var(--blue);
-  box-shadow: 0 8px 0 var(--pink), 0 16px 0 rgba(255, 255, 255, 0.82);
-}
-
-.icon-cut {
-  position: relative;
-}
-
-.icon-cut::before,
-.icon-cut::after {
-  left: 10px;
-  top: 25px;
-  width: 36px;
-  height: 2px;
-  background: currentColor;
-  transform: rotate(28deg);
-}
-
-.icon-cut::after {
-  transform: rotate(-28deg);
-  background: var(--pink);
-}
-
-.icon-wave {
-  position: relative;
-}
-
-.icon-wave::before {
-  left: 2px;
-  top: 18px;
-  width: 48px;
-  height: 18px;
-  border-top: 2px solid currentColor;
-  border-bottom: 2px solid var(--blue);
-  border-radius: 50%;
-}
-
-.icon-deliver {
-  position: relative;
-}
-
-.icon-deliver::before {
-  inset: 12px;
-  border-top: 2px solid currentColor;
-  border-right: 2px solid currentColor;
-  transform: rotate(45deg);
-}
-
-.icon-deliver::after {
-  left: 8px;
-  right: 8px;
-  top: 26px;
-  height: 2px;
-  background: var(--pink);
-}
-
-.process-step small {
-  color: var(--blue);
-  font-weight: 850;
-  letter-spacing: 0.26em;
-}
-
-.process-step h3 {
-  margin-top: 14px;
-  font-size: clamp(1.85rem, 2.3vw, 2.45rem);
-}
-
-.process-step p {
-  color: var(--muted);
-  line-height: 1.65;
 }
 
 .bio-scene {
@@ -1089,10 +952,6 @@ h3 {
     padding: 30px;
   }
 
-  .process-rail {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .social-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1233,30 +1092,9 @@ h3 {
     width: 48px;
   }
 
-  .process-rail,
   .bio-scene,
   .social-grid {
     grid-template-columns: 1fr;
-  }
-
-  .process-rail {
-    gap: 12px;
-    margin-top: 24px;
-  }
-
-  .process-step {
-    min-height: 190px;
-    padding: 22px;
-  }
-
-  .process-icon {
-    width: 34px;
-    height: 34px;
-    margin-bottom: 28px;
-  }
-
-  .process-step h3 {
-    font-size: 2rem;
   }
 
   .bio-portrait {

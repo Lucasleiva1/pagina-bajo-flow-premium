@@ -131,6 +131,7 @@ function serializePreset(preset: BioRoomPreset) {
   bioWall: {
     contentX: number;
     contentY: number;
+    contentZ: number;
     contentScale: number;
     panelX: number;
     panelY: number;

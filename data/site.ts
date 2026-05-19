@@ -44,8 +44,8 @@ export const siteCopy = {
     navItems: [
       { label: "Inicio", href: "#intro" },
       { label: "Trabajos", href: "#work" },
-      { label: "Proceso", href: "#craft" },
       { label: "Bio", href: "#bio" },
+      { label: "Servicios", href: "#services" },
       { label: "Contacto", href: "#contact" },
     ],
     hero: {
@@ -97,50 +97,6 @@ export const siteCopy = {
           tools: ["DaV", "Fair", "Grade", "Mix"],
           video: "/assets/video_right.mp4",
           href: "https://www.youtube.com/@bajoflow",
-        },
-      ],
-    },
-    craft: {
-      kicker: "Proceso creativo",
-      title: "Del material crudo a una pieza con pulso.",
-      description:
-        "No es una lista de servicios. Es el recorrido visual del trabajo: ritmo, atmósfera, intención, sonido y entrega.",
-      steps: [
-        {
-          number: "01",
-          title: "Material",
-          text: "Recibo archivos, referencias, música, objetivo y tono de la pieza.",
-          icon: "ingest",
-        },
-        {
-          number: "02",
-          title: "Corte",
-          text: "Estructura, retención, pausas, impacto y cortes con intención.",
-          icon: "cut",
-        },
-        {
-          number: "03",
-          title: "Color",
-          text: "Contraste, profundidad, look cinematográfico y coherencia visual.",
-          icon: "color",
-        },
-        {
-          number: "04",
-          title: "Audio",
-          text: "Limpieza, mezcla, ambiente, golpe sonoro y pulso emocional.",
-          icon: "wave",
-        },
-        {
-          number: "05",
-          title: "Motion / AI",
-          text: "Gráficas, visuales, detalles generativos y capas de energía visual.",
-          icon: "spark",
-        },
-        {
-          number: "06",
-          title: "Entrega",
-          text: "Versión final optimizada para YouTube, redes, marcas o institucionales.",
-          icon: "deliver",
         },
       ],
     },
@@ -228,6 +184,70 @@ export const siteCopy = {
         },
       ],
     },
+    services: {
+      kicker: "Servicios audiovisuales",
+      title: "Produccion visual para piezas que venden, conectan y se recuerdan.",
+      lead:
+        "Un panel de servicios pensado como sala de control: estrategia, ritmo, color, sonido y entrega final para cada formato.",
+      screenLabel: "Pantalla activa",
+      cardLabel: "Seleccionar servicio",
+      cta: "Ver enfoque",
+      sideRailLeft: "servicios audiovisuales",
+      sideRailRight: "creamos historias que conectan",
+      status: "Disponible para proyectos",
+      services: [
+        {
+          title: "YouTube & Video Largo",
+          eyebrow: "Contenido principal",
+          headline: "Narrativa con ritmo de retencion.",
+          description:
+            "Edicion profesional para videos largos: estructura, cortes, B-roll, audio, titulos y color para sostener la atencion.",
+          meta: "Formato horizontal / 4K / narrativa",
+          cardImage: "/images/services/cards/service-01.png",
+          screenImage: "/images/services/screens/service-01.png",
+        },
+        {
+          title: "Reels & Shorts",
+          eyebrow: "Formato vertical",
+          headline: "Impacto en segundos.",
+          description:
+            "Piezas verticales para Instagram, TikTok y YouTube Shorts con ritmo, subtitulos, energia visual y cierre memorable.",
+          meta: "9:16 / social / retencion",
+          cardImage: "/images/services/cards/service-02.png",
+          screenImage: "/images/services/screens/service-02.png",
+        },
+        {
+          title: "Postproduccion",
+          eyebrow: "Color y sonido",
+          headline: "Acabado tecnico con identidad.",
+          description:
+            "Correccion de color, mezcla de audio, limpieza, atmosferas y pulido final para que cada pieza se sienta terminada.",
+          meta: "DaVinci / Fairlight / color",
+          cardImage: "/images/services/cards/service-03.png",
+          screenImage: "/images/services/screens/service-03.png",
+        },
+        {
+          title: "Ads & Contenido Comercial",
+          eyebrow: "Marca y conversion",
+          headline: "Presencia que impacta.",
+          description:
+            "Videos para marcas, lanzamientos, productos y campanas con foco en claridad, deseo visual y mensaje directo.",
+          meta: "Ads / producto / campana",
+          cardImage: "/images/services/cards/service-04.png",
+          screenImage: "/images/services/screens/service-04.png",
+        },
+        {
+          title: "Motion & Visual Design",
+          eyebrow: "Motion graphics",
+          headline: "Interfaces, titulos y movimiento.",
+          description:
+            "Animaciones, overlays, graficas, composicion y recursos visuales para elevar la identidad audiovisual de cada proyecto.",
+          meta: "Fusion / grafica / visual design",
+          cardImage: "/images/services/cards/service-05.png",
+          screenImage: "/images/services/screens/service-05.png",
+        },
+      ],
+    },
     contact: {
       kicker: "Contacto",
       title: "Hagamos que tu pieza se sienta de cine.",
@@ -251,8 +271,8 @@ export const siteCopy = {
     navItems: [
       { label: "Intro", href: "#intro" },
       { label: "Work", href: "#work" },
-      { label: "Craft", href: "#craft" },
       { label: "Bio", href: "#bio" },
+      { label: "Services", href: "#services" },
       { label: "Contact", href: "#contact" },
     ],
     hero: {
@@ -304,50 +324,6 @@ export const siteCopy = {
           tools: ["DaV", "Fair", "Grade", "Mix"],
           video: "/assets/video_right.mp4",
           href: "https://www.youtube.com/@bajoflow",
-        },
-      ],
-    },
-    craft: {
-      kicker: "Craft sequence",
-      title: "From raw material to a piece with pulse.",
-      description:
-        "This is not a list of services. It is the visual path of the work: rhythm, atmosphere, intention, sound, and delivery.",
-      steps: [
-        {
-          number: "01",
-          title: "Material",
-          text: "I receive files, references, music, goals, and the tone of the piece.",
-          icon: "ingest",
-        },
-        {
-          number: "02",
-          title: "Cut",
-          text: "Structure, retention, pauses, impact, and intentional cuts.",
-          icon: "cut",
-        },
-        {
-          number: "03",
-          title: "Color",
-          text: "Contrast, depth, cinematic look, and visual consistency.",
-          icon: "color",
-        },
-        {
-          number: "04",
-          title: "Audio",
-          text: "Cleanup, mix, atmosphere, sonic hits, and emotional pulse.",
-          icon: "wave",
-        },
-        {
-          number: "05",
-          title: "Motion / AI",
-          text: "Graphics, visuals, generative details, and layers of visual energy.",
-          icon: "spark",
-        },
-        {
-          number: "06",
-          title: "Delivery",
-          text: "Final version optimized for YouTube, social media, brands, or institutions.",
-          icon: "deliver",
         },
       ],
     },
@@ -435,6 +411,70 @@ export const siteCopy = {
         },
       ],
     },
+    services: {
+      kicker: "Audiovisual services",
+      title: "Visual production for pieces that sell, connect, and stay memorable.",
+      lead:
+        "A services panel designed like a control room: strategy, pacing, color, sound, and final delivery for each format.",
+      screenLabel: "Active screen",
+      cardLabel: "Select service",
+      cta: "View approach",
+      sideRailLeft: "audiovisual services",
+      sideRailRight: "we create stories that connect",
+      status: "Available for projects",
+      services: [
+        {
+          title: "YouTube & Long-Form Video",
+          eyebrow: "Main content",
+          headline: "Storytelling built for retention.",
+          description:
+            "Professional editing for long-form videos: structure, cuts, B-roll, audio, titles, and color to hold attention.",
+          meta: "Horizontal / 4K / narrative",
+          cardImage: "/images/services/cards/service-01.png",
+          screenImage: "/images/services/screens/service-01.png",
+        },
+        {
+          title: "Reels & Shorts",
+          eyebrow: "Vertical format",
+          headline: "Impact in seconds.",
+          description:
+            "Vertical pieces for Instagram, TikTok, and YouTube Shorts with rhythm, subtitles, visual energy, and memorable endings.",
+          meta: "9:16 / social / retention",
+          cardImage: "/images/services/cards/service-02.png",
+          screenImage: "/images/services/screens/service-02.png",
+        },
+        {
+          title: "Postproduction",
+          eyebrow: "Color and sound",
+          headline: "Technical finish with identity.",
+          description:
+            "Color correction, audio mix, cleanup, atmosphere, and final polish so every piece feels complete.",
+          meta: "DaVinci / Fairlight / color",
+          cardImage: "/images/services/cards/service-03.png",
+          screenImage: "/images/services/screens/service-03.png",
+        },
+        {
+          title: "Ads & Commercial Content",
+          eyebrow: "Brand and conversion",
+          headline: "Presence that lands.",
+          description:
+            "Videos for brands, launches, products, and campaigns focused on clarity, visual desire, and direct messaging.",
+          meta: "Ads / product / campaign",
+          cardImage: "/images/services/cards/service-04.png",
+          screenImage: "/images/services/screens/service-04.png",
+        },
+        {
+          title: "Motion & Visual Design",
+          eyebrow: "Motion graphics",
+          headline: "Interfaces, titles, and movement.",
+          description:
+            "Animations, overlays, graphics, compositing, and visual assets that elevate each project's audiovisual identity.",
+          meta: "Fusion / graphics / visual design",
+          cardImage: "/images/services/cards/service-05.png",
+          screenImage: "/images/services/screens/service-05.png",
+        },
+      ],
+    },
     contact: {
       kicker: "Contact",
       title: "Let us make your piece feel cinematic.",
@@ -458,8 +498,8 @@ export const siteCopy = {
     navItems: [
       { label: "Início", href: "#intro" },
       { label: "Trabalhos", href: "#work" },
-      { label: "Processo", href: "#craft" },
       { label: "Bio", href: "#bio" },
+      { label: "Servicos", href: "#services" },
       { label: "Contato", href: "#contact" },
     ],
     hero: {
@@ -511,50 +551,6 @@ export const siteCopy = {
           tools: ["DaV", "Fair", "Grade", "Mix"],
           video: "/assets/video_right.mp4",
           href: "https://www.youtube.com/@bajoflow",
-        },
-      ],
-    },
-    craft: {
-      kicker: "Processo criativo",
-      title: "Do material bruto a uma peça com pulso.",
-      description:
-        "Não é uma lista de serviços. É o percurso visual do trabalho: ritmo, atmosfera, intenção, som e entrega.",
-      steps: [
-        {
-          number: "01",
-          title: "Material",
-          text: "Recebo arquivos, referências, música, objetivo e tom da peça.",
-          icon: "ingest",
-        },
-        {
-          number: "02",
-          title: "Corte",
-          text: "Estrutura, retenção, pausas, impacto e cortes com intenção.",
-          icon: "cut",
-        },
-        {
-          number: "03",
-          title: "Cor",
-          text: "Contraste, profundidade, look cinematográfico e coerência visual.",
-          icon: "color",
-        },
-        {
-          number: "04",
-          title: "Áudio",
-          text: "Limpeza, mixagem, ambiente, impacto sonoro e pulso emocional.",
-          icon: "wave",
-        },
-        {
-          number: "05",
-          title: "Motion / AI",
-          text: "Gráficos, visuais, detalhes generativos e camadas de energia visual.",
-          icon: "spark",
-        },
-        {
-          number: "06",
-          title: "Entrega",
-          text: "Versão final otimizada para YouTube, redes, marcas ou institucionais.",
-          icon: "deliver",
         },
       ],
     },
@@ -642,6 +638,70 @@ export const siteCopy = {
         },
       ],
     },
+    services: {
+      kicker: "Servicos audiovisuais",
+      title: "Producao visual para pecas que vendem, conectam e ficam na memoria.",
+      lead:
+        "Um painel de servicos pensado como sala de controle: estrategia, ritmo, cor, som e entrega final para cada formato.",
+      screenLabel: "Tela ativa",
+      cardLabel: "Selecionar servico",
+      cta: "Ver abordagem",
+      sideRailLeft: "servicos audiovisuais",
+      sideRailRight: "criamos historias que conectam",
+      status: "Disponivel para projetos",
+      services: [
+        {
+          title: "YouTube & Video Longo",
+          eyebrow: "Conteudo principal",
+          headline: "Narrativa com ritmo de retencao.",
+          description:
+            "Edicao profissional para videos longos: estrutura, cortes, B-roll, audio, titulos e cor para manter a atencao.",
+          meta: "Horizontal / 4K / narrativa",
+          cardImage: "/images/services/cards/service-01.png",
+          screenImage: "/images/services/screens/service-01.png",
+        },
+        {
+          title: "Reels & Shorts",
+          eyebrow: "Formato vertical",
+          headline: "Impacto em segundos.",
+          description:
+            "Pecas verticais para Instagram, TikTok e YouTube Shorts com ritmo, legendas, energia visual e final memoravel.",
+          meta: "9:16 / social / retencao",
+          cardImage: "/images/services/cards/service-02.png",
+          screenImage: "/images/services/screens/service-02.png",
+        },
+        {
+          title: "Pos-producao",
+          eyebrow: "Cor e som",
+          headline: "Acabamento tecnico com identidade.",
+          description:
+            "Correcao de cor, mixagem de audio, limpeza, atmosfera e polimento final para cada peca parecer completa.",
+          meta: "DaVinci / Fairlight / cor",
+          cardImage: "/images/services/cards/service-03.png",
+          screenImage: "/images/services/screens/service-03.png",
+        },
+        {
+          title: "Ads & Conteudo Comercial",
+          eyebrow: "Marca e conversao",
+          headline: "Presenca que impacta.",
+          description:
+            "Videos para marcas, lancamentos, produtos e campanhas com foco em clareza, desejo visual e mensagem direta.",
+          meta: "Ads / produto / campanha",
+          cardImage: "/images/services/cards/service-04.png",
+          screenImage: "/images/services/screens/service-04.png",
+        },
+        {
+          title: "Motion & Visual Design",
+          eyebrow: "Motion graphics",
+          headline: "Interfaces, titulos e movimento.",
+          description:
+            "Animacoes, overlays, graficos, composicao e recursos visuais para elevar a identidade audiovisual de cada projeto.",
+          meta: "Fusion / grafica / visual design",
+          cardImage: "/images/services/cards/service-05.png",
+          screenImage: "/images/services/screens/service-05.png",
+        },
+      ],
+    },
     contact: {
       kicker: "Contato",
       title: "Vamos fazer sua peça parecer cinema.",
@@ -691,17 +751,6 @@ export const siteCopy = {
       href: string;
     }>;
   };
-  craft: {
-    kicker: string;
-    title: string;
-    description: string;
-    steps: Array<{
-      number: string;
-      title: string;
-      text: string;
-      icon: string;
-    }>;
-  };
   bio: {
     kicker: string;
     title: string;
@@ -722,6 +771,26 @@ export const siteCopy = {
       videoTitle?: string;
     }>;
   };
+  services: {
+    kicker: string;
+    title: string;
+    lead: string;
+    screenLabel: string;
+    cardLabel: string;
+    cta: string;
+    sideRailLeft: string;
+    sideRailRight: string;
+    status: string;
+    services: Array<{
+      title: string;
+      eyebrow: string;
+      headline: string;
+      description: string;
+      meta: string;
+      cardImage: string;
+      screenImage: string;
+    }>;
+  };
   contact: {
     kicker: string;
     title: string;
@@ -738,5 +807,4 @@ export const siteCopy = {
 export type SiteCopy = (typeof siteCopy)[Language];
 export type NavItem = SiteCopy["navItems"][number];
 export type Project = SiteCopy["work"]["projects"][number];
-export type CraftStep = SiteCopy["craft"]["steps"][number];
 export type SocialLink = SiteCopy["contact"]["socialLinks"][number];

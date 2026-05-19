@@ -1,5 +1,69 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-19 17:41:16 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Servicios audiovisuales premium 2D
+
+Tag de esta version: important-services-premium-2026-05-19-1741
+Mensaje del commit: feat: save premium services section checkpoint
+
+Esta version queda como punto fuerte para volver si algo se rompe despues. Conserva la pagina actual con Bio/Habilidades como venia, suma la nueva seccion premium 2D de Servicios Audiovisuales despues de Bio y antes de Contacto, y mantiene el proyecto abriendose desde el Next app correcto en `http://127.0.0.1:3000/`.
+
+## Que contiene esta version actual
+
+- Nueva seccion `#services` con estetica premium oscura, cinematografica y tecnologica.
+- Componente `ServicesScene` 2D en React, sin Three.js, sin WebGL, sin canvas ni shaders.
+- Pantalla superior grande que cambia segun la tarjeta activa.
+- Cinco tarjetas verticales inferiores como botones accesibles:
+  - `YouTube & Video Largo`
+  - `Reels & Shorts`
+  - `Postproduccion`
+  - `Ads & Contenido Comercial`
+  - `Motion & Visual Design`
+- Assets guardados localmente en:
+  - `public/images/services/cards/service-01.png` a `service-05.png`
+  - `public/images/services/screens/service-01.png` a `service-05.png`
+- Navegacion superior con `Servicios` / `Services` / `Servicos` hacia `#services`.
+- Copy de servicios agregado al sistema multilenguaje ES/EN/PT en `data/site.ts`.
+- Ajuste del header mobile para que el menu y el selector de idioma queden clickeables con la nueva entrada.
+- Viewport mobile declarado en `app/layout.tsx` para que el ancho real del dispositivo se respete.
+
+## Verificacion de esta version actual
+
+- `npm.cmd run build` paso correctamente antes de guardar.
+- `Invoke-WebRequest http://127.0.0.1:3000/` devolvio `200`.
+- Prueba en navegador verifico que las cinco tarjetas de Servicios cambian el servicio activo.
+- Prueba mobile verifico que `Servicios` navega a la nueva seccion, el carrusel horizontal puede desplazarse y no hay 404 en imagenes de servicios.
+- Prueba de idiomas verifico que la seccion cambia texto en ES, EN y PT.
+- Busqueda en `components/ServicesScene.tsx` confirmo que no importa `three`, `@react-three/fiber`, `drei`, `Canvas` ni WebGL.
+
+## Como comparar o volver
+
+Antes de restaurar, verificar siempre:
+
+```powershell
+git status -sb
+git log --oneline --decorate -5
+```
+
+Para comparar contra esta version:
+
+```powershell
+git diff important-services-premium-2026-05-19-1741 -- .
+```
+
+Para volver exactamente a esta version, solo si el usuario lo pide:
+
+```powershell
+git checkout important-services-premium-2026-05-19-1741
+```
+
+---
+
 Fecha de guardado importante: 2026-05-18 20:07:09 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
