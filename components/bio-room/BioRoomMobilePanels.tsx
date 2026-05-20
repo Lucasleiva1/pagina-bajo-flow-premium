@@ -23,23 +23,32 @@ export function BioRoomMobilePanels({ copy }: BioRoomMobilePanelsProps) {
           fill
           priority
           sizes="(max-width: 860px) 76vw, 320px"
-          src="/assets/bio-room/lucas-fullbody-cutout.png"
+          src="/assets/bio-room/lucas-sentado.png"
         />
       </div>
 
-      <section className="bio-room-mobile-panel">
-        <p className="bio-room-kicker">{copy.kicker}</p>
-        <h2>BAJO FLOW</h2>
-        <p>{copy.identitySubtitle}</p>
-        <div className="bio-room-tools">
-          {copy.tools.map((tool) => (
-            <span key={tool}>{tool}</span>
+      <section className="bio-room-mobile-panel bio-room-mobile-editorial">
+        <div className="bio-room-mobile-bg-words" aria-hidden="true">
+          {copy.backgroundWords.map((word) => (
+            <span key={word}>{word}</span>
           ))}
         </div>
+        <p className="bio-room-mobile-nav">{copy.editorialNav.join(" / ")}</p>
+        <h2>{copy.title}</h2>
+        <p className="bio-room-mobile-intro">
+          {copy.editorialIntro.prefix}{" "}
+          <strong>{copy.editorialIntro.name}</strong>, {copy.editorialIntro.suffix}
+        </p>
+        <div className="bio-room-mobile-columns">
+          {copy.editorialColumns.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+        <blockquote>{copy.editorialQuote}</blockquote>
       </section>
 
       <section className="bio-room-mobile-panel">
-        <h3>{copy.title}</h3>
+        <p className="bio-room-mobile-nav">{copy.contributionLabel}</p>
         {copy.bioBlocks.map((block) => (
           <article key={block.title}>
             <h4>{block.title}</h4>

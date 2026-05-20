@@ -761,12 +761,14 @@ function useBioRoomDpr(): [number, number] {
 
 export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
   const dpr = useBioRoomDpr();
+  const isBioLevaDisabled = useBioRoomStore((state) => state.isBioLevaDisabled);
 
   return (
     <div className="bio-room-canvas">
       {/* Leva GUI panel — visible in dev mode */}
       <Leva
         collapsed={false}
+        hidden={isBioLevaDisabled}
         oneLineLabels
         titleBar={{ title: "🎬 Bio Room Controls" }}
       />

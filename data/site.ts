@@ -102,11 +102,25 @@ export const siteCopy = {
     },
     bio: {
       kicker: "Bio",
-      title: "¡Hola! Me llamo Lucas",
-      identitySubtitle: "Editor de video · Corrección de color · Postproducción de audio",
+      title: "La edicion como lenguaje visual.",
+      identitySubtitle: "Editor audiovisual enfocado en ritmo, color, sonido e impacto.",
+      editorialNav: ["Bio", "Postproduccion", "Color", "Sonido"],
+      backgroundWords: ["Ritmo", "Color", "Sonido"],
+      editorialIntro: {
+        prefix: "Soy",
+        name: "Lucas Leiva",
+        suffix:
+          "editor audiovisual enfocado en transformar piezas visuales en experiencias con ritmo, intencion y acabado profesional.",
+      },
+      editorialColumns: [
+        "Trabajo la edicion como una construccion narrativa: cada corte, cada pausa y cada decision visual tienen que empujar la emocion de la pieza.",
+        "Mi enfoque combina montaje, color, sonido y criterio estetico para lograr piezas solidas, fluidas y cinematograficas.",
+      ],
+      editorialQuote: "No edito solo para ordenar imagenes: edito para construir impacto.",
+      contributionLabel: "Lo que aporto",
       paragraphs: [
-        "Soy un editor de video enfocado en transformar piezas audiovisuales en experiencias de alto impacto. Mi enfoque no se limita solo al montaje; me especializo en potenciar la narrativa visual a través de una corrección de color profesional y un tratamiento de sonido inmersivo.",
-        "Cuento con experiencia técnica avanzada en herramientas de estándar industrial como DaVinci Resolve, dominando sus módulos de Color y Fairlight para asegurar que cada proyecto tenga un acabado cinematográfico y una claridad sonora impecable.",
+        "Trabajo la edicion como una construccion narrativa: cada corte, cada pausa y cada decision visual tienen que empujar la emocion de la pieza.",
+        "Mi enfoque combina montaje, color, sonido y criterio estetico para lograr piezas solidas, fluidas y cinematograficas.",
       ],
       frontParagraphs: [
         "Trabajo cada proyecto desde el ritmo, la atmósfera y la emoción para que cada corte tenga una razón.",
@@ -141,20 +155,20 @@ export const siteCopy = {
       ],
       bioBlocks: [
         {
-          title: "Edición Dinámica",
-          text: "Ritmo y fluidez adaptados al mensaje.",
+          title: "Narrativa",
+          text: "Ritmo, tension y direccion visual.",
         },
         {
-          title: "Color Grading",
-          text: "Creación de atmósferas visuales y coherencia estética.",
+          title: "Color",
+          text: "Atmosfera, contraste e identidad.",
         },
         {
-          title: "Post-producción de Audio",
-          text: "Limpieza, mezcla y diseño sonoro.",
+          title: "Sonido",
+          text: "Limpieza, mezcla y presencia.",
         },
         {
           title: "Versatilidad",
-          text: "Formatos: YouTube, Social Media, Institucionales.",
+          text: "Reels, videoclips y contenido de marca.",
         },
       ],
       skillItems: [
@@ -329,11 +343,25 @@ export const siteCopy = {
     },
     bio: {
       kicker: "Bio",
-      title: "I am Lucas, a video editor focused on transforming audiovisual pieces.",
-      identitySubtitle: "Video editor · Post-production · Motion · Color · Visual content",
+      title: "Editing as a visual language.",
+      identitySubtitle: "Audiovisual editor focused on rhythm, color, sound, and impact.",
+      editorialNav: ["Bio", "Post-production", "Color", "Sound"],
+      backgroundWords: ["Rhythm", "Color", "Sound"],
+      editorialIntro: {
+        prefix: "I am",
+        name: "Lucas Leiva",
+        suffix:
+          "an audiovisual editor focused on transforming visual pieces into experiences with rhythm, intention, and a professional finish.",
+      },
+      editorialColumns: [
+        "I treat editing as narrative construction: every cut, pause, and visual decision has to push the emotion of the piece.",
+        "My approach combines montage, color, sound, and aesthetic judgment to create solid, fluid, cinematic work.",
+      ],
+      editorialQuote: "I do not edit just to arrange images: I edit to build impact.",
+      contributionLabel: "What I bring",
       paragraphs: [
-        "I approach every project through rhythm, atmosphere, and emotion so every cut has a reason.",
-        "Bajo Flow was created to build content with identity: videos for YouTube, social media, brands, and institutions.",
+        "I treat editing as narrative construction: every cut, pause, and visual decision has to push the emotion of the piece.",
+        "My approach combines montage, color, sound, and aesthetic judgment to create solid, fluid, cinematic work.",
       ],
       frontParagraphs: [
         "I approach every project through rhythm, atmosphere, and emotion so every cut has a reason.",
@@ -368,20 +396,20 @@ export const siteCopy = {
       ],
       bioBlocks: [
         {
-          title: "Who I am",
-          text: "I am Lucas Leiva, an audiovisual editor and visual creator behind Bajo Flow.",
+          title: "Narrative",
+          text: "Rhythm, tension, and visual direction.",
         },
         {
-          title: "What I do",
-          text: "I turn raw material into pieces with rhythm, image, sound, and presence for social media, brands, and institutions.",
+          title: "Color",
+          text: "Atmosphere, contrast, and identity.",
         },
         {
-          title: "How I work",
-          text: "I shape the narrative, find the pulse of the edit, and refine color, audio, motion, and final delivery.",
+          title: "Sound",
+          text: "Cleanliness, mix, and presence.",
         },
         {
-          title: "My focus",
-          text: "Every video should feel clear, cinematic, and identifiable without losing pace or retention.",
+          title: "Versatility",
+          text: "Reels, music videos, and branded content.",
         },
       ],
       skillItems: [
@@ -556,11 +584,25 @@ export const siteCopy = {
     },
     bio: {
       kicker: "Bio",
-      title: "Sou Lucas, editor de vídeo focado em transformar peças audiovisuais.",
-      identitySubtitle: "Editor de vídeo · Pós-produção · Motion · Cor · Conteúdo visual",
+      title: "A edicao como linguagem visual.",
+      identitySubtitle: "Editor audiovisual focado em ritmo, cor, som e impacto.",
+      editorialNav: ["Bio", "Pos-producao", "Cor", "Som"],
+      backgroundWords: ["Ritmo", "Cor", "Som"],
+      editorialIntro: {
+        prefix: "Sou",
+        name: "Lucas Leiva",
+        suffix:
+          "editor audiovisual focado em transformar pecas visuais em experiencias com ritmo, intencao e acabamento profissional.",
+      },
+      editorialColumns: [
+        "Trabalho a edicao como uma construcao narrativa: cada corte, pausa e decisao visual precisa empurrar a emocao da peca.",
+        "Meu enfoque combina montagem, cor, som e criterio estetico para criar pecas solidas, fluidas e cinematograficas.",
+      ],
+      editorialQuote: "Nao edito so para ordenar imagens: edito para construir impacto.",
+      contributionLabel: "O que aporto",
       paragraphs: [
-        "Trabalho cada projeto a partir do ritmo, da atmosfera e da emoção para que cada corte tenha uma razão.",
-        "Bajo Flow nasce para criar conteúdo com identidade: vídeos para YouTube, redes sociais, marcas e institucionais.",
+        "Trabalho a edicao como uma construcao narrativa: cada corte, pausa e decisao visual precisa empurrar a emocao da peca.",
+        "Meu enfoque combina montagem, cor, som e criterio estetico para criar pecas solidas, fluidas e cinematograficas.",
       ],
       frontParagraphs: [
         "Trabalho cada projeto a partir do ritmo, da atmosfera e da emoção para que cada corte tenha uma razão.",
@@ -595,20 +637,20 @@ export const siteCopy = {
       ],
       bioBlocks: [
         {
-          title: "Quem sou",
-          text: "Sou Lucas Leiva, editor audiovisual e criador visual por trás da Bajo Flow.",
+          title: "Narrativa",
+          text: "Ritmo, tensao e direcao visual.",
         },
         {
-          title: "O que faço",
-          text: "Transformo material bruto em peças com ritmo, imagem, som e presença para redes, marcas e institucionais.",
+          title: "Cor",
+          text: "Atmosfera, contraste e identidade.",
         },
         {
-          title: "Como trabalho",
-          text: "Organizo a narrativa, encontro o pulso do corte e cuido de cor, áudio, motion e entrega final.",
+          title: "Som",
+          text: "Limpeza, mixagem e presenca.",
         },
         {
-          title: "Meu enfoque",
-          text: "Cada vídeo precisa parecer claro, cinematográfico e com identidade, sem perder velocidade nem retenção.",
+          title: "Versatilidade",
+          text: "Reels, videoclipes e conteudo de marca.",
         },
       ],
       skillItems: [
@@ -755,6 +797,16 @@ export const siteCopy = {
     kicker: string;
     title: string;
     identitySubtitle: string;
+    editorialNav: string[];
+    backgroundWords: string[];
+    editorialIntro: {
+      prefix: string;
+      name: string;
+      suffix: string;
+    };
+    editorialColumns: string[];
+    editorialQuote: string;
+    contributionLabel: string;
     paragraphs: string[];
     frontParagraphs: string[];
     tags: string[];

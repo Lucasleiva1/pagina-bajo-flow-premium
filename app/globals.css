@@ -11,6 +11,9 @@
   --panel: rgba(6, 7, 11, 0.58);
   --font-ui: "Inter", "Segoe UI", system-ui, sans-serif;
   --font-display: "Bodoni 72", "Didot", "Times New Roman", serif;
+  --font-editorial-serif: "DM Serif Display", "Bodoni 72", "Didot", "Times New Roman", serif;
+  --font-editorial-condensed: "Bebas Neue", "Arial Narrow", "Impact", sans-serif;
+  --font-editorial-ui: "Space Grotesk", "Inter", "Segoe UI", system-ui, sans-serif;
 }
 
 * {
@@ -2175,6 +2178,93 @@ p {
   object-fit: contain;
 }
 
+.bio-room-mobile-editorial {
+  overflow: hidden;
+}
+
+.bio-room-mobile-bg-words {
+  color: rgba(94, 161, 255, 0.12);
+  display: grid;
+  font-family: var(--font-editorial-condensed);
+  font-size: clamp(4rem, 19vw, 6.8rem);
+  inset: 0.45rem auto auto 0.7rem;
+  letter-spacing: 0;
+  line-height: 0.78;
+  pointer-events: none;
+  position: absolute;
+  text-transform: uppercase;
+  z-index: 0;
+}
+
+.bio-room-mobile-editorial > *:not(.bio-room-mobile-bg-words) {
+  position: relative;
+  z-index: 1;
+}
+
+.bio-room-mobile-nav {
+  color: #5ea1ff;
+  font-family: var(--font-editorial-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22rem;
+  line-height: 1.45;
+  margin: 0 0 0.78rem;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.bio-room-mobile-editorial h2 {
+  font-family: var(--font-editorial-serif);
+  font-weight: 400;
+  letter-spacing: 0;
+  max-width: 10ch;
+  overflow-wrap: anywhere;
+}
+
+.bio-room-mobile-intro,
+.bio-room-mobile-columns p,
+.bio-room-mobile-panel blockquote {
+  font-family: var(--font-editorial-ui);
+}
+
+.bio-room-mobile-intro {
+  color: rgba(242, 242, 243, 0.84);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.bio-room-mobile-intro strong {
+  color: #5ea1ff;
+  font-weight: 600;
+}
+
+.bio-room-mobile-columns {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.bio-room-mobile-columns p {
+  color: rgba(242, 242, 243, 0.7);
+  font-size: 0.88rem;
+  line-height: 1.62;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.bio-room-mobile-panel blockquote {
+  border-left: 2px solid rgba(94, 161, 255, 0.74);
+  color: rgba(242, 242, 243, 0.9);
+  font-family: var(--font-editorial-serif);
+  font-size: 1.45rem;
+  font-style: italic;
+  line-height: 1.12;
+  margin: 1.25rem 0 0;
+  padding-left: 0.9rem;
+}
+
 .services-scene {
   --service-black: #03050b;
   --service-panel: rgba(7, 10, 18, 0.78);
@@ -3020,16 +3110,18 @@ p {
   .bio-room-mobile {
     display: grid;
     gap: 1rem;
+    max-width: 100%;
+    overflow: hidden;
     position: relative;
     z-index: 5;
   }
 
   .bio-room-mobile-portrait {
-    height: 31rem;
+    height: 28rem;
     justify-self: center;
-    max-width: 20rem;
+    max-width: 22rem;
     position: relative;
-    width: 74vw;
+    width: 82vw;
   }
 
   .bio-room-mobile-portrait img {
@@ -3041,12 +3133,16 @@ p {
       linear-gradient(135deg, rgba(242, 242, 243, 0.08), transparent 28%),
       rgba(5, 8, 14, 0.78);
     border: 1px solid rgba(242, 242, 243, 0.16);
+    max-width: calc(100vw - 2rem);
+    min-width: 0;
     padding: 1rem;
     position: relative;
+    width: 100%;
   }
 
   .bio-room-mobile-panel h2 {
-    font-size: 2.55rem;
+    font-size: clamp(2.15rem, 10vw, 3.1rem);
+    line-height: 0.94;
   }
 
   .bio-room-mobile-panel h3 {
@@ -3054,6 +3150,10 @@ p {
   }
 
   .bio-room-mobile-panel article {
+    background:
+      linear-gradient(135deg, rgba(94, 161, 255, 0.08), transparent 42%),
+      rgba(2, 7, 16, 0.72);
+    border-color: rgba(94, 161, 255, 0.22);
     margin-top: 0.72rem;
     min-height: auto;
   }

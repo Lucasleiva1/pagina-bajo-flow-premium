@@ -43,9 +43,14 @@ type WallTextProps = {
   children: React.ReactNode;
   color?: string;
   fontSize: number;
-  maxWidth?: number;
-  textAlign?: "left" | "center" | "right";
   fontFamily?: string;
+  fontStyle?: "normal" | "italic";
+  fontWeight?: number;
+  letterSpacing?: number;
+  lineHeight?: number;
+  maxWidth?: number;
+  opacity?: number;
+  textAlign?: "left" | "center" | "right";
   x: number;
   y: number;
   z?: number;
@@ -59,6 +64,9 @@ const wallAmber = "#d6a15f";
 const wallInk = "#efe9dd";
 const wallMuted = "#9ea6b4";
 const collapsedLevaFolder = { collapsed: true } as const;
+const editorialSerif = "DM Serif Display";
+const editorialCondensed = "Bebas Neue";
+const editorialUi = "Space Grotesk";
 
 function openLink(href: string) {
   if (href.startsWith("#")) {
@@ -169,8 +177,13 @@ function WallText({
   children,
   color = wallInk,
   fontFamily = "Arial",
+  fontStyle = "normal",
   fontSize,
+  fontWeight = 700,
+  letterSpacing = 0,
+  lineHeight = 1.18,
   maxWidth,
+  opacity = 1,
   textAlign = "left",
   x,
   y,
@@ -178,12 +191,35 @@ function WallText({
 }: WallTextProps) {
   const text = typeof children === "string" ? children : String(children ?? "");
   const { gl } = useThree();
+  const [fontsReady, setFontsReady] = useState(() => typeof document === "undefined" || !("fonts" in document));
+
+  useEffect(() => {
+    if (typeof document === "undefined" || !("fonts" in document)) {
+      setFontsReady(true);
+      return;
+    }
+
+    let isMounted = true;
+    document.fonts.ready.then(() => {
+      if (isMounted) setFontsReady(true);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fontFamily]);
+
   const textAnisotropy = Math.min(gl.capabilities.getMaxAnisotropy(), 8);
   const { height, texture, width } = useWallTextTexture({
     anisotropy: textAnisotropy,
     color,
     fontFamily,
+    fontStyle,
     fontSize,
+    fontWeight,
+    fontsReady,
+    letterSpacing,
+    lineHeight,
     maxWidth,
     text,
     textAlign,
@@ -197,6 +233,7 @@ function WallText({
       <meshBasicMaterial
         depthTest
         map={texture}
+        opacity={opacity}
         toneMapped={false}
         transparent
       />
@@ -208,7 +245,12 @@ function useWallTextTexture({
   anisotropy,
   color,
   fontFamily,
+  fontStyle,
   fontSize,
+  fontWeight,
+  fontsReady,
+  letterSpacing,
+  lineHeight,
   maxWidth,
   text,
   textAlign,
@@ -216,7 +258,12 @@ function useWallTextTexture({
   anisotropy: number;
   color: string;
   fontFamily: string;
+  fontStyle: "normal" | "italic";
   fontSize: number;
+  fontWeight: number;
+  fontsReady: boolean;
+  letterSpacing: number;
+  lineHeight: number;
   maxWidth?: number;
   text: string;
   textAlign: "left" | "center" | "right";
@@ -229,11 +276,11 @@ function useWallTextTexture({
     const fontPx = Math.max(18, Math.round(fontSize * pixelsPerUnit));
     const paddingX = Math.round(fontPx * 0.45);
     const paddingY = Math.round(fontPx * 0.32);
-    const lineHeightPx = Math.round(fontPx * 1.18);
+    const lineHeightPx = Math.round(fontPx * lineHeight);
     const canvasWidth = Math.ceil(width * pixelsPerUnit);
-    const formattedFontFamily = fontFamily.includes(" ")
-      ? `"${fontFamily}", Arial, sans-serif`
-      : `${fontFamily}, Arial, sans-serif`;
+    const resolvedFontFamily = resolveCanvasFontFamily(fontFamily);
+    const formattedFontFamily = formatCanvasFontFamily(resolvedFontFamily);
+    const font = `${fontStyle} ${fontWeight} ${fontPx}px ${formattedFontFamily}`;
 
     const measureCanvas = document.createElement("canvas");
     const measureContext = measureCanvas.getContext("2d");
@@ -247,8 +294,21 @@ function useWallTextTexture({
       return { height: fontSize, texture: emptyTexture, width };
     }
 
-    measureContext.font = `700 ${fontPx}px ${formattedFontFamily}`;
-    const lines = wrapCanvasText(text, measureContext, canvasWidth - paddingX * 2);
+    if (!fontsReady) {
+      const pendingCanvas = document.createElement("canvas");
+      pendingCanvas.width = canvasWidth;
+      pendingCanvas.height = Math.ceil(fontPx * 1.35);
+      const pendingTexture = new CanvasTexture(pendingCanvas);
+      pendingTexture.colorSpace = SRGBColorSpace;
+      pendingTexture.minFilter = LinearMipmapLinearFilter;
+      pendingTexture.magFilter = LinearFilter;
+      pendingTexture.anisotropy = anisotropy;
+      return { height: pendingCanvas.height / pixelsPerUnit, texture: pendingTexture, width };
+    }
+
+    measureContext.font = font;
+    const letterSpacingPx = Math.round(letterSpacing * pixelsPerUnit);
+    const lines = wrapCanvasText(text, measureContext, canvasWidth - paddingX * 2, letterSpacingPx);
     const canvasHeight = Math.max(
       Math.ceil(fontPx * 1.35),
       paddingY * 2 + lines.length * lineHeightPx,
@@ -262,7 +322,7 @@ function useWallTextTexture({
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = "high";
-      context.font = `700 ${fontPx}px ${formattedFontFamily}`;
+      context.font = font;
       context.fillStyle = color;
       context.textBaseline = "middle";
       context.textAlign = textAlign;
@@ -275,10 +335,13 @@ function useWallTextTexture({
             : paddingX;
 
       lines.forEach((line, index) => {
-        context.fillText(
+        drawCanvasTextWithLetterSpacing(
+          context,
           line,
           textX,
           paddingY + lineHeightPx / 2 + index * lineHeightPx,
+          letterSpacingPx,
+          textAlign,
         );
       });
     }
@@ -295,13 +358,14 @@ function useWallTextTexture({
       texture,
       width,
     };
-  }, [anisotropy, color, fontFamily, fontSize, maxWidth, text, textAlign]);
+  }, [anisotropy, color, fontFamily, fontSize, fontStyle, fontWeight, fontsReady, letterSpacing, lineHeight, maxWidth, text, textAlign]);
 }
 
 function wrapCanvasText(
   text: string,
   context: CanvasRenderingContext2D,
   maxWidth: number,
+  letterSpacingPx = 0,
 ) {
   const words = text.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
@@ -309,7 +373,7 @@ function wrapCanvasText(
 
   words.forEach((word) => {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
-    if (context.measureText(testLine).width <= maxWidth || !currentLine) {
+    if (measureTextWidth(context, testLine, letterSpacingPx) <= maxWidth || !currentLine) {
       currentLine = testLine;
       return;
     }
@@ -320,6 +384,62 @@ function wrapCanvasText(
 
   if (currentLine) lines.push(currentLine);
   return lines.length > 0 ? lines : [text];
+}
+
+function resolveCanvasFontFamily(fontFamily: string) {
+  if (typeof document === "undefined") return fontFamily;
+
+  const style = getComputedStyle(document.body);
+  if (fontFamily === editorialSerif) return style.getPropertyValue("--font-editorial-serif").trim() || fontFamily;
+  if (fontFamily === editorialCondensed) return style.getPropertyValue("--font-editorial-condensed").trim() || fontFamily;
+  if (fontFamily === editorialUi) return style.getPropertyValue("--font-editorial-ui").trim() || fontFamily;
+
+  if (fontFamily.startsWith("var(")) {
+    const variableName = fontFamily.slice(4, -1).trim();
+    return style.getPropertyValue(variableName).trim() || fontFamily;
+  }
+
+  return fontFamily;
+}
+
+function formatCanvasFontFamily(fontFamily: string) {
+  if (fontFamily.includes(",")) return fontFamily;
+  return fontFamily.includes(" ") ? `"${fontFamily}", Arial, sans-serif` : `${fontFamily}, Arial, sans-serif`;
+}
+
+function measureTextWidth(
+  context: CanvasRenderingContext2D,
+  text: string,
+  letterSpacingPx: number,
+) {
+  if (letterSpacingPx === 0 || text.length < 2) return context.measureText(text).width;
+  return context.measureText(text).width + letterSpacingPx * (text.length - 1);
+}
+
+function drawCanvasTextWithLetterSpacing(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  letterSpacingPx: number,
+  textAlign: "left" | "center" | "right",
+) {
+  if (letterSpacingPx === 0 || text.length < 2) {
+    context.fillText(text, x, y);
+    return;
+  }
+
+  const width = measureTextWidth(context, text, letterSpacingPx);
+  let cursorX = textAlign === "center" ? x - width / 2 : textAlign === "right" ? x - width : x;
+  context.save();
+  context.textAlign = "left";
+
+  Array.from(text).forEach((character) => {
+    context.fillText(character, cursorX, y);
+    cursorX += context.measureText(character).width + letterSpacingPx;
+  });
+
+  context.restore();
 }
 
 function getSocialIconKind(label: string): SocialIconKind | null {
@@ -607,25 +727,72 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
   );
 }
 
-function BioContributionRow3D({
+function BioContributionCard3D({
+  accent,
+  bodySize,
+  bodyWidth,
+  cardHeight,
+  cardWidth,
+  index,
+  numberSize,
   text,
   title,
-  fontSize,
+  titleSize,
   x,
   y,
 }: {
+  accent: string;
+  bodySize: number;
+  bodyWidth: number;
+  cardHeight: number;
+  cardWidth: number;
+  index: number;
+  numberSize: number;
   text: string;
   title: string;
-  fontSize: number;
+  titleSize: number;
   x: number;
   y: number;
 }) {
   return (
-    <group position={[x, y, 0.12]}>
-      <WallText color={wallInk} fontSize={fontSize} maxWidth={1.22} x={0} y={0} z={0.04}>
-        {`${title}:`}
+    <group position={[x, y, 0.2]}>
+      <WallPanel color="#020710" height={cardHeight} opacity={0.62} width={cardWidth} z={0.01} />
+      <WallFrame height={cardHeight} width={cardWidth} />
+      <WallText
+        color={accent}
+        fontFamily={editorialUi}
+        fontSize={numberSize}
+        fontWeight={600}
+        letterSpacing={0.016}
+        maxWidth={0.4}
+        x={-cardWidth / 2 + 0.12}
+        y={cardHeight / 2 - 0.1}
+        z={0.08}
+      >
+        {String(index + 1).padStart(2, "0")}
       </WallText>
-      <WallText color={wallMuted} fontSize={fontSize} maxWidth={2.58} x={1.06} y={0} z={0.04}>
+      <WallText
+        fontFamily={editorialSerif}
+        fontSize={titleSize}
+        fontWeight={400}
+        maxWidth={bodyWidth}
+        x={-cardWidth / 2 + 0.16}
+        y={-0.04}
+        z={0.08}
+      >
+        {title}
+      </WallText>
+      <WallText
+        color="#c9d1dd"
+        fontFamily={editorialUi}
+        fontSize={bodySize}
+        fontWeight={400}
+        lineHeight={1.28}
+        maxWidth={bodyWidth}
+        x={-cardWidth / 2 + 0.16}
+        y={-0.21}
+        z={0.08}
+      >
         {text}
       </WallText>
     </group>
@@ -680,45 +847,159 @@ function BioWallContent3D({
   copy: SiteCopy["bio"];
   wall: WallSurface;
 }) {
+  const cardAccent = ["#5ea1ff", "#3b7cff", "#65ddff", "#8fa4ff"];
+
   return (
     <WallSurfaceGroup wall={wall}>
       <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} z={0.14} />
       <group position={[controls.contentX, controls.contentY, controls.contentZ]} scale={controls.contentScale}>
-      <group position={[controls.panelX, controls.panelY, 0.08]}>
-        <WallPanel color="#030611" height={controls.panelHeight} opacity={controls.panelOpacity} width={controls.panelWidth} z={0} />
-        <WallGlowLine color="#00f0ff" height={0.84} opacity={0.9} width={0.018} x={-2.12} y={-0.67} z={0.055} />
-      </group>
-      <WallText fontSize={controls.titleSize} maxWidth={3.42} x={controls.titleX} y={controls.titleY} z={0.16}>
-        {copy.title}
-      </WallText>
-      <WallText color={wallMuted} fontSize={controls.paragraphSize} maxWidth={3.48} x={controls.paragraphX} y={controls.paragraphOneY} z={0.16}>
-        {copy.paragraphs[0]}
-      </WallText>
-      <WallText color={wallMuted} fontSize={controls.paragraphSize} maxWidth={3.48} x={controls.paragraphX} y={controls.paragraphTwoY} z={0.16}>
-        {copy.paragraphs[1]}
-      </WallText>
-      <WallText color="#00f0ff" fontSize={0.078} maxWidth={3.5} x={controls.contributionLabelX} y={controls.contributionLabelY} z={0.16}>
-        LO QUE APORTO A CADA PROYECTO:
-      </WallText>
-      {copy.bioBlocks.map((block, index) => (
-        <BioContributionRow3D
-          key={block.title}
-          fontSize={controls.contributionSize}
-          text={block.text}
-          title={block.title}
-          x={controls.contributionRowsX}
-          y={controls.contributionStartY - index * controls.contributionGap}
+        <group position={[controls.panelX, controls.panelY, 0.08]}>
+          <WallPanel color="#02050b" height={Math.max(controls.panelHeight, 3.08)} opacity={controls.panelOpacity} width={Math.max(controls.panelWidth, 5.42)} z={0} />
+          <WallGlowLine color="#3b82ff" height={0.005} opacity={controls.decorLineOpacity} width={4.9} x={0.22} y={-1.43} z={0.055} />
+          <WallGlowLine color="#3b82ff" height={0.64} opacity={controls.decorLineOpacity} width={0.014} x={2.58} y={0.82} z={0.055} />
+          <WallGlowLine color="#5ea1ff" height={0.006} opacity={controls.decorLineOpacity} width={0.78} x={0.06} y={1.23} z={0.055} />
+          <WallGlowLine color="#5ea1ff" height={0.006} opacity={controls.decorLineOpacity} width={0.84} x={2.1} y={-0.58} z={0.055} />
+        </group>
+
+        {copy.backgroundWords.map((word, index) => (
+          <WallText
+            color="#1b335a"
+            fontFamily={editorialCondensed}
+            fontSize={controls.bgWordsSize}
+            fontWeight={400}
+            letterSpacing={0.012}
+            maxWidth={1.32}
+            opacity={controls.bgWordsOpacity}
+            textAlign="center"
+            x={controls.bgWordsX}
+            y={controls.bgWordsY - index * controls.bgWordsGap}
+            z={0.14}
+            key={word}
+          >
+            {word.toUpperCase()}
+          </WallText>
+        ))}
+
+        <WallText
+          color="#64a6ff"
+          fontFamily={editorialUi}
+          fontSize={controls.topNavSize}
+          fontWeight={600}
+          letterSpacing={0.026}
+          maxWidth={controls.topNavWidth}
+          x={controls.topNavX}
+          y={controls.topNavY}
+          z={0.22}
+        >
+          {copy.editorialNav.map((item) => item.toUpperCase()).join(" / ")}
+        </WallText>
+        <WallText
+          fontFamily={editorialSerif}
+          fontSize={controls.headlineSize}
+          fontWeight={400}
+          lineHeight={0.98}
+          maxWidth={controls.headlineWidth}
+          x={controls.headlineX}
+          y={controls.headlineY}
+          z={0.22}
+        >
+          {copy.title}
+        </WallText>
+        <WallText
+          color="#d9dde8"
+          fontFamily={editorialUi}
+          fontSize={controls.introSize}
+          fontWeight={400}
+          lineHeight={1.22}
+          maxWidth={controls.introWidth}
+          x={controls.introX}
+          y={controls.introY}
+          z={0.22}
+        >
+          {`${copy.editorialIntro.prefix} ${copy.editorialIntro.name}, ${copy.editorialIntro.suffix}`}
+        </WallText>
+        {copy.editorialColumns.map((paragraph, index) => (
+          <WallText
+            color="#c3cad7"
+            fontFamily={editorialUi}
+            fontSize={controls.columnsSize}
+            fontWeight={400}
+            lineHeight={1.3}
+            maxWidth={controls.columnsWidth}
+            x={controls.columnsX + index * controls.columnsGap}
+            y={controls.columnsY}
+            z={0.22}
+            key={paragraph}
+          >
+            {paragraph}
+          </WallText>
+        ))}
+        <WallGlowLine color="#687083" height={controls.columnDividerHeight} opacity={0.42} width={0.007} x={controls.columnDividerX} y={controls.columnDividerY} z={0.22} />
+        <WallText
+          color="#5ea1ff"
+          fontFamily={editorialSerif}
+          fontSize={controls.quoteMarkSize}
+          fontWeight={400}
+          maxWidth={0.34}
+          x={controls.quoteMarkX}
+          y={controls.quoteY}
+          z={0.22}
+        >
+          "
+        </WallText>
+        <WallText
+          fontFamily={editorialSerif}
+          fontSize={controls.quoteSize}
+          fontStyle="italic"
+          fontWeight={400}
+          lineHeight={1.06}
+          maxWidth={controls.quoteWidth}
+          x={controls.quoteX}
+          y={controls.quoteY}
+          z={0.22}
+        >
+          {copy.editorialQuote}
+        </WallText>
+        <WallText
+          color="#5ea1ff"
+          fontFamily={editorialUi}
+          fontSize={controls.contributionTitleSize}
+          fontWeight={600}
+          letterSpacing={0.035}
+          maxWidth={1.7}
+          x={controls.contributionTitleX}
+          y={controls.contributionTitleY}
+          z={0.22}
+        >
+          {copy.contributionLabel.toUpperCase()}
+        </WallText>
+        {copy.bioBlocks.map((block, index) => (
+          <BioContributionCard3D
+            accent={cardAccent[index] ?? "#5ea1ff"}
+            bodySize={controls.cardBodySize}
+            bodyWidth={controls.cardBodyWidth}
+            cardHeight={controls.cardHeight}
+            cardWidth={controls.cardWidth}
+            index={index}
+            key={block.title}
+            numberSize={controls.cardNumberSize}
+            text={block.text}
+            title={block.title}
+            titleSize={controls.cardTitleSize}
+            x={controls.cardStartX + index * controls.cardGap}
+            y={controls.cardY}
+          />
+        ))}
+        <WallPngImage3D
+          height={controls.sittingImageHeight}
+          opacity={controls.sittingImageOpacity}
+          scale={controls.sittingImageScale}
+          src="/assets/bio-room/lucas-sentado.png"
+          width={controls.sittingImageWidth}
+          x={controls.sittingImageX}
+          y={controls.sittingImageY}
+          z={0.27}
         />
-      ))}
-      <WallPngImage3D
-        height={controls.sittingImageHeight}
-        opacity={controls.sittingImageOpacity}
-        scale={controls.sittingImageScale}
-        src="/assets/bio-room/lucas-sentado.png"
-        width={controls.sittingImageWidth}
-        x={controls.sittingImageX}
-        y={controls.sittingImageY}
-      />
       </group>
     </WallSurfaceGroup>
   );
@@ -728,37 +1009,99 @@ function BioWallWithLeva3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSu
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
   const controls = useControls("MURO IZQUIERDO (Bio)", {
     "Contenido general": folder({
-      contentX: { value: bioRoomPreset.bioWall.contentX, min: -1.5, max: 1.5, step: 0.02, label: "Mover X" },
+      contentX: { value: bioRoomPreset.bioWall.contentX, min: -3.5, max: 2, step: 0.02, label: "Mover X" },
       contentY: { value: bioRoomPreset.bioWall.contentY, min: -1.2, max: 1.2, step: 0.02, label: "Mover Y" },
       contentZ: { value: bioRoomPreset.bioWall.contentZ, min: 0.02, max: 0.75, step: 0.01, label: "Separar de pared" },
       contentScale: { value: bioRoomPreset.bioWall.contentScale, min: 0.65, max: 1.45, step: 0.01, label: "Escala" },
     }, collapsedLevaFolder),
     "Panel fondo": folder({
-      panelX: { value: bioRoomPreset.bioWall.panelX, min: -2, max: 2, step: 0.02, label: "X" },
+      panelX: { value: bioRoomPreset.bioWall.panelX, min: -4, max: 2.5, step: 0.02, label: "X" },
       panelY: { value: bioRoomPreset.bioWall.panelY, min: -1.2, max: 1.2, step: 0.02, label: "Y" },
       panelWidth: { value: bioRoomPreset.bioWall.panelWidth, min: 2.5, max: 5.4, step: 0.02, label: "Ancho" },
       panelHeight: { value: bioRoomPreset.bioWall.panelHeight, min: 1.8, max: 3.4, step: 0.02, label: "Alto" },
       panelOpacity: { value: bioRoomPreset.bioWall.panelOpacity, min: 0, max: 0.95, step: 0.01, label: "Opacidad" },
     }, collapsedLevaFolder),
     "Textos": folder({
-      titleX: { value: bioRoomPreset.bioWall.titleX, min: -3, max: -0.3, step: 0.02, label: "Titulo X" },
+      titleX: { value: bioRoomPreset.bioWall.titleX, min: -5, max: 1, step: 0.02, label: "Titulo X" },
       titleY: { value: bioRoomPreset.bioWall.titleY, min: -0.2, max: 1.5, step: 0.02, label: "Titulo Y" },
       titleSize: { value: bioRoomPreset.bioWall.titleSize, min: 0.09, max: 0.28, step: 0.005, label: "Titulo tamano" },
-      paragraphX: { value: bioRoomPreset.bioWall.paragraphX, min: -3, max: -0.3, step: 0.02, label: "Parrafos X" },
+      paragraphX: { value: bioRoomPreset.bioWall.paragraphX, min: -5, max: 1, step: 0.02, label: "Parrafos X" },
       paragraphOneY: { value: bioRoomPreset.bioWall.paragraphOneY, min: -0.5, max: 1.2, step: 0.02, label: "Parrafo 1 Y" },
       paragraphTwoY: { value: bioRoomPreset.bioWall.paragraphTwoY, min: -1, max: 0.7, step: 0.02, label: "Parrafo 2 Y" },
       paragraphSize: { value: bioRoomPreset.bioWall.paragraphSize, min: 0.04, max: 0.11, step: 0.005, label: "Parrafo tamano" },
     }, collapsedLevaFolder),
+    "Palabras fondo": folder({
+      bgWordsX: { value: bioRoomPreset.bioWall.bgWordsX, min: -5, max: 0.8, step: 0.02, label: "X" },
+      bgWordsY: { value: bioRoomPreset.bioWall.bgWordsY, min: -0.2, max: 1.5, step: 0.02, label: "Y" },
+      bgWordsGap: { value: bioRoomPreset.bioWall.bgWordsGap, min: 0.25, max: 0.8, step: 0.01, label: "Separacion" },
+      bgWordsSize: { value: bioRoomPreset.bioWall.bgWordsSize, min: 0.18, max: 0.7, step: 0.005, label: "Tamano" },
+      bgWordsOpacity: { value: bioRoomPreset.bioWall.bgWordsOpacity, min: 0, max: 1, step: 0.01, label: "Opacidad" },
+    }, collapsedLevaFolder),
+    "Barra superior": folder({
+      topNavX: { value: bioRoomPreset.bioWall.topNavX, min: -4, max: 2.8, step: 0.02, label: "X" },
+      topNavY: { value: bioRoomPreset.bioWall.topNavY, min: 0.6, max: 1.55, step: 0.02, label: "Y" },
+      topNavSize: { value: bioRoomPreset.bioWall.topNavSize, min: 0.025, max: 0.09, step: 0.005, label: "Tamano" },
+      topNavWidth: { value: bioRoomPreset.bioWall.topNavWidth, min: 1.2, max: 3.4, step: 0.02, label: "Ancho" },
+    }, collapsedLevaFolder),
+    "Titulo editorial": folder({
+      headlineX: { value: bioRoomPreset.bioWall.headlineX, min: -4, max: 2.8, step: 0.02, label: "X" },
+      headlineY: { value: bioRoomPreset.bioWall.headlineY, min: 0.45, max: 1.45, step: 0.02, label: "Y" },
+      headlineSize: { value: bioRoomPreset.bioWall.headlineSize, min: 0.08, max: 0.36, step: 0.005, label: "Tamano" },
+      headlineWidth: { value: bioRoomPreset.bioWall.headlineWidth, min: 1.3, max: 3.8, step: 0.02, label: "Ancho" },
+    }, collapsedLevaFolder),
+    "Intro": folder({
+      introX: { value: bioRoomPreset.bioWall.introX, min: -4, max: 2.8, step: 0.02, label: "X bloque" },
+      introY: { value: bioRoomPreset.bioWall.introY, min: -0.2, max: 1.1, step: 0.02, label: "Y" },
+      introSize: { value: bioRoomPreset.bioWall.introSize, min: 0.03, max: 0.1, step: 0.005, label: "Tamano" },
+      introWidth: { value: bioRoomPreset.bioWall.introWidth, min: 0.8, max: 3.6, step: 0.02, label: "Ancho" },
+    }, collapsedLevaFolder),
+    "Columnas": folder({
+      columnsX: { value: bioRoomPreset.bioWall.columnsX, min: -4, max: 2.8, step: 0.02, label: "X" },
+      columnsY: { value: bioRoomPreset.bioWall.columnsY, min: -0.5, max: 0.8, step: 0.02, label: "Y" },
+      columnsGap: { value: bioRoomPreset.bioWall.columnsGap, min: 0.6, max: 2, step: 0.02, label: "Separacion" },
+      columnsSize: { value: bioRoomPreset.bioWall.columnsSize, min: 0.025, max: 0.09, step: 0.005, label: "Tamano" },
+      columnsWidth: { value: bioRoomPreset.bioWall.columnsWidth, min: 0.6, max: 1.8, step: 0.02, label: "Ancho" },
+      columnDividerX: { value: bioRoomPreset.bioWall.columnDividerX, min: -4, max: 2.8, step: 0.02, label: "Linea X" },
+      columnDividerY: { value: bioRoomPreset.bioWall.columnDividerY, min: -0.6, max: 0.8, step: 0.02, label: "Linea Y" },
+      columnDividerHeight: { value: bioRoomPreset.bioWall.columnDividerHeight, min: 0, max: 1.2, step: 0.02, label: "Linea alto" },
+    }, collapsedLevaFolder),
+    "Frase quote": folder({
+      quoteMarkX: { value: bioRoomPreset.bioWall.quoteMarkX, min: -4, max: 2.8, step: 0.02, label: "Comillas X" },
+      quoteX: { value: bioRoomPreset.bioWall.quoteX, min: -4, max: 2.8, step: 0.02, label: "Texto X" },
+      quoteY: { value: bioRoomPreset.bioWall.quoteY, min: -1, max: 0.4, step: 0.02, label: "Y" },
+      quoteMarkSize: { value: bioRoomPreset.bioWall.quoteMarkSize, min: 0.06, max: 0.32, step: 0.005, label: "Comillas tamano" },
+      quoteSize: { value: bioRoomPreset.bioWall.quoteSize, min: 0.04, max: 0.18, step: 0.005, label: "Texto tamano" },
+      quoteWidth: { value: bioRoomPreset.bioWall.quoteWidth, min: 0.9, max: 3.2, step: 0.02, label: "Ancho" },
+    }, collapsedLevaFolder),
+    "Titulo aportes": folder({
+      contributionTitleX: { value: bioRoomPreset.bioWall.contributionTitleX, min: -4, max: 2.8, step: 0.02, label: "X" },
+      contributionTitleY: { value: bioRoomPreset.bioWall.contributionTitleY, min: -1.3, max: 0.2, step: 0.02, label: "Y" },
+      contributionTitleSize: { value: bioRoomPreset.bioWall.contributionTitleSize, min: 0.025, max: 0.09, step: 0.005, label: "Tamano" },
+    }, collapsedLevaFolder),
+    "Tarjetas aportes": folder({
+      cardStartX: { value: bioRoomPreset.bioWall.cardStartX, min: -4, max: 1.6, step: 0.02, label: "Inicio X" },
+      cardY: { value: bioRoomPreset.bioWall.cardY, min: -1.45, max: -0.35, step: 0.02, label: "Y" },
+      cardGap: { value: bioRoomPreset.bioWall.cardGap, min: 0.65, max: 1.3, step: 0.02, label: "Separacion" },
+      cardWidth: { value: bioRoomPreset.bioWall.cardWidth, min: 0.55, max: 1.4, step: 0.02, label: "Ancho" },
+      cardHeight: { value: bioRoomPreset.bioWall.cardHeight, min: 0.32, max: 0.9, step: 0.02, label: "Alto" },
+      cardNumberSize: { value: bioRoomPreset.bioWall.cardNumberSize, min: 0.025, max: 0.09, step: 0.005, label: "Numero" },
+      cardTitleSize: { value: bioRoomPreset.bioWall.cardTitleSize, min: 0.04, max: 0.16, step: 0.005, label: "Titulo" },
+      cardBodySize: { value: bioRoomPreset.bioWall.cardBodySize, min: 0.02, max: 0.07, step: 0.005, label: "Texto" },
+      cardBodyWidth: { value: bioRoomPreset.bioWall.cardBodyWidth, min: 0.35, max: 1.2, step: 0.02, label: "Texto ancho" },
+    }, collapsedLevaFolder),
+    "Lineas decorativas": folder({
+      decorLineOpacity: { value: bioRoomPreset.bioWall.decorLineOpacity, min: 0, max: 0.8, step: 0.01, label: "Opacidad" },
+    }, collapsedLevaFolder),
     "Aportes": folder({
-      contributionLabelX: { value: bioRoomPreset.bioWall.contributionLabelX, min: -3, max: 0.4, step: 0.02, label: "Titulo aportes X" },
+      contributionLabelX: { value: bioRoomPreset.bioWall.contributionLabelX, min: -5, max: 1, step: 0.02, label: "Titulo aportes X" },
       contributionLabelY: { value: bioRoomPreset.bioWall.contributionLabelY, min: -1.2, max: 0.4, step: 0.02, label: "Titulo aportes Y" },
-      contributionRowsX: { value: bioRoomPreset.bioWall.contributionRowsX, min: -3, max: 0.4, step: 0.02, label: "Filas aportes X" },
+      contributionRowsX: { value: bioRoomPreset.bioWall.contributionRowsX, min: -5, max: 1, step: 0.02, label: "Filas aportes X" },
       contributionStartY: { value: bioRoomPreset.bioWall.contributionStartY, min: -1.4, max: 0.2, step: 0.02, label: "Inicio filas Y" },
       contributionGap: { value: bioRoomPreset.bioWall.contributionGap, min: 0.1, max: 0.3, step: 0.01, label: "Separacion" },
       contributionSize: { value: bioRoomPreset.bioWall.contributionSize, min: 0.04, max: 0.09, step: 0.005, label: "Tamano" },
     }, collapsedLevaFolder),
     "Imagen sentado": folder({
-      sittingImageX: { value: bioRoomPreset.bioWall.sittingImageX, min: -3, max: 0.6, step: 0.02, label: "Imagen X" },
+      sittingImageX: { value: bioRoomPreset.bioWall.sittingImageX, min: -5, max: 1.2, step: 0.02, label: "Imagen X" },
       sittingImageY: { value: bioRoomPreset.bioWall.sittingImageY, min: -1.5, max: 0.4, step: 0.02, label: "Imagen Y" },
       sittingImageWidth: { value: bioRoomPreset.bioWall.sittingImageWidth, min: 0.4, max: 2.6, step: 0.02, label: "Ancho" },
       sittingImageHeight: { value: bioRoomPreset.bioWall.sittingImageHeight, min: 0.25, max: 1.6, step: 0.02, label: "Alto" },
