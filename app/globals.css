@@ -285,8 +285,9 @@ p {
 .hero-scene {
   align-content: center;
   background:
-    linear-gradient(90deg, rgba(6, 7, 11, 0.72), rgba(6, 7, 11, 0.12) 58%, rgba(6, 7, 11, 0.32)),
-    linear-gradient(0deg, rgba(6, 7, 11, 0.42), transparent 42%);
+    linear-gradient(90deg, rgba(6, 7, 11, 0.82), rgba(6, 7, 11, 0.26) 58%, rgba(6, 7, 11, 0.44)),
+    linear-gradient(0deg, rgba(6, 7, 11, 0.58), transparent 46%),
+    var(--bg);
   display: grid;
 }
 
@@ -303,9 +304,9 @@ p {
 
 .hero-video-vignette {
   background:
-    radial-gradient(circle at 72% 46%, transparent 0, rgba(6, 7, 11, 0.04) 24rem, rgba(6, 7, 11, 0.52) 52rem),
-    linear-gradient(90deg, rgba(6, 7, 11, 0.72), rgba(6, 7, 11, 0.08) 56%, rgba(6, 7, 11, 0.46)),
-    linear-gradient(0deg, rgba(6, 7, 11, 0.58), transparent 38%);
+    radial-gradient(circle at 68% 42%, transparent 0, rgba(6, 7, 11, 0.06) 22rem, rgba(6, 7, 11, 0.52) 54rem),
+    linear-gradient(90deg, rgba(6, 7, 11, 0.78), rgba(6, 7, 11, 0.14) 58%, rgba(6, 7, 11, 0.48)),
+    linear-gradient(0deg, rgba(6, 7, 11, 0.66), transparent 42%);
   inset: 0;
   position: absolute;
   z-index: -3;
@@ -322,11 +323,17 @@ p {
   z-index: -2;
 }
 
+.hero-layout {
+  display: block;
+  max-width: 58rem;
+  position: relative;
+  z-index: 3;
+}
+
 .hero-copy {
   max-width: 55rem;
   position: relative;
   transform: translateZ(0);
-  z-index: 3;
 }
 
 .hero-lead {
@@ -1085,6 +1092,95 @@ p {
   inset: 0;
   position: absolute;
   z-index: 1;
+}
+
+.bio-room-leva-panel {
+  background: rgba(8, 10, 15, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.45rem;
+  box-shadow: 0 1.1rem 2.6rem rgba(0, 0, 0, 0.34);
+  height: auto;
+  max-width: min(22rem, calc(100vw - 2rem));
+  overflow: hidden;
+  position: absolute;
+  right: 1rem;
+  top: 5.1rem;
+  touch-action: none;
+  width: 22rem;
+  z-index: 9;
+}
+
+.bio-room-leva-panel.is-minimized {
+  height: 2.45rem;
+}
+
+.bio-room-leva-toolbar {
+  align-items: center;
+  background: rgba(18, 21, 30, 0.96);
+  color: #f7f3ea;
+  cursor: grab;
+  display: flex;
+  font: 700 0.78rem/1 var(--font-space-grotesk), Arial, sans-serif;
+  height: 2.45rem;
+  justify-content: space-between;
+  letter-spacing: 0;
+  padding: 0 0.7rem 0 0.85rem;
+  user-select: none;
+}
+
+.bio-room-leva-toolbar:active {
+  cursor: grabbing;
+}
+
+.bio-room-leva-toolbar button {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.25rem;
+  color: #f7f3ea;
+  cursor: pointer;
+  display: grid;
+  font: 800 1rem/1 var(--font-space-grotesk), Arial, sans-serif;
+  height: 1.55rem;
+  padding: 0;
+  width: 1.55rem;
+}
+
+.bio-room-leva-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.bio-room-leva-body {
+  max-height: calc(min(70svh, 42rem) - 2.45rem);
+  overflow: auto;
+}
+
+.bio-room-leva-panel.is-minimized .bio-room-leva-body {
+  display: none;
+}
+
+.bio-room-social-gif {
+  height: var(--bio-social-icon-size, 2.35rem);
+  pointer-events: none;
+  width: var(--bio-social-icon-size, 2.35rem);
+}
+
+.bio-room-social-gif button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  padding: 0;
+  width: 100%;
+}
+
+.bio-room-social-gif img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
 }
 
 .bio-room-dev-save {
@@ -2791,8 +2887,8 @@ p {
   }
 
   .hero-scene {
-    align-content: end;
-    padding-bottom: 4.75rem;
+    align-content: center;
+    padding-bottom: 3.75rem;
   }
 
   .scene-border {
@@ -2879,6 +2975,10 @@ p {
 
   .hero-copy {
     margin-top: 0;
+    max-width: calc(100vw - 2.7rem);
+  }
+
+  .hero-layout {
     max-width: calc(100vw - 2.7rem);
   }
 

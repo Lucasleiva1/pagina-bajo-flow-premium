@@ -1,7 +1,6 @@
 "use client";
 
 import { SceneShell } from "@/components/SceneShell";
-import { HeroWorld } from "@/components/three/HeroWorld";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { ResponsiveVideo } from "@/components/ui/ResponsiveVideo";
@@ -16,28 +15,29 @@ export function HeroScene({ copy }: HeroSceneProps) {
     <SceneShell className="hero-scene" id="intro">
       <ResponsiveVideo
         className="hero-video"
-        name="reel"
-        preload="metadata"
+        name="hero-portada-2"
+        preload="auto"
       />
       <div className="hero-video-vignette" aria-hidden="true" />
-      <HeroWorld />
 
       <div className="side-rail" aria-hidden="true">
         <span>{copy.sideRail}</span>
         <i />
       </div>
 
-      <div className="hero-copy" data-scene-copy>
-        <p className="kicker">{copy.kicker}</p>
-        <h1>{copy.title}</h1>
-        <p className="hero-lead">{copy.lead}</p>
-        <div className="hero-actions">
-          <MagneticButton href="#work" icon={<ArrowIcon />}>
-            {copy.primaryAction}
-          </MagneticButton>
-          <MagneticButton href="#contact" variant="ghost">
-            {copy.secondaryAction}
-          </MagneticButton>
+      <div className="hero-layout">
+        <div className="hero-copy" data-scene-copy>
+          <p className="kicker">{copy.kicker}</p>
+          <h1>{copy.title}</h1>
+          <p className="hero-lead">{copy.lead}</p>
+          <div className="hero-actions">
+            <MagneticButton href="#work" icon={<ArrowIcon />}>
+              {copy.primaryAction}
+            </MagneticButton>
+            <MagneticButton href="#contact" variant="ghost">
+              {copy.secondaryAction}
+            </MagneticButton>
+          </div>
         </div>
       </div>
     </SceneShell>

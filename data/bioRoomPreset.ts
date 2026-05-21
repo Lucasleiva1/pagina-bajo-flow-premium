@@ -97,8 +97,20 @@ export type BioRoomPreset = {
     rightBodySize: number;
     rightFont: string;
     socialIconSize: number;
+    socialIconX: number;
     socialIconGap: number;
     socialRowY: number;
+    socialIconHoverScale: number;
+    youtubeIconX: number;
+    youtubeIconY: number;
+    instagramIconX: number;
+    instagramIconY: number;
+    facebookIconX: number;
+    facebookIconY: number;
+    tiktokIconX: number;
+    tiktokIconY: number;
+    whatsappIconX: number;
+    whatsappIconY: number;
     socialTextY: number;
   };
   bioWall: {
@@ -315,8 +327,20 @@ export const bioRoomPreset: BioRoomPreset = {
     "rightBodySize": 0.064,
     "rightFont": "Bebas Neue",
     "socialIconSize": 0.27,
+    "socialIconX": 0.12,
     "socialIconGap": 0.36,
     "socialRowY": 0.26,
+    "socialIconHoverScale": 1.18,
+    "youtubeIconX": 0,
+    "youtubeIconY": 0,
+    "instagramIconX": 0,
+    "instagramIconY": 0,
+    "facebookIconX": 0,
+    "facebookIconY": 0,
+    "tiktokIconX": 0,
+    "tiktokIconY": 0,
+    "whatsappIconX": 0,
+    "whatsappIconY": 0,
     "socialTextY": 0.63,
     "backgroundX": 0,
     "backgroundY": -0.03,

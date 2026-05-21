@@ -138,7 +138,7 @@ export const siteCopy = {
         { label: "TikTok", handle: "@lucasleiva444", href: "https://www.tiktok.com/@lucasleiva444" },
         { label: "YouTube", handle: "@bajoflow", href: "https://www.youtube.com/@bajoflow" },
         { label: "Facebook", handle: "/bajoflow", href: "https://www.facebook.com/bajoflow" },
-        { label: "Mail", handle: "Contacto", href: "mailto:contacto@bajoflow.com" },
+        { label: "WhatsApp", handle: "WhatsApp", href: "https://wa.me/" },
         { label: "Portfolio", handle: "Ver piezas", href: "#work" },
       ],
       tools: [
@@ -379,7 +379,7 @@ export const siteCopy = {
         { label: "TikTok", handle: "@lucasleiva444", href: "https://www.tiktok.com/@lucasleiva444" },
         { label: "YouTube", handle: "@bajoflow", href: "https://www.youtube.com/@bajoflow" },
         { label: "Facebook", handle: "/bajoflow", href: "https://www.facebook.com/bajoflow" },
-        { label: "Mail", handle: "Contact", href: "mailto:contacto@bajoflow.com" },
+        { label: "WhatsApp", handle: "WhatsApp", href: "https://wa.me/" },
         { label: "Portfolio", handle: "View work", href: "#work" },
       ],
       tools: [
@@ -620,7 +620,7 @@ export const siteCopy = {
         { label: "TikTok", handle: "@lucasleiva444", href: "https://www.tiktok.com/@lucasleiva444" },
         { label: "YouTube", handle: "@bajoflow", href: "https://www.youtube.com/@bajoflow" },
         { label: "Facebook", handle: "/bajoflow", href: "https://www.facebook.com/bajoflow" },
-        { label: "Mail", handle: "Contato", href: "mailto:contacto@bajoflow.com" },
+        { label: "WhatsApp", handle: "WhatsApp", href: "https://wa.me/" },
         { label: "Portfolio", handle: "Ver peças", href: "#work" },
       ],
       tools: [

@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { useControls, folder, Leva } from "leva";
@@ -762,16 +762,78 @@ function useBioRoomDpr(): [number, number] {
 export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
   const dpr = useBioRoomDpr();
   const isBioLevaDisabled = useBioRoomStore((state) => state.isBioLevaDisabled);
+  const levaPanelRef = useRef<HTMLDivElement>(null);
+  const [isLevaMinimized, setIsLevaMinimized] = useState(false);
+  const [levaPanelOffset, setLevaPanelOffset] = useState({ x: 0, y: 0 });
+
+  const startLevaPanelDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0 || (event.target instanceof HTMLElement && event.target.closest("button"))) return;
+
+    const panel = levaPanelRef.current;
+    const parent = panel?.parentElement;
+    if (!panel || !parent) return;
+
+    event.preventDefault();
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const origin = { ...levaPanelOffset };
+    const panelRect = panel.getBoundingClientRect();
+    const parentRect = parent.getBoundingClientRect();
+    const baseLeft = panelRect.left - origin.x;
+    const baseTop = panelRect.top - origin.y;
+    const minX = parentRect.left - baseLeft;
+    const maxX = parentRect.right - baseLeft - panelRect.width;
+    const minY = parentRect.top - baseTop;
+    const maxY = parentRect.bottom - baseTop - panelRect.height;
+
+    const movePanel = (moveEvent: PointerEvent) => {
+      setLevaPanelOffset({
+        x: MathUtils.clamp(origin.x + moveEvent.clientX - startX, minX, maxX),
+        y: MathUtils.clamp(origin.y + moveEvent.clientY - startY, minY, maxY),
+      });
+    };
+    const stopDrag = () => {
+      document.removeEventListener("pointermove", movePanel);
+      document.removeEventListener("pointerup", stopDrag);
+      document.removeEventListener("pointercancel", stopDrag);
+    };
+
+    document.addEventListener("pointermove", movePanel);
+    document.addEventListener("pointerup", stopDrag);
+    document.addEventListener("pointercancel", stopDrag);
+  };
 
   return (
     <div className="bio-room-canvas">
-      {/* Leva GUI panel — visible in dev mode */}
-      <Leva
-        collapsed={false}
-        hidden={isBioLevaDisabled}
-        oneLineLabels
-        titleBar={{ title: "🎬 Bio Room Controls" }}
-      />
+      {!isBioLevaDisabled ? (
+        <div
+          className={`bio-room-leva-panel${isLevaMinimized ? " is-minimized" : ""}`}
+          ref={levaPanelRef}
+          style={{ transform: `translate3d(${levaPanelOffset.x}px, ${levaPanelOffset.y}px, 0)` }}
+        >
+          <div className="bio-room-leva-toolbar" onPointerDown={startLevaPanelDrag}>
+            <span>Bio Room Controls</span>
+            <button
+              aria-label={isLevaMinimized ? "Abrir controles de Bio" : "Minimizar controles de Bio"}
+              aria-pressed={isLevaMinimized}
+              onClick={() => setIsLevaMinimized((value) => !value)}
+              title={isLevaMinimized ? "Abrir controles" : "Minimizar controles"}
+              type="button"
+            >
+              {isLevaMinimized ? "+" : "-"}
+            </button>
+          </div>
+          <div className="bio-room-leva-body">
+            <Leva
+              fill
+              neverHide
+              oneLineLabels
+              titleBar={false}
+            />
+          </div>
+        </div>
+      ) : null}
       <BioRoomSaveButton />
       <Canvas
         dpr={dpr}

@@ -1,6 +1,7 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useEffect } from "react";
+import { motion, useSpring, useTransform } from "framer-motion";
 import type { Project } from "@/data/site";
 
 type WorkGallery3DProps = {
@@ -44,10 +45,18 @@ export function WorkGallery3D({
   setActive,
 }: WorkGallery3DProps) {
   const total = projects.length;
-  const dragStyle = {
-    "--drag-x": `${dragOffset}px`,
-    "--drag-tilt": `${dragOffset / -28}deg`,
-  } as CSSProperties;
+  const dragXSpring = useSpring(0, { stiffness: 220, damping: 26 });
+  const dragTiltSpring = useSpring(0, { stiffness: 220, damping: 26 });
+
+  useEffect(() => {
+    dragXSpring.set(dragOffset);
+    dragTiltSpring.set(dragOffset / -28);
+  }, [dragOffset, dragXSpring, dragTiltSpring]);
+
+  const transform = useTransform(
+    [dragXSpring, dragTiltSpring],
+    ([x, tilt]) => `translate(calc(-50% + ${x}px), -50%) rotateY(${tilt}deg)`
+  );
 
   function selectProject(index: number) {
     if (index !== active) setActive(index);
@@ -56,9 +65,12 @@ export function WorkGallery3D({
   return (
     <div className="work-canvas cinematic-gallery" aria-label={labels.gallery}>
       <div className="gallery-atmosphere" aria-hidden="true" />
-      <div
+      <motion.div
         className={`gallery-orbit${dragOffset !== 0 ? " dragging" : ""}`}
-        style={dragStyle}
+        style={{
+          transform,
+          transition: "none",
+        }}
       >
         {projects.map((project, index) => {
           const offset = circularOffset(index, active, total);
@@ -144,7 +156,7 @@ export function WorkGallery3D({
             </article>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ type ResponsiveVideoProps = {
   loop?: boolean;
   muted?: boolean;
   name: string;
+  onEnded?: () => void;
   playsInline?: boolean;
   poster?: boolean;
   preload?: "auto" | "metadata" | "none";
@@ -24,6 +25,7 @@ export function ResponsiveVideo({
   loop = true,
   muted = true,
   name,
+  onEnded,
   playsInline = true,
   poster = true,
   preload = "metadata",
@@ -35,6 +37,7 @@ export function ResponsiveVideo({
       controls={controls}
       loop={loop}
       muted={muted}
+      onEnded={onEnded}
       playsInline={playsInline}
       poster={poster ? `/videos/${name}-poster.jpg` : undefined}
       preload={preload}

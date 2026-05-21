@@ -129,8 +129,20 @@ function serializePreset(preset: BioRoomPreset) {
     rightBodySize: number;
     rightFont: string;
     socialIconSize: number;
+    socialIconX: number;
     socialIconGap: number;
     socialRowY: number;
+    socialIconHoverScale: number;
+    youtubeIconX: number;
+    youtubeIconY: number;
+    instagramIconX: number;
+    instagramIconY: number;
+    facebookIconX: number;
+    facebookIconY: number;
+    tiktokIconX: number;
+    tiktokIconY: number;
+    whatsappIconX: number;
+    whatsappIconY: number;
     socialTextY: number;
   };
   bioWall: {
