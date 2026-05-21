@@ -113,6 +113,63 @@ export type BioRoomPreset = {
     paragraphOneY: number;
     paragraphTwoY: number;
     paragraphSize: number;
+    bgWordsX: number;
+    bgWordsY: number;
+    bgWordsGap: number;
+    bgWordsSize: number;
+    bgWordsOpacity: number;
+    bgWordsZ: number;
+    topNavX: number;
+    topNavY: number;
+    topNavSize: number;
+    topNavWidth: number;
+    topNavZ: number;
+    headlineX: number;
+    headlineY: number;
+    headlineSize: number;
+    headlineWidth: number;
+    headlineZ: number;
+    introX: number;
+    introY: number;
+    introSize: number;
+    introWidth: number;
+    introZ: number;
+    columnsX: number;
+    columnsY: number;
+    columnsGap: number;
+    columnsSize: number;
+    columnsWidth: number;
+    columnDividerX: number;
+    columnDividerY: number;
+    columnDividerHeight: number;
+    columnOneZ: number;
+    columnTwoZ: number;
+    quoteMarkX: number;
+    quoteX: number;
+    quoteY: number;
+    quoteMarkSize: number;
+    quoteSize: number;
+    quoteWidth: number;
+    quoteMarkZ: number;
+    quoteZ: number;
+    contributionTitleX: number;
+    contributionTitleY: number;
+    contributionTitleSize: number;
+    contributionTitleZ: number;
+    cardStartX: number;
+    cardY: number;
+    cardGap: number;
+    cardWidth: number;
+    cardHeight: number;
+    cardNumberSize: number;
+    cardTitleSize: number;
+    cardBodySize: number;
+    cardBodyWidth: number;
+    cardOneZ: number;
+    cardTwoZ: number;
+    cardThreeZ: number;
+    cardFourZ: number;
+    decorLineOpacity: number;
     contributionLabelX: number;
     contributionLabelY: number;
     contributionRowsX: number;
@@ -257,26 +314,26 @@ export const bioRoomPreset: BioRoomPreset = {
     "backgroundScaleY": 1.2
   },
   "bioWall": {
-    "contentX": 0.08,
-    "contentY": 0,
+    "contentX": 0.48000000000000004,
+    "contentY": 0.02,
     "contentZ": 0.3,
-    "contentScale": 0.99,
-    "panelX": -0.72,
-    "panelY": 0.03,
-    "panelWidth": 4.71,
-    "panelHeight": 3.04,
-    "panelOpacity": 0.78,
-    "titleX": -1.3000000000000003,
+    "contentScale": 0.98,
+    "panelX": -4,
+    "panelY": -1.2,
+    "panelWidth": 2.5,
+    "panelHeight": 1.8,
+    "panelOpacity": 0,
+    "titleX": -1.4000000000000004,
     "titleY": 1.16,
     "titleSize": 0.18,
-    "paragraphX": -1.6800000000000002,
+    "paragraphX": -1.58,
     "paragraphOneY": 0.62,
     "paragraphTwoY": 0.030000000000000002,
     "paragraphSize": 0.08600000000000001,
-    "bgWordsX": -2.08,
+    "bgWordsX": -2.12,
     "bgWordsY": 0.98,
-    "bgWordsGap": 0.5,
-    "bgWordsSize": 0.445,
+    "bgWordsGap": 0.53,
+    "bgWordsSize": 0.42,
     "bgWordsOpacity": 0.78,
     "topNavX": -1,
     "topNavY": 1.34,
@@ -284,25 +341,25 @@ export const bioRoomPreset: BioRoomPreset = {
     "topNavWidth": 2.36,
     "headlineX": -1.18,
     "headlineY": 0.8600000000000001,
-    "headlineSize": 0.3,
+    "headlineSize": 0.315,
     "headlineWidth": 2.56,
-    "introX": -1.07,
-    "introY": 0.37000000000000005,
-    "introSize": 0.051,
+    "introX": -0.75,
+    "introY": 0.27,
+    "introSize": 0.071,
     "introWidth": 1.76,
     "columnsX": -1.05,
-    "columnsY": 0.07,
+    "columnsY": -0.33,
     "columnsGap": 1.4200000000000002,
-    "columnsSize": 0.05,
+    "columnsSize": 0.07,
     "columnsWidth": 1.04,
-    "columnDividerX": 0.18000000000000005,
-    "columnDividerY": 0.04000000000000001,
-    "columnDividerHeight": 0.4,
-    "quoteMarkX": -1.24,
-    "quoteX": -0.94,
-    "quoteY": -0.4,
-    "quoteMarkSize": 0.315,
-    "quoteSize": 0.10500000000000001,
+    "columnDividerX": 0.14000000000000004,
+    "columnDividerY": -0.30000000000000004,
+    "columnDividerHeight": 0.42000000000000004,
+    "quoteMarkX": -1.1600000000000001,
+    "quoteX": -0.8599999999999999,
+    "quoteY": -1,
+    "quoteMarkSize": 0.32,
+    "quoteSize": 0.13,
     "quoteWidth": 1.94,
     "contributionTitleX": -0.22000000000000003,
     "contributionTitleY": -0.62,
@@ -328,7 +385,20 @@ export const bioRoomPreset: BioRoomPreset = {
     "sittingImageWidth": 1.2,
     "sittingImageHeight": 0.68,
     "sittingImageScale": 3.6,
-    "sittingImageOpacity": 1
+    "sittingImageOpacity": 1,
+    "bgWordsZ": 0.18000000000000002,
+    "topNavZ": 0.11999999999999998,
+    "headlineZ": 0.2,
+    "introZ": 0.2,
+    "columnOneZ": 0.18,
+    "columnTwoZ": 0.15,
+    "quoteMarkZ": 0.04000000000000001,
+    "quoteZ": 0.04,
+    "contributionTitleZ": 0.04,
+    "cardOneZ": 0.04,
+    "cardTwoZ": 0.04,
+    "cardThreeZ": 0.04000000000000001,
+    "cardFourZ": 0.04
   },
   "skillsWall": {
     "showFrame": false,

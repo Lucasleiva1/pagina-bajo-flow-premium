@@ -727,78 +727,6 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
   );
 }
 
-function BioContributionCard3D({
-  accent,
-  bodySize,
-  bodyWidth,
-  cardHeight,
-  cardWidth,
-  index,
-  numberSize,
-  text,
-  title,
-  titleSize,
-  x,
-  y,
-}: {
-  accent: string;
-  bodySize: number;
-  bodyWidth: number;
-  cardHeight: number;
-  cardWidth: number;
-  index: number;
-  numberSize: number;
-  text: string;
-  title: string;
-  titleSize: number;
-  x: number;
-  y: number;
-}) {
-  return (
-    <group position={[x, y, 0.2]}>
-      <WallPanel color="#020710" height={cardHeight} opacity={0.62} width={cardWidth} z={0.01} />
-      <WallFrame height={cardHeight} width={cardWidth} />
-      <WallText
-        color={accent}
-        fontFamily={editorialUi}
-        fontSize={numberSize}
-        fontWeight={600}
-        letterSpacing={0.016}
-        maxWidth={0.4}
-        x={-cardWidth / 2 + 0.12}
-        y={cardHeight / 2 - 0.1}
-        z={0.08}
-      >
-        {String(index + 1).padStart(2, "0")}
-      </WallText>
-      <WallText
-        fontFamily={editorialSerif}
-        fontSize={titleSize}
-        fontWeight={400}
-        maxWidth={bodyWidth}
-        x={-cardWidth / 2 + 0.16}
-        y={-0.04}
-        z={0.08}
-      >
-        {title}
-      </WallText>
-      <WallText
-        color="#c9d1dd"
-        fontFamily={editorialUi}
-        fontSize={bodySize}
-        fontWeight={400}
-        lineHeight={1.28}
-        maxWidth={bodyWidth}
-        x={-cardWidth / 2 + 0.16}
-        y={-0.21}
-        z={0.08}
-      >
-        {text}
-      </WallText>
-    </group>
-  );
-}
-
 function WallPngImage3D({
   height,
   opacity,
@@ -847,20 +775,10 @@ function BioWallContent3D({
   copy: SiteCopy["bio"];
   wall: WallSurface;
 }) {
-  const cardAccent = ["#5ea1ff", "#3b7cff", "#65ddff", "#8fa4ff"];
-
   return (
     <WallSurfaceGroup wall={wall}>
       <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} z={0.14} />
       <group position={[controls.contentX, controls.contentY, controls.contentZ]} scale={controls.contentScale}>
-        <group position={[controls.panelX, controls.panelY, 0.08]}>
-          <WallPanel color="#02050b" height={Math.max(controls.panelHeight, 3.08)} opacity={controls.panelOpacity} width={Math.max(controls.panelWidth, 5.42)} z={0} />
-          <WallGlowLine color="#3b82ff" height={0.005} opacity={controls.decorLineOpacity} width={4.9} x={0.22} y={-1.43} z={0.055} />
-          <WallGlowLine color="#3b82ff" height={0.64} opacity={controls.decorLineOpacity} width={0.014} x={2.58} y={0.82} z={0.055} />
-          <WallGlowLine color="#5ea1ff" height={0.006} opacity={controls.decorLineOpacity} width={0.78} x={0.06} y={1.23} z={0.055} />
-          <WallGlowLine color="#5ea1ff" height={0.006} opacity={controls.decorLineOpacity} width={0.84} x={2.1} y={-0.58} z={0.055} />
-        </group>
-
         {copy.backgroundWords.map((word, index) => (
           <WallText
             color="#1b335a"
@@ -873,7 +791,7 @@ function BioWallContent3D({
             textAlign="center"
             x={controls.bgWordsX}
             y={controls.bgWordsY - index * controls.bgWordsGap}
-            z={0.14}
+            z={controls.bgWordsZ}
             key={word}
           >
             {word.toUpperCase()}
@@ -889,7 +807,7 @@ function BioWallContent3D({
           maxWidth={controls.topNavWidth}
           x={controls.topNavX}
           y={controls.topNavY}
-          z={0.22}
+          z={controls.topNavZ}
         >
           {copy.editorialNav.map((item) => item.toUpperCase()).join(" / ")}
         </WallText>
@@ -901,12 +819,12 @@ function BioWallContent3D({
           maxWidth={controls.headlineWidth}
           x={controls.headlineX}
           y={controls.headlineY}
-          z={0.22}
+          z={controls.headlineZ}
         >
           {copy.title}
         </WallText>
         <WallText
-          color="#d9dde8"
+          color="#ffd56a"
           fontFamily={editorialUi}
           fontSize={controls.introSize}
           fontWeight={400}
@@ -914,7 +832,7 @@ function BioWallContent3D({
           maxWidth={controls.introWidth}
           x={controls.introX}
           y={controls.introY}
-          z={0.22}
+          z={controls.introZ}
         >
           {`${copy.editorialIntro.prefix} ${copy.editorialIntro.name}, ${copy.editorialIntro.suffix}`}
         </WallText>
@@ -928,7 +846,7 @@ function BioWallContent3D({
             maxWidth={controls.columnsWidth}
             x={controls.columnsX + index * controls.columnsGap}
             y={controls.columnsY}
-            z={0.22}
+            z={index === 0 ? controls.columnOneZ : controls.columnTwoZ}
             key={paragraph}
           >
             {paragraph}
@@ -943,7 +861,7 @@ function BioWallContent3D({
           maxWidth={0.34}
           x={controls.quoteMarkX}
           y={controls.quoteY}
-          z={0.22}
+          z={controls.quoteMarkZ}
         >
           "
         </WallText>
@@ -956,40 +874,10 @@ function BioWallContent3D({
           maxWidth={controls.quoteWidth}
           x={controls.quoteX}
           y={controls.quoteY}
-          z={0.22}
+          z={controls.quoteZ}
         >
           {copy.editorialQuote}
         </WallText>
-        <WallText
-          color="#5ea1ff"
-          fontFamily={editorialUi}
-          fontSize={controls.contributionTitleSize}
-          fontWeight={600}
-          letterSpacing={0.035}
-          maxWidth={1.7}
-          x={controls.contributionTitleX}
-          y={controls.contributionTitleY}
-          z={0.22}
-        >
-          {copy.contributionLabel.toUpperCase()}
-        </WallText>
-        {copy.bioBlocks.map((block, index) => (
-          <BioContributionCard3D
-            accent={cardAccent[index] ?? "#5ea1ff"}
-            bodySize={controls.cardBodySize}
-            bodyWidth={controls.cardBodyWidth}
-            cardHeight={controls.cardHeight}
-            cardWidth={controls.cardWidth}
-            index={index}
-            key={block.title}
-            numberSize={controls.cardNumberSize}
-            text={block.text}
-            title={block.title}
-            titleSize={controls.cardTitleSize}
-            x={controls.cardStartX + index * controls.cardGap}
-            y={controls.cardY}
-          />
-        ))}
         <WallPngImage3D
           height={controls.sittingImageHeight}
           opacity={controls.sittingImageOpacity}
@@ -1013,13 +901,6 @@ function BioWallWithLeva3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSu
       contentY: { value: bioRoomPreset.bioWall.contentY, min: -1.2, max: 1.2, step: 0.02, label: "Mover Y" },
       contentZ: { value: bioRoomPreset.bioWall.contentZ, min: 0.02, max: 0.75, step: 0.01, label: "Separar de pared" },
       contentScale: { value: bioRoomPreset.bioWall.contentScale, min: 0.65, max: 1.45, step: 0.01, label: "Escala" },
-    }, collapsedLevaFolder),
-    "Panel fondo": folder({
-      panelX: { value: bioRoomPreset.bioWall.panelX, min: -4, max: 2.5, step: 0.02, label: "X" },
-      panelY: { value: bioRoomPreset.bioWall.panelY, min: -1.2, max: 1.2, step: 0.02, label: "Y" },
-      panelWidth: { value: bioRoomPreset.bioWall.panelWidth, min: 2.5, max: 5.4, step: 0.02, label: "Ancho" },
-      panelHeight: { value: bioRoomPreset.bioWall.panelHeight, min: 1.8, max: 3.4, step: 0.02, label: "Alto" },
-      panelOpacity: { value: bioRoomPreset.bioWall.panelOpacity, min: 0, max: 0.95, step: 0.01, label: "Opacidad" },
     }, collapsedLevaFolder),
     "Textos": folder({
       titleX: { value: bioRoomPreset.bioWall.titleX, min: -5, max: 1, step: 0.02, label: "Titulo X" },
@@ -1073,33 +954,6 @@ function BioWallWithLeva3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSu
       quoteSize: { value: bioRoomPreset.bioWall.quoteSize, min: 0.04, max: 0.18, step: 0.005, label: "Texto tamano" },
       quoteWidth: { value: bioRoomPreset.bioWall.quoteWidth, min: 0.9, max: 3.2, step: 0.02, label: "Ancho" },
     }, collapsedLevaFolder),
-    "Titulo aportes": folder({
-      contributionTitleX: { value: bioRoomPreset.bioWall.contributionTitleX, min: -4, max: 2.8, step: 0.02, label: "X" },
-      contributionTitleY: { value: bioRoomPreset.bioWall.contributionTitleY, min: -1.3, max: 0.2, step: 0.02, label: "Y" },
-      contributionTitleSize: { value: bioRoomPreset.bioWall.contributionTitleSize, min: 0.025, max: 0.09, step: 0.005, label: "Tamano" },
-    }, collapsedLevaFolder),
-    "Tarjetas aportes": folder({
-      cardStartX: { value: bioRoomPreset.bioWall.cardStartX, min: -4, max: 1.6, step: 0.02, label: "Inicio X" },
-      cardY: { value: bioRoomPreset.bioWall.cardY, min: -1.45, max: -0.35, step: 0.02, label: "Y" },
-      cardGap: { value: bioRoomPreset.bioWall.cardGap, min: 0.65, max: 1.3, step: 0.02, label: "Separacion" },
-      cardWidth: { value: bioRoomPreset.bioWall.cardWidth, min: 0.55, max: 1.4, step: 0.02, label: "Ancho" },
-      cardHeight: { value: bioRoomPreset.bioWall.cardHeight, min: 0.32, max: 0.9, step: 0.02, label: "Alto" },
-      cardNumberSize: { value: bioRoomPreset.bioWall.cardNumberSize, min: 0.025, max: 0.09, step: 0.005, label: "Numero" },
-      cardTitleSize: { value: bioRoomPreset.bioWall.cardTitleSize, min: 0.04, max: 0.16, step: 0.005, label: "Titulo" },
-      cardBodySize: { value: bioRoomPreset.bioWall.cardBodySize, min: 0.02, max: 0.07, step: 0.005, label: "Texto" },
-      cardBodyWidth: { value: bioRoomPreset.bioWall.cardBodyWidth, min: 0.35, max: 1.2, step: 0.02, label: "Texto ancho" },
-    }, collapsedLevaFolder),
-    "Lineas decorativas": folder({
-      decorLineOpacity: { value: bioRoomPreset.bioWall.decorLineOpacity, min: 0, max: 0.8, step: 0.01, label: "Opacidad" },
-    }, collapsedLevaFolder),
-    "Aportes": folder({
-      contributionLabelX: { value: bioRoomPreset.bioWall.contributionLabelX, min: -5, max: 1, step: 0.02, label: "Titulo aportes X" },
-      contributionLabelY: { value: bioRoomPreset.bioWall.contributionLabelY, min: -1.2, max: 0.4, step: 0.02, label: "Titulo aportes Y" },
-      contributionRowsX: { value: bioRoomPreset.bioWall.contributionRowsX, min: -5, max: 1, step: 0.02, label: "Filas aportes X" },
-      contributionStartY: { value: bioRoomPreset.bioWall.contributionStartY, min: -1.4, max: 0.2, step: 0.02, label: "Inicio filas Y" },
-      contributionGap: { value: bioRoomPreset.bioWall.contributionGap, min: 0.1, max: 0.3, step: 0.01, label: "Separacion" },
-      contributionSize: { value: bioRoomPreset.bioWall.contributionSize, min: 0.04, max: 0.09, step: 0.005, label: "Tamano" },
-    }, collapsedLevaFolder),
     "Imagen sentado": folder({
       sittingImageX: { value: bioRoomPreset.bioWall.sittingImageX, min: -5, max: 1.2, step: 0.02, label: "Imagen X" },
       sittingImageY: { value: bioRoomPreset.bioWall.sittingImageY, min: -1.5, max: 0.4, step: 0.02, label: "Imagen Y" },
@@ -1108,13 +962,28 @@ function BioWallWithLeva3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSu
       sittingImageScale: { value: bioRoomPreset.bioWall.sittingImageScale, min: 0.35, max: 3.6, step: 0.02, label: "Escala uniforme" },
       sittingImageOpacity: { value: bioRoomPreset.bioWall.sittingImageOpacity, min: 0, max: 1, step: 0.01, label: "Opacidad" },
     }, collapsedLevaFolder),
+    "Profundidad textos": folder({
+      bgWordsZ: { value: bioRoomPreset.bioWall.bgWordsZ, min: 0.04, max: 0.5, step: 0.01, label: "Palabras fondo Z" },
+      topNavZ: { value: bioRoomPreset.bioWall.topNavZ, min: 0.04, max: 0.5, step: 0.01, label: "Barra superior Z" },
+      headlineZ: { value: bioRoomPreset.bioWall.headlineZ, min: 0.04, max: 0.5, step: 0.01, label: "Titulo Z" },
+      introZ: { value: bioRoomPreset.bioWall.introZ, min: 0.04, max: 0.5, step: 0.01, label: "Intro Z" },
+      columnOneZ: { value: bioRoomPreset.bioWall.columnOneZ, min: 0.04, max: 0.5, step: 0.01, label: "Columna 1 Z" },
+      columnTwoZ: { value: bioRoomPreset.bioWall.columnTwoZ, min: 0.04, max: 0.5, step: 0.01, label: "Columna 2 Z" },
+      quoteMarkZ: { value: bioRoomPreset.bioWall.quoteMarkZ, min: 0.04, max: 0.5, step: 0.01, label: "Comillas Z" },
+      quoteZ: { value: bioRoomPreset.bioWall.quoteZ, min: 0.04, max: 0.5, step: 0.01, label: "Frase Z" },
+    }, collapsedLevaFolder),
   }, collapsedLevaFolder);
 
-  useEffect(() => {
-    setPresetSection("bioWall", controls);
-  }, [controls, setPresetSection]);
+  const mergedControls = useMemo(
+    () => ({ ...bioRoomPreset.bioWall, ...controls }),
+    [controls],
+  );
 
-  return <BioWallContent3D controls={controls} copy={copy} wall={wall} />;
+  useEffect(() => {
+    setPresetSection("bioWall", mergedControls);
+  }, [mergedControls, setPresetSection]);
+
+  return <BioWallContent3D controls={mergedControls} copy={copy} wall={wall} />;
 }
 
 function BioWallWithoutLeva3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {

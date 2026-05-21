@@ -1,5 +1,56 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-21 13:45:46 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Bio Room con muro Bio limpio y controles de profundidad
+
+Tag de esta version: important-bio-room-bio-wall-cleanup-2026-05-21-1345
+Mensaje del commit: feat: save bio room bio wall cleanup checkpoint
+
+Esta version queda como punto fuerte antes de redisenar el muro principal. Conserva el proyecto actual funcionando y deja el muro Bio mas limpio, con controles manuales de profundidad para textos desde Leva.
+
+## Que contiene esta version actual
+
+- Muro Bio con controles Leva de profundidad para los textos principales.
+- Eliminacion del panel de fondo del muro Bio y sus lineas decorativas asociadas.
+- Eliminacion del bloque `Lo que aporto` y las tarjetas inferiores del muro Bio.
+- Texto `Intro` del muro Bio en amarillo para destacarlo.
+- Serializador del preset 3D actualizado para conservar los nuevos controles al usar `GUARDAR 3D`.
+- Se mantienen intactos el resto del cuarto 3D, el muro Habilidades y la estructura general de la pagina.
+
+## Verificacion de esta version actual
+
+- `npx.cmd tsc --noEmit` paso correctamente antes de guardar.
+- `Invoke-WebRequest http://127.0.0.1:3000/#bio` devolvio `200`.
+- El guardado evita incluir archivos sueltos no rastreados que no forman parte del checkpoint.
+
+## Como comparar o volver
+
+Antes de restaurar, verificar siempre:
+
+```powershell
+git status -sb
+git log --oneline --decorate -5
+```
+
+Para comparar contra esta version:
+
+```powershell
+git diff important-bio-room-bio-wall-cleanup-2026-05-21-1345 -- .
+```
+
+Para volver exactamente a esta version, solo si el usuario lo pide:
+
+```powershell
+git checkout important-bio-room-bio-wall-cleanup-2026-05-21-1345
+```
+
+---
+
 Fecha de guardado importante: 2026-05-19 17:41:16 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
