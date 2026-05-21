@@ -1,5 +1,60 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-21 15:28:27 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Muro principal editorial con redes y firma
+
+Tag de esta version: important-front-wall-signature-2026-05-21-1528
+Mensaje del commit: feat: save front wall signature checkpoint
+
+Esta version queda como punto fuerte despues de redisenar el muro principal. Conserva el espacio 3D actual y cambia solamente la capa editorial del muro frontal: texto, redes sociales, iconos creados desde cero y firma de Bajo Flow en el sector inferior izquierdo.
+
+## Que contiene esta version actual
+
+- Muro principal con composicion editorial inspirada en la referencia: `Bio`, `BAJO FLOW`, bajada, textos, cita y redes.
+- Iconos de redes creados desde cero con canvas/textura 3D, sin usar las imagenes sociales anteriores.
+- Tarjetas de redes con hover: cambian color, brillo y escala suavemente.
+- Separacion de controles Leva en `FRONT WALL LEFT` y `FRONT WALL SOCIALS`.
+- Eliminacion del bloque inferior `ENFOQUE` del muro principal.
+- Firma Bajo Flow transparente colocada en el sector inferior izquierdo del muro.
+- Controles Leva para la firma: posicion X/Y, ancho, alto y opacidad.
+- Serializador del preset 3D actualizado para guardar los nuevos controles de firma con `GUARDAR 3D`.
+
+## Verificacion de esta version actual
+
+- `npx.cmd tsc --noEmit` paso correctamente antes de guardar.
+- `npx.cmd eslint components/bio-room/BioRoomWorldPanels.tsx data/bioRoomPreset.ts app/api/bio-room/preset/route.ts` paso correctamente.
+- `Invoke-WebRequest http://127.0.0.1:3000/#bio` devolvio `200`.
+- Captura Playwright verifico que el muro Bio abre y la firma reemplaza al bloque `ENFOQUE`.
+- El guardado evita incluir archivos sueltos no rastreados que no forman parte del checkpoint.
+
+## Como comparar o volver
+
+Antes de restaurar, verificar siempre:
+
+```powershell
+git status -sb
+git log --oneline --decorate -5
+```
+
+Para comparar contra esta version:
+
+```powershell
+git diff important-front-wall-signature-2026-05-21-1528 -- .
+```
+
+Para volver exactamente a esta version, solo si el usuario lo pide:
+
+```powershell
+git checkout important-front-wall-signature-2026-05-21-1528
+```
+
+---
+
 Fecha de guardado importante: 2026-05-21 13:45:46 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main

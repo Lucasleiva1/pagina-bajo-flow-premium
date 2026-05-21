@@ -56,11 +56,10 @@ type WallTextProps = {
   z?: number;
 };
 
-type SocialIconKind = "facebook" | "instagram" | "tiktok" | "youtube";
+type SocialIconKind = "facebook" | "instagram" | "mail" | "tiktok" | "youtube";
 type BioWallControls = BioRoomPreset["bioWall"];
 
 const wallAccent = "#bdb6a5";
-const wallAmber = "#d6a15f";
 const wallInk = "#efe9dd";
 const wallMuted = "#9ea6b4";
 const collapsedLevaFolder = { collapsed: true } as const;
@@ -448,14 +447,39 @@ function getSocialIconKind(label: string): SocialIconKind | null {
   if (normalized.includes("instagram")) return "instagram";
   if (normalized.includes("facebook")) return "facebook";
   if (normalized.includes("tiktok")) return "tiktok";
+  if (normalized.includes("mail") || normalized.includes("contact")) return "mail";
   return null;
 }
 
-const socialIconSources: Record<SocialIconKind, string> = {
-  facebook: "/images/social-icons/social-facebook-188.webp",
-  instagram: "/images/social-icons/social-instagram-188.webp",
-  tiktok: "/images/social-icons/social-tiktok-188.webp",
-  youtube: "/images/social-icons/social-youtube-188.webp",
+const socialCardCopy: Record<SocialIconKind, { description: string; label: string }> = {
+  facebook: {
+    description: "Proyectos, novedades y contenido exclusivo.",
+    label: "FACEBOOK",
+  },
+  instagram: {
+    description: "Cortes, color y detras de escena en tiempo real.",
+    label: "INSTAGRAM",
+  },
+  mail: {
+    description: "Contacto directo. Consultas y colaboraciones.",
+    label: "CONTACTO",
+  },
+  tiktok: {
+    description: "Ediciones rapidas, tips y contenido creativo.",
+    label: "TIKTOK",
+  },
+  youtube: {
+    description: "Videos, criticas y procesos completos de edicion.",
+    label: "YOUTUBE",
+  },
+};
+
+const socialCardColors: Record<SocialIconKind, { base: string; hover: string; shadow: string }> = {
+  facebook: { base: "#1f8cff", hover: "#74d5ff", shadow: "rgba(31, 140, 255, 0.44)" },
+  instagram: { base: "#ff4fa3", hover: "#ffd36f", shadow: "rgba(255, 79, 163, 0.42)" },
+  mail: { base: "#1cc7a6", hover: "#9effe8", shadow: "rgba(28, 199, 166, 0.42)" },
+  tiktok: { base: "#15e8ff", hover: "#ff4f7e", shadow: "rgba(21, 232, 255, 0.38)" },
+  youtube: { base: "#ff2a2a", hover: "#ff8a5c", shadow: "rgba(255, 42, 42, 0.42)" },
 };
 
 function getFrontWallBackgroundSource() {
@@ -504,40 +528,188 @@ function WallImageBackground({
   );
 }
 
-function SocialIconButton({
+function drawRoundedRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const safeRadius = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + safeRadius, y);
+  context.lineTo(x + width - safeRadius, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+  context.lineTo(x + width, y + height - safeRadius);
+  context.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+  context.lineTo(x + safeRadius, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+  context.lineTo(x, y + safeRadius);
+  context.quadraticCurveTo(x, y, x + safeRadius, y);
+  context.closePath();
+}
+
+function drawPlayIcon(context: CanvasRenderingContext2D, accent: string) {
+  context.fillStyle = accent;
+  drawRoundedRect(context, 54, 72, 148, 112, 34);
+  context.fill();
+  context.fillStyle = "#ffffff";
+  context.beginPath();
+  context.moveTo(114, 98);
+  context.lineTo(114, 158);
+  context.lineTo(164, 128);
+  context.closePath();
+  context.fill();
+}
+
+function drawInstagramIcon(context: CanvasRenderingContext2D, accent: string) {
+  context.lineWidth = 15;
+  context.strokeStyle = "#ffffff";
+  drawRoundedRect(context, 62, 62, 132, 132, 38);
+  context.stroke();
+  context.beginPath();
+  context.arc(128, 130, 34, 0, Math.PI * 2);
+  context.stroke();
+  context.fillStyle = accent;
+  context.beginPath();
+  context.arc(166, 90, 10, 0, Math.PI * 2);
+  context.fill();
+}
+
+function drawFacebookIcon(context: CanvasRenderingContext2D) {
+  context.font = "bold 168px Arial";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText("f", 130, 139);
+}
+
+function drawTikTokIcon(context: CanvasRenderingContext2D, accent: string) {
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  context.lineWidth = 21;
+  context.strokeStyle = accent;
+  context.beginPath();
+  context.moveTo(146, 58);
+  context.lineTo(146, 156);
+  context.arc(104, 156, 32, 0.02, Math.PI * 1.92);
+  context.stroke();
+  context.lineWidth = 15;
+  context.strokeStyle = "#ffffff";
+  context.beginPath();
+  context.moveTo(146, 60);
+  context.lineTo(146, 154);
+  context.arc(104, 154, 28, 0.02, Math.PI * 1.9);
+  context.moveTo(146, 76);
+  context.quadraticCurveTo(166, 105, 195, 106);
+  context.stroke();
+}
+
+function drawMailIcon(context: CanvasRenderingContext2D, accent: string) {
+  context.lineWidth = 13;
+  context.strokeStyle = "#ffffff";
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  drawRoundedRect(context, 54, 72, 148, 104, 26);
+  context.stroke();
+  context.beginPath();
+  context.moveTo(66, 92);
+  context.lineTo(128, 135);
+  context.lineTo(190, 92);
+  context.stroke();
+  context.fillStyle = accent;
+  context.beginPath();
+  context.arc(186, 74, 18, 0, Math.PI * 2);
+  context.fill();
+}
+
+function createSocialIconTexture(kind: SocialIconKind, isHovered: boolean) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const context = canvas.getContext("2d");
+  const colors = socialCardColors[kind];
+  const accent = isHovered ? colors.hover : colors.base;
+
+  if (context) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+
+    const glow = context.createRadialGradient(128, 128, 24, 128, 128, 122);
+    glow.addColorStop(0, colors.shadow);
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    context.fillStyle = glow;
+    context.fillRect(0, 0, 256, 256);
+
+    const tile = context.createLinearGradient(48, 40, 210, 212);
+    tile.addColorStop(0, "#07101d");
+    tile.addColorStop(0.52, "#030811");
+    tile.addColorStop(1, isHovered ? accent : "#08121f");
+    context.fillStyle = tile;
+    drawRoundedRect(context, 42, 42, 172, 172, 42);
+    context.fill();
+
+    context.strokeStyle = accent;
+    context.lineWidth = isHovered ? 8 : 5;
+    context.globalAlpha = isHovered ? 0.9 : 0.64;
+    drawRoundedRect(context, 42, 42, 172, 172, 42);
+    context.stroke();
+    context.globalAlpha = 1;
+
+    context.fillStyle = "#ffffff";
+    context.strokeStyle = "#ffffff";
+    if (kind === "youtube") drawPlayIcon(context, accent);
+    if (kind === "instagram") drawInstagramIcon(context, accent);
+    if (kind === "facebook") drawFacebookIcon(context);
+    if (kind === "tiktok") drawTikTokIcon(context, accent);
+    if (kind === "mail") drawMailIcon(context, accent);
+  }
+
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function SocialLinkCard3D({
   href,
+  iconSize,
   kind,
-  size,
+  width,
   x,
   y,
 }: {
   href: string;
+  iconSize: number;
   kind: SocialIconKind;
-  size: number;
+  width: number;
   x: number;
   y: number;
 }) {
   const groupRef = useRef<Group>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const texture = useLoader(TextureLoader, socialIconSources[kind]);
-  texture.colorSpace = SRGBColorSpace;
-  texture.minFilter = LinearFilter;
-  texture.magFilter = LinearFilter;
+  const texture = useMemo(() => createSocialIconTexture(kind, isHovered), [isHovered, kind]);
+  const card = socialCardCopy[kind];
+  const colors = socialCardColors[kind];
+  const height = 0.32;
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
-    const targetScale = isHovered ? 1.16 : 1;
-    const targetZ = isHovered ? 0.24 : 0.14;
-    const targetRotationZ = isHovered
-      ? Math.sin(state.clock.elapsedTime * 4.2) * 0.045
-      : 0;
+    const targetScale = isHovered ? 1.028 : 1;
+    const targetZ = isHovered ? 0.17 : 0.11;
+    const targetRotationZ = isHovered ? Math.sin(state.clock.elapsedTime * 3.5) * 0.006 : 0;
 
     const scale = MathUtils.damp(groupRef.current.scale.x, targetScale, 9, delta);
     groupRef.current.scale.setScalar(scale);
     groupRef.current.position.z = MathUtils.damp(groupRef.current.position.z, targetZ, 9, delta);
     groupRef.current.rotation.z = MathUtils.damp(groupRef.current.rotation.z, targetRotationZ, 8, delta);
   });
+
+  useEffect(() => () => texture.dispose(), [texture]);
 
   function handleClick(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
@@ -561,17 +733,67 @@ function SocialIconButton({
       onClick={handleClick}
       onPointerOut={handlePointerOut}
       onPointerOver={handlePointerOver}
-      position={[x, y, 0.14]}
+      position={[x, y, 0.11]}
       ref={groupRef}
     >
-      <mesh>
-        <planeGeometry args={[size, size]} />
+      <WallPanel
+        color={isHovered ? "#06182a" : "#02070e"}
+        height={height}
+        opacity={isHovered ? 0.84 : 0.58}
+        width={width}
+      />
+      <WallFrame height={height} width={width} />
+      <WallGlowLine
+        color={isHovered ? colors.hover : colors.base}
+        height={height * 0.62}
+        opacity={isHovered ? 0.78 : 0.34}
+        width={0.01}
+        x={-width / 2 + iconSize + 0.2}
+        y={0}
+      />
+      <mesh position={[-width / 2 + 0.25, 0, 0.14]}>
+        <planeGeometry args={[iconSize, iconSize]} />
         <meshBasicMaterial
           map={texture}
           toneMapped={false}
           transparent
         />
       </mesh>
+      <WallText
+        color={isHovered ? colors.hover : "#1f8cff"}
+        fontFamily={editorialCondensed}
+        fontSize={0.062}
+        letterSpacing={0.026}
+        maxWidth={0.92}
+        x={-width / 2 + iconSize + 0.34}
+        y={0.075}
+      >
+        {card.label}
+      </WallText>
+      <WallText
+        color={isHovered ? "#ffffff" : "#c7ced8"}
+        fontFamily={editorialUi}
+        fontSize={0.043}
+        fontWeight={500}
+        lineHeight={1.12}
+        maxWidth={0.84}
+        x={-width / 2 + iconSize + 0.34}
+        y={-0.035}
+      >
+        {card.description}
+      </WallText>
+      <WallText
+        color={isHovered ? colors.hover : "#ffffff"}
+        fontFamily={editorialUi}
+        fontSize={0.08}
+        fontWeight={400}
+        maxWidth={0.16}
+        textAlign="center"
+        x={width / 2 - 0.17}
+        y={0}
+      >
+        {">"}
+      </WallText>
     </group>
   );
 }
@@ -582,7 +804,7 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
     .map((link) => ({ ...link, kind: getSocialIconKind(link.label) }))
     .filter((link): link is typeof link & { kind: SocialIconKind } => Boolean(link.kind))
     .sort((a, b) => {
-      const order: SocialIconKind[] = ["youtube", "instagram", "facebook", "tiktok"];
+      const order: SocialIconKind[] = ["youtube", "instagram", "facebook", "tiktok", "mail"];
       return order.indexOf(a.kind) - order.indexOf(b.kind);
     });
   const leftControls = useControls("FRONT WALL LEFT", {
@@ -610,6 +832,13 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
       leftSmallY: { value: bioRoomPreset.frontWall.leftSmallY, min: -1.4, max: 1.2, step: 0.02, label: "Texto chico Y" },
       leftFont: { value: bioRoomPreset.frontWall.leftFont, label: "Fuente instalada" },
     }, collapsedLevaFolder),
+    signature: folder({
+      signatureX: { value: bioRoomPreset.frontWall.signatureX, min: -1.4, max: 1.2, step: 0.02, label: "Firma X" },
+      signatureY: { value: bioRoomPreset.frontWall.signatureY, min: -1.6, max: 0.2, step: 0.02, label: "Firma Y" },
+      signatureWidth: { value: bioRoomPreset.frontWall.signatureWidth, min: 0.6, max: 2.5, step: 0.02, label: "Ancho firma" },
+      signatureHeight: { value: bioRoomPreset.frontWall.signatureHeight, min: 0.16, max: 0.8, step: 0.02, label: "Alto firma" },
+      signatureOpacity: { value: bioRoomPreset.frontWall.signatureOpacity, min: 0, max: 0.9, step: 0.01, label: "Opacidad firma" },
+    }, collapsedLevaFolder),
   }, collapsedLevaFolder);
   const rightControls = useControls("FRONT WALL SOCIALS", {
     position: folder({
@@ -628,10 +857,10 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
       rightTitleY: { value: bioRoomPreset.frontWall.rightTitleY, min: -0.2, max: 1, step: 0.02, label: "Titulo Y" },
       rightBodySize: { value: bioRoomPreset.frontWall.rightBodySize, min: 0.03, max: 0.1, step: 0.005, label: "Texto" },
       rightFont: { value: bioRoomPreset.frontWall.rightFont, label: "Fuente instalada" },
-      socialIconSize: { value: bioRoomPreset.frontWall.socialIconSize, min: 0.28, max: 0.9, step: 0.01, label: "Iconos" },
-      socialIconGap: { value: bioRoomPreset.frontWall.socialIconGap, min: 0.32, max: 0.9, step: 0.01, label: "Separacion" },
-      socialRowY: { value: bioRoomPreset.frontWall.socialRowY, min: -0.5, max: 0.7, step: 0.02, label: "Fila Y" },
-      socialTextY: { value: bioRoomPreset.frontWall.socialTextY, min: -1.1, max: 0.3, step: 0.02, label: "Bajada Y" },
+      socialIconSize: { value: bioRoomPreset.frontWall.socialIconSize, min: 0.16, max: 0.36, step: 0.01, label: "Iconos" },
+      socialIconGap: { value: bioRoomPreset.frontWall.socialIconGap, min: 0.28, max: 0.52, step: 0.01, label: "Separacion tarjetas" },
+      socialRowY: { value: bioRoomPreset.frontWall.socialRowY, min: -0.5, max: 0.7, step: 0.02, label: "Tarjetas Y" },
+      socialTextY: { value: bioRoomPreset.frontWall.socialTextY, min: -0.2, max: 0.7, step: 0.02, label: "Bajada Y" },
     }, collapsedLevaFolder),
   }, collapsedLevaFolder);
   const backgroundControls = useControls("pared-fondo", {
@@ -679,21 +908,56 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
           x={-leftControls.leftPanelWidth / 2 + 0.18}
           y={0.01}
         />
-        <WallText color={wallAmber} fontFamily={leftControls.leftFont} fontSize={leftControls.leftKickerSize} maxWidth={1.7} x={leftControls.leftTextX} y={leftControls.leftKickerY}>
+        <WallGlowLine
+          color="#1f8cff"
+          height={0.012}
+          opacity={0.72}
+          width={0.2}
+          x={leftControls.leftTextX + 0.1}
+          y={leftControls.leftSubtitleY - 0.24}
+        />
+        <WallText color="#1f8cff" fontFamily={editorialUi} fontSize={leftControls.leftKickerSize} fontWeight={500} maxWidth={1.7} x={leftControls.leftTextX} y={leftControls.leftKickerY}>
           {copy.kicker}
         </WallText>
-        <WallText fontFamily={leftControls.leftFont} fontSize={leftControls.leftTitleSize} maxWidth={2.24} x={leftControls.leftTextX} y={leftControls.leftTitleY}>
+        <WallText fontFamily={editorialCondensed} fontSize={leftControls.leftTitleSize} fontWeight={700} letterSpacing={0.002} maxWidth={2.28} x={leftControls.leftTextX} y={leftControls.leftTitleY}>
           BAJO FLOW
         </WallText>
-        <WallText color={wallMuted} fontFamily={leftControls.leftFont} fontSize={leftControls.leftSubtitleSize} maxWidth={2.06} x={leftControls.leftTextX} y={leftControls.leftSubtitleY}>
-          {copy.identitySubtitle}
+        <WallText color="#d9dde4" fontFamily={editorialUi} fontSize={leftControls.leftSubtitleSize} fontWeight={500} maxWidth={1.9} x={leftControls.leftTextX} y={leftControls.leftSubtitleY}>
+          Editor audiovisual enfocado en
         </WallText>
-        <WallText fontFamily={leftControls.leftFont} fontSize={leftControls.leftBodySize} maxWidth={1.96} x={leftControls.leftTextX} y={leftControls.leftBodyY}>
-          {copy.frontParagraphs[0]}
+        <WallText color="#1f8cff" fontFamily={editorialUi} fontSize={leftControls.leftSubtitleSize} fontWeight={500} maxWidth={1.9} x={leftControls.leftTextX} y={leftControls.leftSubtitleY - 0.14}>
+          ritmo, color, sonido e impacto.
         </WallText>
-        <WallText color={wallMuted} fontFamily={leftControls.leftFont} fontSize={leftControls.leftSmallSize} maxWidth={1.96} x={leftControls.leftTextX} y={leftControls.leftSmallY}>
-          {copy.frontParagraphs[1]}
+        <WallText color="#e8ebef" fontFamily={editorialUi} fontSize={leftControls.leftBodySize} fontWeight={500} lineHeight={1.18} maxWidth={1.94} x={leftControls.leftTextX} y={leftControls.leftBodyY}>
+          Trabajo cada proyecto desde el ritmo, la atmosfera y la emocion para que cada corte tenga una razon.
         </WallText>
+        <WallGlowLine
+          color="#1f8cff"
+          height={0.012}
+          opacity={0.56}
+          width={0.2}
+          x={leftControls.leftTextX + 0.1}
+          y={leftControls.leftSmallY + 0.17}
+        />
+        <WallText color="#c7ced8" fontFamily={editorialUi} fontSize={leftControls.leftSmallSize} fontWeight={500} lineHeight={1.15} maxWidth={1.86} x={leftControls.leftTextX} y={leftControls.leftSmallY}>
+          Bajo Flow nace para crear contenido con identidad: videos para YouTube, redes sociales, marcas e institucionales.
+        </WallText>
+        <WallText color="#1f8cff" fontFamily={editorialSerif} fontSize={leftControls.leftBodySize * 1.04} fontStyle="italic" fontWeight={400} maxWidth={0.18} x={leftControls.leftTextX} y={leftControls.leftSmallY - 0.34}>
+          "
+        </WallText>
+        <WallText color="#f4eee4" fontFamily={editorialSerif} fontSize={leftControls.leftBodySize * 1.02} fontStyle="italic" fontWeight={400} lineHeight={1.08} maxWidth={1.12} x={leftControls.leftTextX + 0.18} y={leftControls.leftSmallY - 0.34}>
+          Cada corte tiene una razon.
+        </WallText>
+        <WallPngImage3D
+          height={leftControls.signatureHeight}
+          opacity={leftControls.signatureOpacity}
+          scale={1}
+          src="/images/bio-room/bajo-flow-signature-transparent.png"
+          width={leftControls.signatureWidth}
+          x={leftControls.signatureX}
+          y={leftControls.signatureY}
+          z={0.086}
+        />
       </group>
 
       <group
@@ -706,22 +970,23 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
           opacity={rightControls.rightPanelOpacity}
           width={rightControls.rightPanelWidth}
         />
-        <WallText fontFamily={rightControls.rightFont} fontSize={rightControls.rightTitleSize} maxWidth={1.8} x={rightControls.rightTextX} y={rightControls.rightTitleY}>
-          Redes Sociales
+        <WallText color="#1f8cff" fontFamily={editorialCondensed} fontSize={rightControls.rightTitleSize} letterSpacing={0.032} maxWidth={1.8} x={rightControls.rightTextX} y={rightControls.rightTitleY}>
+          REDES SOCIALES
         </WallText>
-        {socialLinks.map((link, index) => (
-          <SocialIconButton
-            href={link.href}
-            key={link.label}
-            kind={link.kind}
-            size={rightControls.socialIconSize}
-            x={-(socialLinks.length - 1) * rightControls.socialIconGap / 2 + index * rightControls.socialIconGap}
-            y={rightControls.socialRowY}
-          />
-        ))}
-        <WallText color={wallMuted} fontFamily={rightControls.rightFont} fontSize={rightControls.rightBodySize} maxWidth={1.86} x={rightControls.rightTextX} y={rightControls.socialTextY}>
+        <WallText color="#d0d4dc" fontFamily={editorialUi} fontSize={rightControls.rightBodySize} fontWeight={500} lineHeight={1.16} maxWidth={1.72} x={rightControls.rightTextX} y={rightControls.socialTextY}>
           Seguime para ver piezas, procesos, color y cortes pensados para marcas, artistas y contenido digital.
         </WallText>
+        {socialLinks.map((link, index) => (
+          <SocialLinkCard3D
+            href={link.href}
+            iconSize={rightControls.socialIconSize}
+            key={link.label}
+            kind={link.kind}
+            width={Math.max(1.72, rightControls.rightPanelWidth - 0.16)}
+            x={rightControls.rightTextX + Math.max(1.72, rightControls.rightPanelWidth - 0.16) / 2}
+            y={rightControls.socialRowY - index * rightControls.socialIconGap}
+          />
+        ))}
       </group>
     </WallSurfaceGroup>
   );
