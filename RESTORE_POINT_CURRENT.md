@@ -1,12 +1,56 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-22 16:18:05 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Extensión de límites 3D, solución a parpadeos del parallax y quote combo unificado
+
+Hash de esta version: 75c6ff2
+Mensaje del commit: feat(bio-room): unificar quote combo, remover carpeta Textos y extender limites de habitacion en Z para corregir parpadeo de fondo
+
+Esta versión soluciona el parpadeo y la filtración del fondo azul-grisáceo (niebla exterior) en la vista frontal al mover el cursor con el efecto parallax, extendiendo las geometrías de las paredes laterales, piso y techo en Z de 8.1 a 12.1. También se unifican las comillas y la frase en el componente `WallTextQuoteCombo` mediante Canvas 2D para eliminar el Z-fighting entre ellas y se limpia la carpeta de controles obsoletos 'Textos' de Leva en el Bio Wall.
+
+## Que contiene esta version actual
+
+- Extensión de la profundidad física de la habitación de `8.1` a `12.1` (`D + 4.0`) y desplazamiento de su posición en `+2.0` en Z para envolver completamente la cámara en `Z = 6.2`.
+- Proyección de texturas de piso, techo y muros mediante `depth={D + 4.0}` y `z={centerZ + 2.0}` en `FloorDecorSurface`, `CeilingDecorSurface` y `WallDecorSurface`.
+- Componente `WallTextQuoteCombo` para renderizar comillas y frase en una sola textura HTML5 Canvas 2D y evitar Z-fighting visual.
+- Remoción de la carpeta de controles Leva inactiva `"Textos"` en `MURO IZQUIERDO (Bio)`.
+- Compilación de TypeScript verificada exitosamente con `npx tsc --noEmit`.
+
+## Como comparar o volver
+
+Antes de restaurar, verificar siempre:
+
+```powershell
+git status -sb
+git log --oneline --decorate -5
+```
+
+Para comparar contra esta version:
+
+```powershell
+git diff 75c6ff2 -- .
+```
+
+Para volver exactamente a esta version, solo si el usuario lo pide:
+
+```powershell
+git checkout 75c6ff2
+```
+
+---
+
 Fecha de guardado importante: 2026-05-22 15:15:44 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
 Remoto: origin/main
 Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
 
-## Version importante actual: Separación de controles y kicker "Bio" en amarillo
+## Version anterior: Separación de controles y kicker "Bio" en amarillo
 
 Hash de esta version: 31b896d
 Mensaje del commit: feat(bio-room): agregar controles independientes para comillas/frase y cambiar kicker Bio a amarillo
