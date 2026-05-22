@@ -1,5 +1,48 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-22 15:00:26 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Solución de oclusión y desaparición de iconos sociales
+
+Hash de esta version: 1212058
+Mensaje del commit: fix: resolver desaparicion de iconos sociales al navegar usando un plano de oclusion angosto e invisible y corregir tipos de typescript
+
+Esta version soluciona la desaparicion de los iconos de redes sociales al volver de las vistas de habilidades o biografia. Se crea un mesh de oclusion invisible de ancho 0.8 en LucasBillboard para que el raycast no colisione con el plano visual de 1.94 (que contiene transparencias a los lados) en la vista home. Se actualiza el tipado de THREE.Mesh a Mesh de three y se hace un cast a any de lucasMeshRef para compatibilidad con React 19.
+
+## Que contiene esta version actual
+
+- Plano de oclusion angosto de 0.8 de ancho en `<LucasBillboard>` para raycasting preciso.
+- Tipado `Mesh` de `three` reemplazando `THREE.Mesh` en `BioRoomCanvas.tsx` y `BioRoomWorldPanels.tsx`.
+- Cast a `any` en `occlude={[lucasMeshRef as any]}` para compatibilidad de tipos en React 19.
+- Compilacion de TypeScript vericada exitosamente con `npx tsc --noEmit`.
+
+## Como comparar o volver
+
+Antes de restaurar, verificar siempre:
+
+```powershell
+git status -sb
+git log --oneline --decorate -5
+```
+
+Para comparar contra esta version:
+
+```powershell
+git diff 1212058 -- .
+```
+
+Para volver exactamente a esta version, solo si el usuario lo pide:
+
+```powershell
+git checkout 1212058
+```
+
+---
+
 Fecha de guardado importante: 2026-05-21 15:28:27 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
