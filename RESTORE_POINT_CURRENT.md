@@ -1,12 +1,55 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-22 15:15:44 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Separación de controles y kicker "Bio" en amarillo
+
+Hash de esta version: 31b896d
+Mensaje del commit: feat(bio-room): agregar controles independientes para comillas/frase y cambiar kicker Bio a amarillo
+
+Esta versión separa los controles Leva de las comillas y la frase del panel de biografía en el muro frontal para un posicionamiento de diseño más granular y para evitar Z-fighting escalonando la profundidad z. También cambia la palabra "Bio" (kicker) a amarillo (#ffd56a) para alinearse con los acentos del sitio.
+
+## Que contiene esta version actual
+
+- Controles independientes para comillas (`leftQuoteX`, `leftQuoteY`, `leftQuoteSize`) y frase (`leftPhraseX`, `leftPhraseY`, `leftPhraseSize`) sincronizados con Leva y con el serializador de presets.
+- Alturas de capa `z={0.11}` para comillas y `z={0.112}` para la frase, mitigando Z-fighting/flickering.
+- Kicker text `"Bio"` con color amarillo `#ffd56a` en lugar del azul `#1f8cff`.
+- Compilacion de TypeScript vericada exitosamente con `npx tsc --noEmit`.
+
+## Como comparar o volver
+
+Antes de restaurar, verificar siempre:
+
+```powershell
+git status -sb
+git log --oneline --decorate -5
+```
+
+Para comparar contra esta version:
+
+```powershell
+git diff 31b896d -- .
+```
+
+Para volver exactamente a esta version, solo si el usuario lo pide:
+
+```powershell
+git checkout 31b896d
+```
+
+---
+
 Fecha de guardado importante: 2026-05-22 15:00:26 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
 Remoto: origin/main
 Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
 
-## Version importante actual: Solución de oclusión y desaparición de iconos sociales
+## Version anterior: Solución de oclusión y desaparición de iconos sociales
 
 Hash de esta version: 1212058
 Mensaje del commit: fix: resolver desaparicion de iconos sociales al navegar usando un plano de oclusion angosto e invisible y corregir tipos de typescript
