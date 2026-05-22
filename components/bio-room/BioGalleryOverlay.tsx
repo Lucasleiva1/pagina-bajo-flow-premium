@@ -12,7 +12,7 @@ export function BioGalleryOverlay() {
   const selectedGalleryItem = useBioRoomStore((state) => state.selectedGalleryItem);
   const isOverlayOpen = useBioRoomStore((state) => state.isOverlayOpen);
   const closeGalleryOverlay = useBioRoomStore((state) => state.closeGalleryOverlay);
-  const [isPlayerActive, setIsPlayerActive] = useState(false);
+  const [isPlayerActive, setIsPlayerActive] = useState(true);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -25,7 +25,24 @@ export function BioGalleryOverlay() {
   }, [isOverlayOpen, closeGalleryOverlay]);
 
   useEffect(() => {
-    setIsPlayerActive(false);
+    if (typeof window === "undefined") return;
+    const root = document.documentElement;
+    const body = document.body;
+    if (isOverlayOpen) {
+      root.classList.add("bio-overlay-active");
+      body.classList.add("bio-overlay-active");
+    } else {
+      root.classList.remove("bio-overlay-active");
+      body.classList.remove("bio-overlay-active");
+    }
+    return () => {
+      root.classList.remove("bio-overlay-active");
+      body.classList.remove("bio-overlay-active");
+    };
+  }, [isOverlayOpen]);
+
+  useEffect(() => {
+    setIsPlayerActive(true);
   }, [selectedGalleryItem?.title]);
 
   return (

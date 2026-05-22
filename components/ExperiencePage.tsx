@@ -12,6 +12,7 @@ import { HeroScene } from "@/components/HeroScene";
 import { ServicesScene } from "@/components/ServicesScene";
 import { WorkScene } from "@/components/WorkScene";
 import { useActiveScene } from "@/lib/useActiveScene";
+import { useBioRoomStore } from "@/lib/useBioRoomStore";
 
 const sceneIds = ["intro", "work", "bio", "services", "contact", "footer"];
 
@@ -19,6 +20,7 @@ export function ExperiencePage() {
   const activeScene = useActiveScene(sceneIds);
   const [language, setLanguage] = useState<Language>("es");
   const copy = siteCopy[language];
+  const isOverlayOpen = useBioRoomStore((state) => state.isOverlayOpen);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -78,6 +80,7 @@ export function ExperiencePage() {
         language={language}
         languages={languageOptions}
         onLanguageChange={setLanguage}
+        isHidden={isOverlayOpen}
       />
       <main className="snap-stage">
         <HeroScene copy={copy.hero} />

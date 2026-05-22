@@ -11,6 +11,7 @@ import {
   LinearMipmapLinearFilter,
   MathUtils,
   Mesh,
+  MeshBasicMaterial,
   SRGBColorSpace,
   TextureLoader,
   type Group,
@@ -1303,9 +1304,26 @@ function BioWallContent3D({
   copy: SiteCopy["bio"];
   wall: WallSurface;
 }) {
+  const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
+  const setActiveRoomView = useBioRoomStore((state) => state.setActiveRoomView);
+  const isOverlayActive = activeRoomView === "home" || activeRoomView === "contact";
+
   return (
     <WallSurfaceGroup wall={wall}>
       <WallPanel height={wall.height - 0.58} width={wall.width - 0.72} z={0.14} />
+      {isOverlayActive && (
+        <WallInteractionOverlay
+          width={5.2}
+          height={2.8}
+          x={controls.contentX - 0.7}
+          y={controls.contentY + 0.1}
+          z={0.59}
+          hoverColor="#ffd56a"
+          maxHoverOpacity={0.06}
+          maxGlowOpacity={0.35}
+          onClick={() => setActiveRoomView("bio")}
+        />
+      )}
       <group position={[controls.contentX, controls.contentY, controls.contentZ]} scale={controls.contentScale}>
         {copy.backgroundWords.map((word, index) => (
           <WallText
@@ -1521,6 +1539,127 @@ function BioWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface })
   );
 }
 
+type WallInteractionOverlayProps = {
+  width: number;
+  height: number;
+  x?: number;
+  y?: number;
+  z?: number;
+  onClick: () => void;
+  hoverColor?: string;
+  maxHoverOpacity?: number;
+  maxGlowOpacity?: number;
+};
+
+function WallInteractionOverlay({
+  width,
+  height,
+  x = 0,
+  y = 0,
+  z = 0.85,
+  onClick,
+  hoverColor = "#ffffff",
+  maxHoverOpacity = 0.06,
+  maxGlowOpacity = 0.38,
+}: WallInteractionOverlayProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const bgMaterialRef = useRef<any>(null);
+
+  // Share a material for the 4 border lines to save memory
+  const borderMaterial = useMemo(() => {
+    return new MeshBasicMaterial({
+      color: hoverColor,
+      opacity: 0.03,
+      transparent: true,
+      depthWrite: false,
+    });
+  }, [hoverColor]);
+
+  useEffect(() => {
+    return () => {
+      borderMaterial.dispose();
+    };
+  }, [borderMaterial]);
+
+  useFrame((_, delta) => {
+    const targetBgOpacity = isHovered ? maxHoverOpacity : 0;
+    const targetBorderOpacity = isHovered ? maxGlowOpacity : 0.03;
+
+    if (bgMaterialRef.current) {
+      bgMaterialRef.current.opacity = MathUtils.damp(
+        bgMaterialRef.current.opacity,
+        targetBgOpacity,
+        10,
+        delta
+      );
+    }
+    borderMaterial.opacity = MathUtils.damp(
+      borderMaterial.opacity,
+      targetBorderOpacity,
+      10,
+      delta
+    );
+  });
+
+  return (
+    <group position={[x, y, z]}>
+      {/* Raycast target & background highlight */}
+      <mesh
+        onClick={(e: ThreeEvent<MouseEvent>) => {
+          e.stopPropagation();
+          playClickTick();
+          document.body.style.cursor = "";
+          onClick();
+        }}
+        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          setIsHovered(true);
+          document.body.style.cursor = "pointer";
+          playHoverTick();
+        }}
+        onPointerOut={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          setIsHovered(false);
+          document.body.style.cursor = "";
+        }}
+      >
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial
+          ref={bgMaterialRef}
+          color={hoverColor}
+          opacity={0}
+          transparent
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* Frame / Glowing Border lines */}
+      <group>
+        {/* Top */}
+        <mesh position={[0, height / 2, 0.005]}>
+          <boxGeometry args={[width, 0.006, 0.003]} />
+          <primitive object={borderMaterial} attach="material" />
+        </mesh>
+        {/* Bottom */}
+        <mesh position={[0, -height / 2, 0.005]}>
+          <boxGeometry args={[width, 0.006, 0.003]} />
+          <primitive object={borderMaterial} attach="material" />
+        </mesh>
+        {/* Left */}
+        <mesh position={[-width / 2, 0, 0.005]}>
+          <boxGeometry args={[0.006, height, 0.003]} />
+          <primitive object={borderMaterial} attach="material" />
+        </mesh>
+        {/* Right */}
+        <mesh position={[width / 2, 0, 0.005]}>
+          <boxGeometry args={[0.006, height, 0.003]} />
+          <primitive object={borderMaterial} attach="material" />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
 const accentColors: Record<string, string> = {
   blue: "#5ea1ff",
   cyan: "#00d4f5",
@@ -1630,6 +1769,8 @@ function SkillThumbnail({
 function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
   const openGalleryItem = useBioRoomStore((state) => state.openGalleryItem);
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
+  const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
+  const setActiveRoomView = useBioRoomStore((state) => state.setActiveRoomView);
   const wallSeparation = 0.26;
   const controls = useControls("MURO DERECHO (Habilidades)", {
     "Contenido general": folder({
@@ -1697,6 +1838,22 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
     <WallSurfaceGroup wall={wall}>
       {/* Base wall panel */}
       <WallPanel height={wall.height - 0.48} width={wall.width - 0.72} z={0.14} />
+
+      {/* Unified interaction overlay in home/contact views */}
+      {(activeRoomView === "home" || activeRoomView === "contact") && (
+        <WallInteractionOverlay
+          width={6.0}
+          height={2.8}
+          x={controls.contentX + 0.3}
+          y={controls.contentY}
+          z={wallSeparation + 0.45}
+          hoverColor="#9f7bff"
+          maxHoverOpacity={0.06}
+          maxGlowOpacity={0.35}
+          onClick={() => setActiveRoomView("gallery")}
+        />
+      )}
+
       {/* Dark inner panel — tighter to the visible camera area */}
       <WallPanel color="#030611" height={controls.panelHeight} opacity={controls.panelOpacity} width={controls.panelWidth} z={wallSeparation + 0.04} />
       {/* Outer frame around visible content */}

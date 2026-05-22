@@ -8,6 +8,7 @@ type HeaderProps = {
   language: Language;
   languages: Array<{ code: Language; label: string }>;
   onLanguageChange: (language: Language) => void;
+  isHidden?: boolean;
 };
 
 export function Header({
@@ -17,6 +18,7 @@ export function Header({
   language,
   languages,
   onLanguageChange,
+  isHidden,
 }: HeaderProps) {
   const handleNavClick = (href: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     if (!href.startsWith("#")) {
@@ -43,7 +45,7 @@ export function Header({
   };
 
   return (
-    <header className="site-header">
+    <header className={`site-header ${isHidden ? "header-hidden" : ""}`}>
       <a className="brand magnetic-target" href="#intro" aria-label={copy.brandAria} onClick={handleNavClick("#intro")}>
         <span className="brand-mark" aria-hidden="true" />
         <strong>BAJO FLOW</strong>

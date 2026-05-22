@@ -109,6 +109,16 @@ canvas {
   pointer-events: none;
   position: fixed;
   z-index: 200;
+  transition: opacity 240ms ease, visibility 240ms ease, transform 240ms ease;
+  transform: translateY(0);
+}
+
+.bio-overlay-active .site-header,
+.site-header.header-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  transform: translateY(-24px) !important;
 }
 
 .site-header a,
