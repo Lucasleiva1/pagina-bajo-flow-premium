@@ -15,6 +15,16 @@ export function BioGalleryOverlay() {
   const [isPlayerActive, setIsPlayerActive] = useState(false);
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOverlayOpen) {
+        closeGalleryOverlay();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOverlayOpen, closeGalleryOverlay]);
+
+  useEffect(() => {
     setIsPlayerActive(false);
   }, [selectedGalleryItem?.title]);
 
@@ -31,6 +41,9 @@ export function BioGalleryOverlay() {
           role="dialog"
         >
           <button className="bio-room-overlay-backdrop" onClick={closeGalleryOverlay} type="button" aria-label="Cerrar habilidades" />
+          <button className="bio-room-overlay-close" onClick={closeGalleryOverlay} type="button">
+            Cerrar (Esc)
+          </button>
           <motion.article
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className={`bio-room-overlay-card ${selectedGalleryItem.videoId ? "bio-room-overlay-card-video" : ""}`}
@@ -38,9 +51,6 @@ export function BioGalleryOverlay() {
             initial={{ opacity: 0, scale: 0.98, y: 18 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
           >
-            <button className="bio-room-overlay-close" onClick={closeGalleryOverlay} type="button">
-              Cerrar
-            </button>
             {selectedGalleryItem.videoId && isPlayerActive ? (
               <div className="bio-room-overlay-video">
                 <iframe

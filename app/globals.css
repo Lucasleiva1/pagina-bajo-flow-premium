@@ -2179,7 +2179,7 @@ p {
   justify-items: center;
   padding: 1.5rem;
   position: fixed;
-  z-index: 100;
+  z-index: 300;
 }
 
 .bio-room-overlay-backdrop {
@@ -2212,24 +2212,30 @@ p {
 }
 
 .bio-room-overlay-close {
-  background: rgba(242, 242, 243, 0.08);
-  border: 1px solid rgba(242, 242, 243, 0.18);
+  background: rgba(5, 6, 12, 0.72);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   color: var(--ink);
   cursor: pointer;
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.12rem;
-  padding: 0.62rem 0.78rem;
+  padding: 0.62rem 1rem;
   position: absolute;
-  right: 1rem;
+  right: 2rem;
   text-transform: uppercase;
-  top: 1rem;
-  transition: background 180ms ease;
-  z-index: 3;
+  top: 2rem;
+  transition: all 180ms ease;
+  z-index: 310;
+  border-radius: 999px;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.3);
 }
 
 .bio-room-overlay-close:hover {
   background: rgba(242, 242, 243, 0.16);
+  border-color: rgba(94, 161, 255, 0.72);
+  transform: translateY(-1px);
 }
 
 .bio-room-overlay-image,
