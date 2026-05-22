@@ -869,6 +869,12 @@ function FrontWall3D({
       leftBodyY: { value: bioRoomPreset.frontWall.leftBodyY, min: -1.4, max: 1.2, step: 0.02, label: "Frase Y" },
       leftSmallY: { value: bioRoomPreset.frontWall.leftSmallY, min: -1.4, max: 1.2, step: 0.02, label: "Texto chico Y" },
       leftFont: { value: bioRoomPreset.frontWall.leftFont, label: "Fuente instalada" },
+      leftQuoteX: { value: bioRoomPreset.frontWall.leftQuoteX, min: -1.5, max: 1.5, step: 0.01, label: "Comillas X" },
+      leftQuoteY: { value: bioRoomPreset.frontWall.leftQuoteY, min: -1.6, max: 1.2, step: 0.01, label: "Comillas Y" },
+      leftQuoteSize: { value: bioRoomPreset.frontWall.leftQuoteSize, min: 0.035, max: 0.2, step: 0.002, label: "Comillas Tamaño" },
+      leftPhraseX: { value: bioRoomPreset.frontWall.leftPhraseX, min: -1.5, max: 1.5, step: 0.01, label: "Frase X" },
+      leftPhraseY: { value: bioRoomPreset.frontWall.leftPhraseY, min: -1.6, max: 1.2, step: 0.01, label: "Frase Y" },
+      leftPhraseSize: { value: bioRoomPreset.frontWall.leftPhraseSize, min: 0.035, max: 0.2, step: 0.002, label: "Frase Tamaño" },
     }, collapsedLevaFolder),
     signature: folder({
       signatureX: { value: bioRoomPreset.frontWall.signatureX, min: -1.4, max: 1.2, step: 0.02, label: "Firma X" },
@@ -985,7 +991,7 @@ function FrontWall3D({
           x={leftControls.leftTextX + 0.1}
           y={leftControls.leftSubtitleY - 0.24}
         />
-        <WallText color="#1f8cff" fontFamily={editorialUi} fontSize={leftControls.leftKickerSize} fontWeight={500} maxWidth={1.7} x={leftControls.leftTextX} y={leftControls.leftKickerY}>
+        <WallText color="#ffd56a" fontFamily={editorialUi} fontSize={leftControls.leftKickerSize} fontWeight={500} maxWidth={1.7} x={leftControls.leftTextX} y={leftControls.leftKickerY}>
           {copy.kicker}
         </WallText>
         <WallText fontFamily={editorialCondensed} fontSize={leftControls.leftTitleSize} fontWeight={700} letterSpacing={0.002} maxWidth={2.28} x={leftControls.leftTextX} y={leftControls.leftTitleY}>
@@ -1011,10 +1017,31 @@ function FrontWall3D({
         <WallText color="#c7ced8" fontFamily={editorialUi} fontSize={leftControls.leftSmallSize} fontWeight={500} lineHeight={1.15} maxWidth={1.86} x={leftControls.leftTextX} y={leftControls.leftSmallY}>
           Bajo Flow nace para crear contenido con identidad: videos para YouTube, redes sociales, marcas e institucionales.
         </WallText>
-        <WallText color="#1f8cff" fontFamily={editorialSerif} fontSize={leftControls.leftBodySize * 1.04} fontStyle="italic" fontWeight={400} maxWidth={0.18} x={leftControls.leftTextX} y={leftControls.leftSmallY - 0.34}>
+        <WallText
+          color="#1f8cff"
+          fontFamily={editorialSerif}
+          fontSize={leftControls.leftQuoteSize}
+          fontStyle="italic"
+          fontWeight={400}
+          maxWidth={0.18}
+          x={leftControls.leftQuoteX}
+          y={leftControls.leftQuoteY}
+          z={0.11}
+        >
           "
         </WallText>
-        <WallText color="#f4eee4" fontFamily={editorialSerif} fontSize={leftControls.leftBodySize * 1.02} fontStyle="italic" fontWeight={400} lineHeight={1.08} maxWidth={1.12} x={leftControls.leftTextX + 0.18} y={leftControls.leftSmallY - 0.34}>
+        <WallText
+          color="#f4eee4"
+          fontFamily={editorialSerif}
+          fontSize={leftControls.leftPhraseSize}
+          fontStyle="italic"
+          fontWeight={400}
+          lineHeight={1.08}
+          maxWidth={1.12}
+          x={leftControls.leftPhraseX}
+          y={leftControls.leftPhraseY}
+          z={0.112}
+        >
           Cada corte tiene una razon.
         </WallText>
         <WallPngImage3D

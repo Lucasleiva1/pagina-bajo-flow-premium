@@ -112,6 +112,12 @@ function serializePreset(preset: BioRoomPreset) {
     leftBodyY: number;
     leftSmallY: number;
     leftFont: string;
+    leftQuoteX: number;
+    leftQuoteY: number;
+    leftQuoteSize: number;
+    leftPhraseX: number;
+    leftPhraseY: number;
+    leftPhraseSize: number;
     signatureX: number;
     signatureY: number;
     signatureWidth: number;

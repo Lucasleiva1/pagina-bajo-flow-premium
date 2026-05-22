@@ -80,6 +80,12 @@ export type BioRoomPreset = {
     leftBodyY: number;
     leftSmallY: number;
     leftFont: string;
+    leftQuoteX: number;
+    leftQuoteY: number;
+    leftQuoteSize: number;
+    leftPhraseX: number;
+    leftPhraseY: number;
+    leftPhraseSize: number;
     signatureX: number;
     signatureY: number;
     signatureWidth: number;
@@ -313,18 +319,24 @@ export const bioRoomPreset: BioRoomPreset = {
     "leftPanelWidth": 2.56,
     "leftPanelHeight": 2.28,
     "leftPanelOpacity": 0,
-    "leftTextX": -0.84,
+    "leftTextX": -0.82,
     "leftKickerSize": 0.09699999999999999,
-    "leftTitleSize": 0.455,
-    "leftSubtitleSize": 0.088,
+    "leftTitleSize": 0.48000000000000004,
+    "leftSubtitleSize": 0.103,
     "leftBodySize": 0.08099999999999999,
     "leftSmallSize": 0.071,
-    "leftKickerY": 1.04,
+    "leftKickerY": 0.9600000000000001,
     "leftTitleY": 0.58,
     "leftSubtitleY": 0.22,
     "leftBodyY": -0.2,
     "leftSmallY": -0.5599999999999999,
     "leftFont": "Bebas Neue",
+    "leftQuoteX": -0.86,
+    "leftQuoteY": -0.91,
+    "leftQuoteSize": 0.2,
+    "leftPhraseX": -0.66,
+    "leftPhraseY": -0.93,
+    "leftPhraseSize": 0.09,
     "signatureX": -0.14,
     "signatureY": -1.26,
     "signatureWidth": 1.78,
