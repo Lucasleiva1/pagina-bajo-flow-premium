@@ -241,7 +241,7 @@ function WallDecorSurface({
 
   return (
     <group position={wall.position} rotation={wall.rotation}>
-      <mesh position={[0, 0, wall.surfaceOffset * 0.42]}>
+      <mesh position={[0, 0, wall.surfaceOffset * 0.42]} frustumCulled={false}>
         <planeGeometry args={[wall.width, wall.height]} />
         <meshBasicMaterial
           map={texture}
@@ -566,8 +566,8 @@ function RoomShell({
       />
 
       {/* Floor */}
-      <mesh position={[0, 0, centerZ]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[W * 2, D]} />
+      <mesh position={[0, 0, centerZ + 2.0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[W * 2, D + 4.0]} />
         <meshStandardMaterial
           color="#05070d"
           metalness={visualControls.floorMetalness}
@@ -575,15 +575,15 @@ function RoomShell({
         />
       </mesh>
       <FloorDecorSurface
-        depth={D}
+        depth={D + 4.0}
         halfWidth={W}
         src={bioFloorTexture}
-        z={centerZ}
+        z={centerZ + 2.0}
       />
 
       {/* Ceiling */}
-      <mesh position={[0, H, centerZ]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[W * 2, D]} />
+      <mesh position={[0, H, centerZ + 2.0]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[W * 2, D + 4.0]} />
         <meshStandardMaterial
           color="#03050a"
           metalness={visualControls.wallMetalness}
@@ -591,11 +591,11 @@ function RoomShell({
         />
       </mesh>
       <CeilingDecorSurface
-        depth={D}
+        depth={D + 4.0}
         halfWidth={W}
         height={H}
         src={bioCeilingTexture}
-        z={centerZ}
+        z={centerZ + 2.0}
       />
 
       {/* Back wall */}
@@ -645,10 +645,11 @@ function RoomShell({
 
       {/* Left wall (character-right-wall = bio) */}
       <mesh
-        position={layout.walls.characterRightWall.position}
+        position={[layout.walls.characterRightWall.position[0], layout.walls.characterRightWall.position[1], layout.walls.characterRightWall.position[2] + 2.0]}
         rotation={layout.walls.characterRightWall.rotation}
+        frustumCulled={false}
       >
-        <planeGeometry args={[D, H]} />
+        <planeGeometry args={[D + 4.0, H]} />
         <meshStandardMaterial
           color="#04080f"
           metalness={visualControls.wallMetalness}
@@ -658,15 +659,24 @@ function RoomShell({
       <WallDecorSurface
         opacity={bioWallTextureOpacity}
         src={bioLeftWallTexture}
-        wall={layout.walls.characterRightWall}
+        wall={{
+          ...layout.walls.characterRightWall,
+          position: [
+            layout.walls.characterRightWall.position[0],
+            layout.walls.characterRightWall.position[1],
+            layout.walls.characterRightWall.position[2] + 2.0,
+          ],
+          width: D + 4.0,
+        }}
       />
 
       {/* Right wall (character-left-wall = gallery) */}
       <mesh
-        position={layout.walls.characterLeftWall.position}
+        position={[layout.walls.characterLeftWall.position[0], layout.walls.characterLeftWall.position[1], layout.walls.characterLeftWall.position[2] + 2.0]}
         rotation={layout.walls.characterLeftWall.rotation}
+        frustumCulled={false}
       >
-        <planeGeometry args={[D, H]} />
+        <planeGeometry args={[D + 4.0, H]} />
         <meshStandardMaterial
           color="#04080f"
           metalness={visualControls.wallMetalness}
@@ -676,7 +686,15 @@ function RoomShell({
       <WallDecorSurface
         opacity={skillsWallTextureOpacity}
         src={bioRightWallTexture}
-        wall={layout.walls.characterLeftWall}
+        wall={{
+          ...layout.walls.characterLeftWall,
+          position: [
+            layout.walls.characterLeftWall.position[0],
+            layout.walls.characterLeftWall.position[1],
+            layout.walls.characterLeftWall.position[2] + 2.0,
+          ],
+          width: D + 4.0,
+        }}
       />
 
       {/* Ceiling softbox (cinematic light panel) */}

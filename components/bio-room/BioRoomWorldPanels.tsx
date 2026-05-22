@@ -131,7 +131,7 @@ function WallPanel({
   z = 0.045,
 }: WallPanelProps) {
   return (
-    <mesh position={[x, y, z]}>
+    <mesh position={[x, y, z]} frustumCulled={false}>
       <planeGeometry args={[width, height]} />
       <meshStandardMaterial
         color={color}
@@ -261,6 +261,181 @@ function WallText({
         depthTest
         map={texture}
         opacity={opacity}
+        toneMapped={false}
+        transparent
+      />
+    </mesh>
+  );
+}
+
+interface WallTextQuoteComboProps {
+  quoteText: string;
+  quoteColor?: string;
+  quoteFontSize: number;
+  quoteX: number;
+  quoteY: number;
+  phraseText: string;
+  phraseColor?: string;
+  phraseFontSize: number;
+  phraseX: number;
+  phraseY: number;
+  z?: number;
+}
+
+function WallTextQuoteCombo({
+  quoteText,
+  quoteColor = "#1f8cff",
+  quoteFontSize,
+  quoteX,
+  quoteY,
+  phraseText,
+  phraseColor = "#f4eee4",
+  phraseFontSize,
+  phraseX,
+  phraseY,
+  z = 0.11,
+}: WallTextQuoteComboProps) {
+  const { gl } = useThree();
+  const [fontsReady, setFontsReady] = useState(() => typeof document === "undefined" || !("fonts" in document));
+
+  useEffect(() => {
+    if (typeof document === "undefined" || !("fonts" in document)) {
+      setFontsReady(true);
+      return;
+    }
+
+    let isMounted = true;
+    document.fonts.ready.then(() => {
+      if (isMounted) setFontsReady(true);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const anisotropy = Math.min(gl.capabilities.getMaxAnisotropy(), 8);
+
+  const { width, height, texture, meshX, meshY } = useMemo(() => {
+    const isWideViewport =
+      typeof window !== "undefined" && window.matchMedia("(min-width: 900px)").matches;
+    const pixelsPerUnit = isWideViewport ? 1320 : 980;
+
+    const resolvedFontFamily = resolveCanvasFontFamily(editorialSerif);
+    const formattedFontFamily = formatCanvasFontFamily(resolvedFontFamily);
+
+    const quoteFontPx = Math.max(18, Math.round(quoteFontSize * pixelsPerUnit));
+    const phraseFontPx = Math.max(18, Math.round(phraseFontSize * pixelsPerUnit));
+
+    const quoteFont = `italic 400 ${quoteFontPx}px ${formattedFontFamily}`;
+    const phraseFont = `italic 400 ${phraseFontPx}px ${formattedFontFamily}`;
+
+    // Create a temporary canvas to measure text widths
+    const measureCanvas = document.createElement("canvas");
+    const measureContext = measureCanvas.getContext("2d");
+
+    let quoteWidthPx = quoteFontSize * pixelsPerUnit * 0.6;
+    let phraseWidthPx = phraseFontSize * pixelsPerUnit * 12;
+
+    if (measureContext) {
+      measureContext.font = quoteFont;
+      quoteWidthPx = measureContext.measureText(quoteText).width;
+      measureContext.font = phraseFont;
+      phraseWidthPx = measureContext.measureText(phraseText).width;
+    }
+
+    const quoteWidth = quoteWidthPx / pixelsPerUnit;
+    const quoteHeight = quoteFontSize * 1.8;
+
+    const phraseWidth = phraseWidthPx / pixelsPerUnit;
+    const phraseHeight = phraseFontSize * 1.8;
+
+    // Bounding boxes in local 3D units
+    const qMinX = quoteX;
+    const qMaxX = quoteX + quoteWidth;
+    const qMinY = quoteY - quoteHeight / 2;
+    const qMaxY = quoteY + quoteHeight / 2;
+
+    const pMinX = phraseX;
+    const pMaxX = phraseX + phraseWidth;
+    const pMinY = phraseY - phraseHeight / 2;
+    const pMaxY = phraseY + phraseHeight / 2;
+
+    // Combined bounds with padding
+    const padding = 0.05;
+    const minX = Math.min(qMinX, pMinX) - padding;
+    const maxX = Math.max(qMaxX, pMaxX) + padding;
+    const minY = Math.min(qMinY, pMinY) - padding;
+    const maxY = Math.max(qMaxY, pMaxY) + padding;
+
+    const combinedWidth = maxX - minX;
+    const combinedHeight = maxY - minY;
+
+    const canvasWidth = Math.ceil(combinedWidth * pixelsPerUnit);
+    const canvasHeight = Math.ceil(combinedHeight * pixelsPerUnit);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    const context = canvas.getContext("2d");
+
+    if (context && fontsReady) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.textBaseline = "middle";
+      context.textAlign = "left";
+
+      // Draw Quote
+      context.font = quoteFont;
+      context.fillStyle = quoteColor;
+      const qXPx = (quoteX - minX) * pixelsPerUnit;
+      const qYPx = (maxY - quoteY) * pixelsPerUnit;
+      context.fillText(quoteText, qXPx, qYPx);
+
+      // Draw Phrase
+      context.font = phraseFont;
+      context.fillStyle = phraseColor;
+      const pXPx = (phraseX - minX) * pixelsPerUnit;
+      const pYPx = (maxY - phraseY) * pixelsPerUnit;
+      context.fillText(phraseText, pXPx, pYPx);
+    }
+
+    const texture = new CanvasTexture(canvas);
+    texture.colorSpace = SRGBColorSpace;
+    texture.minFilter = LinearMipmapLinearFilter;
+    texture.magFilter = LinearFilter;
+    texture.anisotropy = anisotropy;
+    texture.needsUpdate = true;
+
+    return {
+      width: combinedWidth,
+      height: combinedHeight,
+      texture,
+      meshX: minX + combinedWidth / 2,
+      meshY: minY + combinedHeight / 2,
+    };
+  }, [
+    quoteText,
+    quoteColor,
+    quoteFontSize,
+    quoteX,
+    quoteY,
+    phraseText,
+    phraseColor,
+    phraseFontSize,
+    phraseX,
+    phraseY,
+    fontsReady,
+    anisotropy,
+  ]);
+
+  return (
+    <mesh position={[meshX, meshY, z]}>
+      <planeGeometry args={[width, height]} />
+      <meshBasicMaterial
+        depthTest
+        map={texture}
         toneMapped={false}
         transparent
       />
@@ -1017,33 +1192,19 @@ function FrontWall3D({
         <WallText color="#c7ced8" fontFamily={editorialUi} fontSize={leftControls.leftSmallSize} fontWeight={500} lineHeight={1.15} maxWidth={1.86} x={leftControls.leftTextX} y={leftControls.leftSmallY}>
           Bajo Flow nace para crear contenido con identidad: videos para YouTube, redes sociales, marcas e institucionales.
         </WallText>
-        <WallText
-          color="#1f8cff"
-          fontFamily={editorialSerif}
-          fontSize={leftControls.leftQuoteSize}
-          fontStyle="italic"
-          fontWeight={400}
-          maxWidth={0.18}
-          x={leftControls.leftQuoteX}
-          y={leftControls.leftQuoteY}
+        <WallTextQuoteCombo
+          quoteText='"'
+          quoteColor="#1f8cff"
+          quoteFontSize={leftControls.leftQuoteSize}
+          quoteX={leftControls.leftQuoteX}
+          quoteY={leftControls.leftQuoteY}
+          phraseText="Cada corte tiene una razon."
+          phraseColor="#f4eee4"
+          phraseFontSize={leftControls.leftPhraseSize}
+          phraseX={leftControls.leftPhraseX}
+          phraseY={leftControls.leftPhraseY}
           z={0.11}
-        >
-          "
-        </WallText>
-        <WallText
-          color="#f4eee4"
-          fontFamily={editorialSerif}
-          fontSize={leftControls.leftPhraseSize}
-          fontStyle="italic"
-          fontWeight={400}
-          lineHeight={1.08}
-          maxWidth={1.12}
-          x={leftControls.leftPhraseX}
-          y={leftControls.leftPhraseY}
-          z={0.112}
-        >
-          Cada corte tiene una razon.
-        </WallText>
+        />
         <WallPngImage3D
           height={leftControls.signatureHeight}
           opacity={leftControls.signatureOpacity}
@@ -1268,15 +1429,6 @@ function BioWallWithLeva3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSu
       contentY: { value: bioRoomPreset.bioWall.contentY, min: -1.2, max: 1.2, step: 0.02, label: "Mover Y" },
       contentZ: { value: bioRoomPreset.bioWall.contentZ, min: 0.02, max: 0.75, step: 0.01, label: "Separar de pared" },
       contentScale: { value: bioRoomPreset.bioWall.contentScale, min: 0.65, max: 1.45, step: 0.01, label: "Escala" },
-    }, collapsedLevaFolder),
-    "Textos": folder({
-      titleX: { value: bioRoomPreset.bioWall.titleX, min: -5, max: 1, step: 0.02, label: "Titulo X" },
-      titleY: { value: bioRoomPreset.bioWall.titleY, min: -0.2, max: 1.5, step: 0.02, label: "Titulo Y" },
-      titleSize: { value: bioRoomPreset.bioWall.titleSize, min: 0.09, max: 0.28, step: 0.005, label: "Titulo tamano" },
-      paragraphX: { value: bioRoomPreset.bioWall.paragraphX, min: -5, max: 1, step: 0.02, label: "Parrafos X" },
-      paragraphOneY: { value: bioRoomPreset.bioWall.paragraphOneY, min: -0.5, max: 1.2, step: 0.02, label: "Parrafo 1 Y" },
-      paragraphTwoY: { value: bioRoomPreset.bioWall.paragraphTwoY, min: -1, max: 0.7, step: 0.02, label: "Parrafo 2 Y" },
-      paragraphSize: { value: bioRoomPreset.bioWall.paragraphSize, min: 0.04, max: 0.11, step: 0.005, label: "Parrafo tamano" },
     }, collapsedLevaFolder),
     "Palabras fondo": folder({
       bgWordsX: { value: bioRoomPreset.bioWall.bgWordsX, min: -5, max: 0.8, step: 0.02, label: "X" },
