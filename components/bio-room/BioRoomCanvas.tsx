@@ -12,6 +12,7 @@ import {
   LinearFilter,
   LinearMipmapLinearFilter,
   MathUtils,
+  Mesh,
   SRGBColorSpace,
   TextureLoader,
   Vector3,
@@ -312,7 +313,11 @@ function FloorDecorSurface({
 }
 
 /* ──────────────────────── Lucas billboard ──────────────────────── */
-function LucasBillboard() {
+type LucasBillboardProps = {
+  meshRef: React.RefObject<Mesh | null>;
+};
+
+function LucasBillboard({ meshRef }: LucasBillboardProps) {
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
   const texture = useLoader(
     TextureLoader,
@@ -351,6 +356,11 @@ function LucasBillboard() {
           side={DoubleSide}
           transparent
         />
+      </mesh>
+      {/* Invisible raycast occlusion target with narrower width (0.8) representing actual body width */}
+      <mesh position={[0, 0.12, 0.01]} ref={meshRef}>
+        <planeGeometry args={[0.8, lucasControls.height]} />
+        <meshBasicMaterial colorWrite={false} depthWrite={false} transparent />
       </mesh>
       {/* Floor shadow */}
       <mesh position={[0, -1.13, 0.02]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -742,6 +752,7 @@ function SceneContent({ copy }: BioRoomCanvasProps) {
   const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
   const groupRef = useRef<Group>(null);
   const showLucas = activeRoomView === "home" || activeRoomView === "contact";
+  const lucasMeshRef = useRef<Mesh>(null);
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -755,12 +766,12 @@ function SceneContent({ copy }: BioRoomCanvasProps) {
         {(layout) => (
           <>
             <CameraRig layout={layout} />
-            <BioRoomWorldPanels copy={copy} layout={layout} />
+            <BioRoomWorldPanels copy={copy} layout={layout} lucasMeshRef={lucasMeshRef} />
           </>
         )}
       </RoomShell>
       <group ref={groupRef} visible={showLucas}>
-        <LucasBillboard />
+        <LucasBillboard meshRef={lucasMeshRef} />
       </group>
     </>
   );

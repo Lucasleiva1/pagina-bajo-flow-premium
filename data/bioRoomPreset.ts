@@ -319,7 +319,7 @@ export const bioRoomPreset: BioRoomPreset = {
     "leftSubtitleSize": 0.088,
     "leftBodySize": 0.08099999999999999,
     "leftSmallSize": 0.071,
-    "leftKickerY": 0.9400000000000001,
+    "leftKickerY": 1.04,
     "leftTitleY": 0.58,
     "leftSubtitleY": 0.22,
     "leftBodyY": -0.2,

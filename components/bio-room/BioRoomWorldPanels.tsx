@@ -10,6 +10,7 @@ import {
   LinearFilter,
   LinearMipmapLinearFilter,
   MathUtils,
+  Mesh,
   SRGBColorSpace,
   TextureLoader,
   type Group,
@@ -25,6 +26,7 @@ import { playHoverTick, playClickTick } from "@/lib/soundEffects";
 type BioRoomWorldPanelsProps = {
   copy: SiteCopy["bio"];
   layout: BioRoomLayout;
+  lucasMeshRef?: React.RefObject<Mesh | null>;
 };
 
 type WallSurfaceGroupProps = {
@@ -646,6 +648,7 @@ function SocialLinkCard3D({
   kind,
   x,
   y,
+  lucasMeshRef,
 }: {
   controls: SocialCardControls;
   href: string;
@@ -654,6 +657,7 @@ function SocialLinkCard3D({
   kind: SocialIconKind;
   x: number;
   y: number;
+  lucasMeshRef?: React.RefObject<Mesh | null>;
 }) {
   const groupRef = useRef<Group>(null);
   const hoverClearRef = useRef<number | null>(null);
@@ -751,7 +755,8 @@ function SocialLinkCard3D({
         center
         className={`bio-room-social-icon ${isHovered ? "is-hovered" : ""}`}
         distanceFactor={5.6}
-        occlude="blending"
+        material={<meshBasicMaterial colorWrite={false} depthWrite={false} />}
+        occlude={lucasMeshRef ? [lucasMeshRef as any] : true}
         position={[iconX, iconY, 0.14]}
         style={{
           "--bio-social-base": colors.base,
@@ -823,7 +828,15 @@ function SocialLinkCard3D({
   );
 }
 
-function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface }) {
+function FrontWall3D({
+  copy,
+  wall,
+  lucasMeshRef,
+}: {
+  copy: SiteCopy["bio"];
+  wall: WallSurface;
+  lucasMeshRef?: React.RefObject<Mesh | null>;
+}) {
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
   const socialLinks = copy.contactLinks
     .map((link) => ({ ...link, kind: getSocialIconKind(link.label) }))
@@ -1043,6 +1056,7 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
               iconOffsetY={iconOffset.y}
               key={link.label}
               kind={link.kind}
+              lucasMeshRef={lucasMeshRef}
               x={rightControls.rightTextX + rightControls.socialCardWidth / 2}
               y={rightControls.socialRowY - index * rightControls.socialIconGap}
             />
@@ -1588,10 +1602,10 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
   );
 }
 
-export function BioRoomWorldPanels({ copy, layout }: BioRoomWorldPanelsProps) {
+export function BioRoomWorldPanels({ copy, layout, lucasMeshRef }: BioRoomWorldPanelsProps) {
   return (
     <>
-      <FrontWall3D copy={copy} wall={layout.walls.backWall} />
+      <FrontWall3D copy={copy} wall={layout.walls.backWall} lucasMeshRef={lucasMeshRef} />
       <BioWall3D copy={copy} wall={layout.walls.characterRightWall} />
       <SkillsWall3D copy={copy} wall={layout.walls.characterLeftWall} />
     </>
