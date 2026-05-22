@@ -74,8 +74,59 @@ function CameraRig({ layout }: { layout: BioRoomLayout }) {
   const desiredTarget = useRef(new Vector3());
   const target = useRef(cameraStates.home.target.clone());
 
-  useFrame((_, delta) => {
+  // Detect mobile or touch devices to disable parallax
+  const isMobileOrTouch = useRef(false);
+  const parallaxOffset = useRef(new Vector3(0, 0, 0));
+  const localRight = useRef(new Vector3());
+  const localUp = useRef(new Vector3());
+
+  useEffect(() => {
+    const checkMobileOrTouch = () => {
+      const isMobileSize = window.innerWidth <= 860;
+      const isTouch = navigator.maxTouchPoints > 0;
+      isMobileOrTouch.current = isMobileSize || isTouch;
+    };
+    checkMobileOrTouch();
+    window.addEventListener("resize", checkMobileOrTouch);
+    return () => window.removeEventListener("resize", checkMobileOrTouch);
+  }, []);
+
+  useFrame((state, delta) => {
     setCameraFrame(activeRoomView, layout, size.width / size.height, sideWallZoom, desiredPosition.current, desiredTarget.current);
+
+    // Determine target parallax limit based on active view
+    let maxX = 0;
+    let maxY = 0;
+
+    if (!isMobileOrTouch.current) {
+      if (activeRoomView === "home") {
+        maxX = 0.35;
+        maxY = 0.2;
+      } else if (activeRoomView === "contact") {
+        maxX = 0.2;
+        maxY = 0.12;
+      } else {
+        // "bio" or "gallery" (reading views with text - very subtle parallax for usability)
+        maxX = 0.08;
+        maxY = 0.05;
+      }
+    }
+
+    const targetX = state.pointer.x * maxX;
+    const targetY = state.pointer.y * maxY;
+
+    // Smoothly interpolate the parallax offset using Three's damp
+    const currentX = MathUtils.damp(parallaxOffset.current.x, targetX, 4, delta);
+    const currentY = MathUtils.damp(parallaxOffset.current.y, targetY, 4, delta);
+    parallaxOffset.current.set(currentX, currentY, 0);
+
+    // Apply offset using camera's local axes to align with current orientation
+    localRight.current.set(1, 0, 0).applyQuaternion(camera.quaternion);
+    localUp.current.set(0, 1, 0).applyQuaternion(camera.quaternion);
+
+    desiredPosition.current.addScaledVector(localRight.current, currentX);
+    desiredPosition.current.addScaledVector(localUp.current, currentY);
+
     const speed = 1 - Math.pow(0.025, delta);
     camera.position.lerp(desiredPosition.current, speed);
     target.current.lerp(desiredTarget.current, speed);
