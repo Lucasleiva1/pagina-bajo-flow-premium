@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
+import { playClickTick } from "@/lib/soundEffects";
 
 type BioRoomMobilePanelsProps = {
   copy: SiteCopy["bio"];
@@ -82,7 +83,14 @@ export function BioRoomMobilePanels({ copy }: BioRoomMobilePanelsProps) {
         <h3>Habilidades</h3>
         <div className="bio-room-gallery-grid">
           {copy.skillItems.map((item) => (
-            <button key={item.title} onClick={() => openGalleryItem(item)} type="button">
+            <button
+              key={item.title}
+              onClick={() => {
+                playClickTick();
+                openGalleryItem(item);
+              }}
+              type="button"
+            >
               <span className={`bio-room-gallery-thumb bio-room-skill-thumb ${item.accent}`}>
                 {item.videoId ? <img alt="" src={getVideoPoster(item)} /> : null}
                 <span className="bio-room-skill-thumb-play">▶</span>
@@ -98,7 +106,13 @@ export function BioRoomMobilePanels({ copy }: BioRoomMobilePanelsProps) {
         <h3>Contacto</h3>
         <div className="bio-room-contact-links">
           {copy.contactLinks.map((link) => (
-            <a href={link.href} key={link.label} rel="noreferrer" target={link.href.startsWith("#") ? undefined : "_blank"}>
+            <a
+              href={link.href}
+              key={link.label}
+              rel="noreferrer"
+              target={link.href.startsWith("#") ? undefined : "_blank"}
+              onClick={() => playClickTick()}
+            >
               <span>{link.label}</span>
               <small>{link.handle}</small>
             </a>

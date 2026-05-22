@@ -19,6 +19,8 @@ import { bioRoomPreset, type BioRoomPreset } from "@/data/bioRoomPreset";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomPresetStore } from "@/lib/useBioRoomPresetStore";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
+import { playHoverTick, playClickTick } from "@/lib/soundEffects";
+
 
 type BioRoomWorldPanelsProps = {
   copy: SiteCopy["bio"];
@@ -689,6 +691,9 @@ function SocialLinkCard3D({
       hoverClearRef.current = null;
     }
 
+    if (!isHovered) {
+      playHoverTick();
+    }
     setIsHovered(true);
     document.body.style.cursor = "pointer";
   }
@@ -704,6 +709,7 @@ function SocialLinkCard3D({
 
   function handleClick(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
+    playClickTick();
     openLink(href);
   }
 
@@ -1373,9 +1379,24 @@ function SkillThumbnail({
 
   return (
     <group
-      onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onClick(); }}
-      onPointerOut={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setIsHovered(false); document.body.style.cursor = ""; }}
-      onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setIsHovered(true); document.body.style.cursor = "pointer"; }}
+      onClick={(e: ThreeEvent<MouseEvent>) => {
+        e.stopPropagation();
+        playClickTick();
+        onClick();
+      }}
+      onPointerOut={(e: ThreeEvent<PointerEvent>) => {
+        e.stopPropagation();
+        setIsHovered(false);
+        document.body.style.cursor = "";
+      }}
+      onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+        e.stopPropagation();
+        if (!isHovered) {
+          playHoverTick();
+        }
+        setIsHovered(true);
+        document.body.style.cursor = "pointer";
+      }}
       position={[x, y, restZ]}
       ref={groupRef}
     >

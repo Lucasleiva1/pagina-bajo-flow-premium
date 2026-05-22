@@ -7,6 +7,7 @@ import { BioGalleryOverlay } from "@/components/bio-room/BioGalleryOverlay";
 import { BioRoomMobilePanels } from "@/components/bio-room/BioRoomMobilePanels";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
+import { playWhoosh, playModalOpen, playClickTick } from "@/lib/soundEffects";
 
 type BioRoomExperienceProps = {
   copy: SiteCopy["bio"];
@@ -15,10 +16,37 @@ type BioRoomExperienceProps = {
 export function BioRoomExperience({ copy }: BioRoomExperienceProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
+  const isOverlayOpen = useBioRoomStore((state) => state.isOverlayOpen);
   const adjustSideWallZoom = useBioRoomStore((state) => state.adjustSideWallZoom);
   const resetSideWallZoom = useBioRoomStore((state) => state.resetSideWallZoom);
   const setActiveRoomView = useBioRoomStore((state) => state.setActiveRoomView);
   const isSideRoomView = activeRoomView === "bio" || activeRoomView === "gallery";
+
+  const isFirstRenderView = useRef(true);
+  const isFirstRenderOverlay = useRef(true);
+
+  // Trigger camera whoosh sound on view change
+  useEffect(() => {
+    if (isFirstRenderView.current) {
+      isFirstRenderView.current = false;
+      return;
+    }
+    playWhoosh();
+  }, [activeRoomView]);
+
+  // Trigger modal sound on overlay open/close
+  useEffect(() => {
+    if (isFirstRenderOverlay.current) {
+      isFirstRenderOverlay.current = false;
+      return;
+    }
+    if (isOverlayOpen) {
+      playModalOpen();
+    } else {
+      playClickTick();
+    }
+  }, [isOverlayOpen]);
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;

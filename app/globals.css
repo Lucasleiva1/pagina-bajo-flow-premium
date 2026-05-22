@@ -2142,6 +2142,36 @@ p {
   z-index: 1;
 }
 
+.bio-room-sound-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(242, 242, 243, 0.62);
+  transition: color 200ms ease;
+}
+
+.bio-room-sound-toggle span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.bio-room-sound-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  transition: transform 200ms ease, color 200ms ease;
+}
+
+.bio-room-sound-toggle:hover {
+  color: rgba(242, 242, 243, 0.9);
+}
+
+.bio-room-sound-toggle:hover .bio-room-sound-icon {
+  transform: scale(1.08);
+}
+
 .bio-room-overlay {
   align-items: center;
   display: grid;
@@ -3406,7 +3436,7 @@ p {
     bottom: auto;
     display: grid;
     gap: 0.22rem;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     left: auto;
     margin: 0 auto 1.05rem;
     max-width: min(100%, 24rem);
@@ -3422,6 +3452,11 @@ p {
     letter-spacing: 0.05rem;
     min-width: 0;
     padding: 0.62rem 0.2rem;
+  }
+
+  .bio-room-sound-icon {
+    width: 0.9rem;
+    height: 0.9rem;
   }
 
   .bio-room-mobile {
