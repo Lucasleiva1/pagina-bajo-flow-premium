@@ -1562,6 +1562,14 @@ function SkillThumbnail({
   texture.colorSpace = SRGBColorSpace;
   texture.minFilter = LinearFilter;
   texture.magFilter = LinearFilter;
+
+  if (posterSrc && posterSrc.includes("i.ytimg.com")) {
+    texture.repeat.set(1, 0.75);
+    texture.offset.set(0, 0.125);
+  } else {
+    texture.repeat.set(1, 1);
+    texture.offset.set(0, 0);
+  }
   const height = width * (9 / 16);
   const accent = accentColors[item.accent] ?? "#5ea1ff";
 
@@ -1642,6 +1650,8 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
       kickerSize: { value: bioRoomPreset.skillsWall.kickerSize, min: 0.035, max: 0.1, step: 0.005, label: "Showcase" },
       titleSize: { value: bioRoomPreset.skillsWall.titleSize, min: 0.12, max: 0.38, step: 0.005, label: "Habilidades" },
       subtitleSize: { value: bioRoomPreset.skillsWall.subtitleSize, min: 0.035, max: 0.1, step: 0.005, label: "Subtitulo" },
+      subtitleX: { value: bioRoomPreset.skillsWall.subtitleX, min: -2.0, max: 2.0, step: 0.02, label: "Subtítulo X" },
+      subtitleY: { value: bioRoomPreset.skillsWall.subtitleY, min: -1.2, max: 1.2, step: 0.02, label: "Subtítulo Y" },
       dividerWidth: { value: bioRoomPreset.skillsWall.dividerWidth, min: 1.2, max: 4.8, step: 0.05, label: "Linea ancho" },
       dividerY: { value: bioRoomPreset.skillsWall.dividerY, min: -0.1, max: 0.6, step: 0.02, label: "Linea Y" },
     }, collapsedLevaFolder),
@@ -1706,20 +1716,20 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
 
       {/* ── HEADER ── centered */}
       {/* Kicker */}
-      <WallText color="#9f7bff" fontSize={controls.kickerSize} maxWidth={2.4} textAlign="center" x={0} y={headerY} z={0.22}>
+      <WallText color="#9f7bff" fontFamily={editorialUi} fontSize={controls.kickerSize} fontWeight={600} letterSpacing={0.04} maxWidth={2.4} textAlign="center" x={0} y={headerY} z={0.22}>
         SHOWCASE TÉCNICO
       </WallText>
       {/* Main title */}
-      <WallText fontSize={controls.titleSize} maxWidth={2.8} textAlign="center" x={0} y={headerY - 0.34} z={0.20}>
+      <WallText fontFamily={editorialUi} fontSize={controls.titleSize} fontWeight={800} letterSpacing={0.03} maxWidth={2.8} textAlign="center" x={0} y={headerY - 0.34} z={0.20}>
         HABILIDADES
       </WallText>
       {/* Subtitle */}
-      <WallText color={wallMuted} fontSize={controls.subtitleSize} maxWidth={2.8} textAlign="center" x={0} y={headerY - 0.72} z={0.18}>
-        Nodos técnicos conectados por sonido, color y motion.
+      <WallText color={wallMuted} fontFamily={editorialUi} fontSize={controls.subtitleSize} fontWeight={400} lineHeight={1.22} maxWidth={2.8} textAlign="center" x={controls.subtitleX} y={controls.subtitleY} z={0.18}>
+        Domino herramientas profesionales para transformar ideas en piezas audiovisuales de alto impacto.
       </WallText>
 
-      {/* Divider */}
-      <WallGlowLine color="#9f7bff" height={0.006} opacity={0.38} width={controls.dividerWidth} x={0} y={controls.dividerY} z={0.16} />
+      {/* Premium Divider Line */}
+      <WallGlowLine color="#9f7bff" height={0.005} opacity={0.3} width={controls.dividerWidth} x={0} y={controls.dividerY} z={0.16} />
 
       {/* ── SKILL CARDS — horizontal row ── */}
       {copy.skillItems.map((item, index) => {
@@ -1730,7 +1740,7 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
         return (
           <group key={item.title}>
             {/* Number badge */}
-            <WallText color={accent} fontSize={controls.numberSize} maxWidth={0.28} textAlign="center" x={cardX} y={cardsY + thumbH / 2 + 0.14} z={0.24}>
+            <WallText color={accent} fontFamily={editorialUi} fontSize={controls.numberSize} fontWeight={700} maxWidth={0.28} textAlign="center" x={cardX} y={cardsY + thumbH / 2 + 0.14} z={0.24}>
               {numLabel}
             </WallText>
 
@@ -1746,18 +1756,18 @@ function SkillsWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface
             />
 
             {/* Title below thumbnail */}
-            <WallText fontSize={controls.cardTitleSize} maxWidth={thumbW} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.2} z={0.20}>
-              {item.title}
+            <WallText fontFamily={editorialUi} fontSize={controls.cardTitleSize} fontWeight={700} letterSpacing={0.01} maxWidth={thumbW} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.2} z={0.20}>
+              {item.title.toUpperCase()}
             </WallText>
 
             {/* Description below title */}
-            <WallText color={wallMuted} fontSize={controls.cardDescriptionSize} maxWidth={thumbW - 0.04} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.52} z={0.18}>
+            <WallText color={wallMuted} fontFamily={editorialUi} fontSize={controls.cardDescriptionSize} fontWeight={400} lineHeight={1.22} maxWidth={thumbW - 0.04} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.52} z={0.18}>
               {item.description}
             </WallText>
 
-            {/* "Ver ▶" CTA */}
-            <WallText color={accent} fontSize={controls.ctaSize} maxWidth={0.6} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.72} z={0.22}>
-              Ver ▶
+            {/* "Ver más →" CTA */}
+            <WallText color={accent} fontFamily={editorialUi} fontSize={controls.ctaSize} fontWeight={600} letterSpacing={0.01} maxWidth={0.8} textAlign="center" x={cardX} y={cardsY - thumbH / 2 - 0.72} z={0.22}>
+              Ver más →
             </WallText>
 
             {/* Vertical separator between cards */}

@@ -10,7 +10,7 @@ type BioRoomMobilePanelsProps = {
 };
 
 function getVideoPoster(item: SiteCopy["bio"]["skillItems"][number]) {
-  return item.poster ?? (item.videoId ? `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg` : "");
+  return item.poster ?? (item.videoId ? `https://i.ytimg.com/vi/${item.videoId}/mqdefault.jpg` : "");
 }
 
 export function BioRoomMobilePanels({ copy }: BioRoomMobilePanelsProps) {
@@ -93,7 +93,6 @@ export function BioRoomMobilePanels({ copy }: BioRoomMobilePanelsProps) {
             >
               <span className={`bio-room-gallery-thumb bio-room-skill-thumb ${item.accent}`}>
                 {item.videoId ? <img alt="" src={getVideoPoster(item)} /> : null}
-                <span className="bio-room-skill-thumb-play">▶</span>
               </span>
               <strong>{item.title}</strong>
               <small>{item.videoId ? "Ver video" : item.description}</small>

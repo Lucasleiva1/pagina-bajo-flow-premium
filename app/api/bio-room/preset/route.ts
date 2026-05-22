@@ -267,6 +267,8 @@ function serializePreset(preset: BioRoomPreset) {
     kickerSize: number;
     titleSize: number;
     subtitleSize: number;
+    subtitleX: number;
+    subtitleY: number;
     dividerWidth: number;
     dividerY: number;
     cardsY: number;

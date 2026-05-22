@@ -235,6 +235,8 @@ export type BioRoomPreset = {
     kickerSize: number;
     titleSize: number;
     subtitleSize: number;
+    subtitleX: number;
+    subtitleY: number;
     dividerWidth: number;
     dividerY: number;
     cardsY: number;
@@ -483,27 +485,29 @@ export const bioRoomPreset: BioRoomPreset = {
     "contentScale": 1.1,
     "panelWidth": 5.8,
     "panelHeight": 2.98,
-    "panelOpacity": 0.78,
+    "panelOpacity": 0,
     "frameWidth": 5.8,
     "frameHeight": 3.24,
     "headerY": 1.16,
-    "kickerSize": 0.058,
-    "titleSize": 0.26,
+    "kickerSize": 0.068,
+    "titleSize": 0.265,
     "subtitleSize": 0.063,
-    "dividerWidth": 3.75,
+    "subtitleX": 0,
+    "subtitleY": 0.56,
+    "dividerWidth": 4.8,
     "dividerY": 0.4,
     "cardsY": -0.24,
     "thumbWidth": 1.32,
     "cardGap": 0.38,
     "numberSize": 0.064,
-    "cardTitleSize": 0.068,
-    "cardDescriptionSize": 0.059,
+    "cardTitleSize": 0.08800000000000001,
+    "cardDescriptionSize": 0.064,
     "ctaSize": 0.052,
-    "thumbnailLiftZ": 0.07,
-    "thumbnailHoverZ": 0.18000000000000002,
-    "sittingImageX": 2.44,
+    "thumbnailLiftZ": 0.05,
+    "thumbnailHoverZ": 0.09000000000000002,
+    "sittingImageX": 2.34,
     "sittingImageY": -1.01,
-    "sittingImageScale": 2.5599999999999996,
+    "sittingImageScale": 2.76,
     "sittingImageOpacity": 1
   }
 };

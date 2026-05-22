@@ -1906,7 +1906,7 @@ p {
 }
 
 .bio-room-gallery-thumb {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   display: block;
   overflow: hidden;
   position: relative;
@@ -2235,7 +2235,7 @@ p {
 .bio-room-overlay-image,
 .bio-room-overlay-video,
 .bio-room-overlay-no-video {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   position: relative;
 }
 

@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
 
 function getPosterUrl(videoId: string, poster?: string) {
-  return poster ?? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  return poster ?? `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
 }
 
 export function BioGalleryOverlay() {
