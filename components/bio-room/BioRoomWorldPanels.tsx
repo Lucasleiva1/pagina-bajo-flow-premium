@@ -59,6 +59,29 @@ type WallTextProps = {
 
 type SocialIconKind = "facebook" | "instagram" | "mail" | "tiktok" | "whatsapp" | "youtube";
 type BioWallControls = BioRoomPreset["bioWall"];
+type FrontWallControls = BioRoomPreset["frontWall"];
+
+type SocialCardControls = Pick<
+  FrontWallControls,
+  | "socialArrowSize"
+  | "socialArrowX"
+  | "socialArrowY"
+  | "socialCardHeight"
+  | "socialCardHoverScale"
+  | "socialCardOpacity"
+  | "socialCardWidth"
+  | "socialDescriptionSize"
+  | "socialDescriptionWidth"
+  | "socialDescriptionX"
+  | "socialDescriptionY"
+  | "socialIconHoverScale"
+  | "socialIconSize"
+  | "socialIconX"
+  | "socialIconY"
+  | "socialLabelSize"
+  | "socialLabelX"
+  | "socialLabelY"
+>;
 
 const wallAccent = "#bdb6a5";
 const wallInk = "#efe9dd";
@@ -489,29 +512,6 @@ const socialCardColors: Record<SocialIconKind, { base: string; hover: string; sh
   youtube: { base: "#ff2a2a", hover: "#ff8a5c", shadow: "rgba(255, 42, 42, 0.42)" },
 };
 
-const socialIconSources: Partial<Record<SocialIconKind, { animated: string; still: string }>> = {
-  facebook: {
-    animated: "/assets/social-icons/icons8-facebook.gif",
-    still: "/assets/social-icons/social-facebook.png",
-  },
-  instagram: {
-    animated: "/assets/social-icons/icons8-instagram.gif",
-    still: "/assets/social-icons/social-instagram.png",
-  },
-  tiktok: {
-    animated: "/assets/social-icons/icons8-tiktok.gif",
-    still: "/assets/social-icons/social-tiktok.png",
-  },
-  whatsapp: {
-    animated: "/assets/social-icons/icons8-whatsapp.gif",
-    still: "/assets/social-icons/social-whatsapp.png",
-  },
-  youtube: {
-    animated: "/assets/social-icons/icons8-youtube.gif",
-    still: "/assets/social-icons/social-youtube.png",
-  },
-};
-
 function getFrontWallBackgroundSource() {
   if (typeof window === "undefined") return "/images/bio-room/front-wall-background-1024.webp";
 
@@ -558,41 +558,149 @@ function WallImageBackground({
   );
 }
 
+function SocialBrandIcon({ kind }: { kind: SocialIconKind }) {
+  if (kind === "youtube") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <rect height="12" rx="3.4" width="18.5" x="2.75" y="6" />
+        <path d="M10.3 9.25v5.5L15.45 12z" />
+      </svg>
+    );
+  }
+
+  if (kind === "instagram") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <rect height="16.2" rx="4.7" width="16.2" x="3.9" y="3.9" />
+        <circle cx="12" cy="12" r="3.55" />
+        <circle cx="16.9" cy="7.25" r="1.05" />
+      </svg>
+    );
+  }
+
+  if (kind === "facebook") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M14.2 8.15h2.25V4.55c-.38-.05-1.72-.16-3.2-.16-3.18 0-5.25 1.92-5.25 5.42v2.95H4.7v4.02H8V24h4.16v-7.22h3.32l.53-4.02h-3.85V10.2c0-1.16.32-2.05 2.04-2.05Z" />
+      </svg>
+    );
+  }
+
+  if (kind === "tiktok") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M15.35 2.4c.38 2.55 1.78 4.05 4.25 4.22v3.62a7.7 7.7 0 0 1-4.18-1.28v6.06c0 3.08-2.07 5.63-5.25 5.98-3.18.35-5.98-1.72-6.38-4.85-.42-3.27 1.9-6.08 5.12-6.42.64-.07 1.24-.02 1.8.14v3.78a2.57 2.57 0 0 0-1.56-.28 2.08 2.08 0 0 0-1.78 2.37 2.06 2.06 0 0 0 2.34 1.72c1.18-.16 1.86-1.05 1.86-2.52V2.4h3.78Z" />
+      </svg>
+    );
+  }
+
+  if (kind === "whatsapp") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M12.05 3.2a8.64 8.64 0 0 0-7.4 13.1L3.5 20.8l4.6-1.08A8.64 8.64 0 1 0 12.05 3.2Z" />
+        <path d="M9.18 7.78c-.2-.44-.4-.45-.58-.46h-.5c-.18 0-.46.07-.7.33-.24.27-.92.9-.92 2.18 0 1.3.94 2.55 1.07 2.72.13.18 1.82 2.9 4.52 3.95 2.24.87 2.7.7 3.18.66.49-.05 1.57-.64 1.8-1.25.22-.62.22-1.15.15-1.26-.06-.1-.24-.17-.51-.3l-1.83-.9c-.27-.13-.47-.2-.67.13-.2.34-.77.9-.95 1.09-.17.2-.35.22-.65.07-.3-.15-1.24-.46-2.36-1.46-.88-.78-1.46-1.74-1.64-2.04-.17-.3-.02-.46.13-.61.13-.13.3-.35.44-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.52l-.76-1.8Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M3.75 6.25h16.5v11.5H3.75z" />
+      <path d="m4.45 7.1 7.55 6.08 7.55-6.08" />
+    </svg>
+  );
+}
+
+function getSocialIconOffset(
+  kind: SocialIconKind,
+  controls: Pick<
+    FrontWallControls,
+    | "facebookIconX"
+    | "facebookIconY"
+    | "instagramIconX"
+    | "instagramIconY"
+    | "tiktokIconX"
+    | "tiktokIconY"
+    | "whatsappIconX"
+    | "whatsappIconY"
+    | "youtubeIconX"
+    | "youtubeIconY"
+  >,
+) {
+  if (kind === "youtube") return { x: controls.youtubeIconX, y: controls.youtubeIconY };
+  if (kind === "instagram") return { x: controls.instagramIconX, y: controls.instagramIconY };
+  if (kind === "facebook") return { x: controls.facebookIconX, y: controls.facebookIconY };
+  if (kind === "tiktok") return { x: controls.tiktokIconX, y: controls.tiktokIconY };
+  if (kind === "whatsapp") return { x: controls.whatsappIconX, y: controls.whatsappIconY };
+  return { x: 0, y: 0 };
+}
+
 
 function SocialLinkCard3D({
+  controls,
   href,
-  iconSize,
+  iconOffsetX,
+  iconOffsetY,
   kind,
-  width,
   x,
   y,
 }: {
+  controls: SocialCardControls;
   href: string;
-  iconSize: number;
+  iconOffsetX: number;
+  iconOffsetY: number;
   kind: SocialIconKind;
-  width: number;
   x: number;
   y: number;
 }) {
   const groupRef = useRef<Group>(null);
+  const hoverClearRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const card = socialCardCopy[kind];
   const colors = socialCardColors[kind];
-  const height = 0.32;
-  const iconSource = socialIconSources[kind];
+  const cardWidth = controls.socialCardWidth;
+  const cardHeight = controls.socialCardHeight;
+  const iconX = -cardWidth / 2 + controls.socialIconX + iconOffsetX;
+  const iconY = controls.socialIconY + iconOffsetY;
+  const textX = -cardWidth / 2 + controls.socialIconSize + controls.socialLabelX;
 
-  useFrame((state, delta) => {
+  useEffect(() => {
+    return () => {
+      if (hoverClearRef.current) window.clearTimeout(hoverClearRef.current);
+      document.body.style.cursor = "";
+    };
+  }, []);
+
+  useFrame((_, delta) => {
     if (!groupRef.current) return;
 
-    const targetScale = isHovered ? 1.028 : 1;
+    const targetScale = isHovered ? controls.socialCardHoverScale : 1;
     const targetZ = isHovered ? 0.17 : 0.11;
-    const targetRotationZ = isHovered ? Math.sin(state.clock.elapsedTime * 3.5) * 0.006 : 0;
 
     const scale = MathUtils.damp(groupRef.current.scale.x, targetScale, 9, delta);
     groupRef.current.scale.setScalar(scale);
     groupRef.current.position.z = MathUtils.damp(groupRef.current.position.z, targetZ, 9, delta);
-    groupRef.current.rotation.z = MathUtils.damp(groupRef.current.rotation.z, targetRotationZ, 8, delta);
+    groupRef.current.rotation.z = MathUtils.damp(groupRef.current.rotation.z, 0, 8, delta);
   });
+
+  function activateHover() {
+    if (hoverClearRef.current) {
+      window.clearTimeout(hoverClearRef.current);
+      hoverClearRef.current = null;
+    }
+
+    setIsHovered(true);
+    document.body.style.cursor = "pointer";
+  }
+
+  function releaseHover() {
+    if (hoverClearRef.current) window.clearTimeout(hoverClearRef.current);
+    hoverClearRef.current = window.setTimeout(() => {
+      setIsHovered(false);
+      document.body.style.cursor = "";
+      hoverClearRef.current = null;
+    }, 90);
+  }
 
   function handleClick(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
@@ -601,14 +709,12 @@ function SocialLinkCard3D({
 
   function handlePointerOver(event: ThreeEvent<PointerEvent>) {
     event.stopPropagation();
-    setIsHovered(true);
-    document.body.style.cursor = "pointer";
+    activateHover();
   }
 
   function handlePointerOut(event: ThreeEvent<PointerEvent>) {
     event.stopPropagation();
-    setIsHovered(false);
-    document.body.style.cursor = "";
+    releaseHover();
   }
 
   return (
@@ -616,87 +722,93 @@ function SocialLinkCard3D({
       onClick={handleClick}
       onPointerOut={handlePointerOut}
       onPointerOver={handlePointerOver}
+      onPointerMove={handlePointerOver}
       position={[x, y, 0.11]}
       ref={groupRef}
     >
       <WallPanel
         color={isHovered ? "#06182a" : "#02070e"}
-        height={height}
-        opacity={isHovered ? 0.84 : 0.58}
-        width={width}
+        height={cardHeight}
+        opacity={isHovered ? Math.min(0.95, controls.socialCardOpacity + 0.26) : controls.socialCardOpacity}
+        width={cardWidth}
       />
-      <WallFrame height={height} width={width} />
+      <WallFrame height={cardHeight} width={cardWidth} />
       <WallGlowLine
         color={isHovered ? colors.hover : colors.base}
-        height={height * 0.62}
+        height={cardHeight * 0.62}
         opacity={isHovered ? 0.78 : 0.34}
         width={0.01}
-        x={-width / 2 + iconSize + 0.2}
+        x={iconX + controls.socialIconSize * 0.72}
         y={0}
       />
-      {iconSource && (
-        <Html
-          center
-          className="bio-room-social-gif"
-          distanceFactor={5.6}
-          position={[-width / 2 + 0.25, 0, 0.14]}
-          style={{
-            "--bio-social-icon-size": `${iconSize * 8}rem`,
-            pointerEvents: "none",
-            background: "transparent",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          } as CSSProperties}
-          transform
+      <Html
+        center
+        className={`bio-room-social-icon ${isHovered ? "is-hovered" : ""}`}
+        distanceFactor={5.6}
+        position={[iconX, iconY, 0.14]}
+        style={{
+          "--bio-social-base": colors.base,
+          "--bio-social-hover": colors.hover,
+          "--bio-social-hover-scale": controls.socialIconHoverScale,
+          "--bio-social-icon-size": `${controls.socialIconSize * 8}rem`,
+          "--bio-social-shadow": colors.shadow,
+        } as CSSProperties}
+        transform
+      >
+        <span
+          className={`bio-room-social-mark ${kind}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            openLink(href);
+          }}
+          onPointerEnter={(event) => {
+            event.stopPropagation();
+            activateHover();
+          }}
+          onPointerLeave={(event) => {
+            event.stopPropagation();
+            releaseHover();
+          }}
+          onPointerMove={(event) => {
+            event.stopPropagation();
+            activateHover();
+          }}
         >
-          <img
-            alt=""
-            draggable={false}
-            src={isHovered ? iconSource.animated : iconSource.still}
-            style={{
-              background: "transparent",
-              border: "none",
-              boxShadow: "none",
-              display: "block",
-              width: "100%",
-              height: "100%",
-            }}
-          />
-        </Html>
-      )}
+          <SocialBrandIcon kind={kind} />
+        </span>
+      </Html>
       <WallText
         color={isHovered ? colors.hover : "#1f8cff"}
         fontFamily={editorialCondensed}
-        fontSize={0.062}
+        fontSize={controls.socialLabelSize}
         letterSpacing={0.026}
         maxWidth={0.92}
-        x={-width / 2 + iconSize + 0.34}
-        y={0.075}
+        x={textX}
+        y={controls.socialLabelY}
       >
         {card.label}
       </WallText>
       <WallText
         color={isHovered ? "#ffffff" : "#c7ced8"}
         fontFamily={editorialUi}
-        fontSize={0.043}
+        fontSize={controls.socialDescriptionSize}
         fontWeight={500}
         lineHeight={1.12}
-        maxWidth={0.84}
-        x={-width / 2 + iconSize + 0.34}
-        y={-0.035}
+        maxWidth={controls.socialDescriptionWidth}
+        x={-cardWidth / 2 + controls.socialIconSize + controls.socialDescriptionX}
+        y={controls.socialDescriptionY}
       >
         {card.description}
       </WallText>
       <WallText
         color={isHovered ? colors.hover : "#ffffff"}
         fontFamily={editorialUi}
-        fontSize={0.08}
+        fontSize={controls.socialArrowSize}
         fontWeight={400}
         maxWidth={0.16}
         textAlign="center"
-        x={width / 2 - 0.17}
-        y={0}
+        x={cardWidth / 2 + controls.socialArrowX}
+        y={controls.socialArrowY}
       >
         {">"}
       </WallText>
@@ -763,10 +875,41 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
       rightTitleY: { value: bioRoomPreset.frontWall.rightTitleY, min: -0.2, max: 1, step: 0.02, label: "Titulo Y" },
       rightBodySize: { value: bioRoomPreset.frontWall.rightBodySize, min: 0.03, max: 0.1, step: 0.005, label: "Texto" },
       rightFont: { value: bioRoomPreset.frontWall.rightFont, label: "Fuente instalada" },
-      socialIconSize: { value: bioRoomPreset.frontWall.socialIconSize, min: 0.16, max: 0.36, step: 0.01, label: "Iconos" },
+      socialCardWidth: { value: bioRoomPreset.frontWall.socialCardWidth, min: 1.1, max: 2.9, step: 0.02, label: "Tarjeta ancho" },
+      socialCardHeight: { value: bioRoomPreset.frontWall.socialCardHeight, min: 0.18, max: 0.52, step: 0.01, label: "Tarjeta alto" },
+      socialCardOpacity: { value: bioRoomPreset.frontWall.socialCardOpacity, min: 0.1, max: 0.92, step: 0.01, label: "Tarjeta opacidad" },
+      socialCardHoverScale: { value: bioRoomPreset.frontWall.socialCardHoverScale, min: 1, max: 1.12, step: 0.002, label: "Hover tarjeta" },
+      socialIconSize: { value: bioRoomPreset.frontWall.socialIconSize, min: 0.12, max: 0.42, step: 0.01, label: "Logo tamano" },
+      socialIconX: { value: bioRoomPreset.frontWall.socialIconX, min: -0.2, max: 0.7, step: 0.01, label: "Logo X" },
+      socialIconY: { value: bioRoomPreset.frontWall.socialIconY, min: -0.22, max: 0.22, step: 0.01, label: "Logo Y" },
+      socialIconHoverScale: { value: bioRoomPreset.frontWall.socialIconHoverScale, min: 1, max: 1.8, step: 0.02, label: "Hover logo" },
       socialIconGap: { value: bioRoomPreset.frontWall.socialIconGap, min: 0.28, max: 0.52, step: 0.01, label: "Separacion tarjetas" },
       socialRowY: { value: bioRoomPreset.frontWall.socialRowY, min: -0.5, max: 0.7, step: 0.02, label: "Tarjetas Y" },
       socialTextY: { value: bioRoomPreset.frontWall.socialTextY, min: -0.2, max: 0.7, step: 0.02, label: "Bajada Y" },
+    }, collapsedLevaFolder),
+    cardText: folder({
+      socialLabelX: { value: bioRoomPreset.frontWall.socialLabelX, min: -0.1, max: 1.2, step: 0.01, label: "Titulo X" },
+      socialLabelY: { value: bioRoomPreset.frontWall.socialLabelY, min: -0.18, max: 0.2, step: 0.01, label: "Titulo Y" },
+      socialLabelSize: { value: bioRoomPreset.frontWall.socialLabelSize, min: 0.035, max: 0.1, step: 0.002, label: "Titulo tamano" },
+      socialDescriptionX: { value: bioRoomPreset.frontWall.socialDescriptionX, min: -0.1, max: 1.2, step: 0.01, label: "Texto X" },
+      socialDescriptionY: { value: bioRoomPreset.frontWall.socialDescriptionY, min: -0.2, max: 0.12, step: 0.01, label: "Texto Y" },
+      socialDescriptionSize: { value: bioRoomPreset.frontWall.socialDescriptionSize, min: 0.025, max: 0.07, step: 0.002, label: "Texto tamano" },
+      socialDescriptionWidth: { value: bioRoomPreset.frontWall.socialDescriptionWidth, min: 0.42, max: 1.45, step: 0.01, label: "Texto ancho" },
+      socialArrowX: { value: bioRoomPreset.frontWall.socialArrowX, min: -0.45, max: 0.05, step: 0.01, label: "Flecha X" },
+      socialArrowY: { value: bioRoomPreset.frontWall.socialArrowY, min: -0.14, max: 0.14, step: 0.01, label: "Flecha Y" },
+      socialArrowSize: { value: bioRoomPreset.frontWall.socialArrowSize, min: 0.035, max: 0.13, step: 0.002, label: "Flecha tamano" },
+    }, collapsedLevaFolder),
+    individualLogos: folder({
+      youtubeIconX: { value: bioRoomPreset.frontWall.youtubeIconX, min: -0.42, max: 0.42, step: 0.01, label: "YouTube X" },
+      youtubeIconY: { value: bioRoomPreset.frontWall.youtubeIconY, min: -0.18, max: 0.18, step: 0.01, label: "YouTube Y" },
+      instagramIconX: { value: bioRoomPreset.frontWall.instagramIconX, min: -0.42, max: 0.42, step: 0.01, label: "Instagram X" },
+      instagramIconY: { value: bioRoomPreset.frontWall.instagramIconY, min: -0.18, max: 0.18, step: 0.01, label: "Instagram Y" },
+      facebookIconX: { value: bioRoomPreset.frontWall.facebookIconX, min: -0.42, max: 0.42, step: 0.01, label: "Facebook X" },
+      facebookIconY: { value: bioRoomPreset.frontWall.facebookIconY, min: -0.18, max: 0.18, step: 0.01, label: "Facebook Y" },
+      tiktokIconX: { value: bioRoomPreset.frontWall.tiktokIconX, min: -0.42, max: 0.42, step: 0.01, label: "TikTok X" },
+      tiktokIconY: { value: bioRoomPreset.frontWall.tiktokIconY, min: -0.18, max: 0.18, step: 0.01, label: "TikTok Y" },
+      whatsappIconX: { value: bioRoomPreset.frontWall.whatsappIconX, min: -0.42, max: 0.42, step: 0.01, label: "WhatsApp X" },
+      whatsappIconY: { value: bioRoomPreset.frontWall.whatsappIconY, min: -0.18, max: 0.18, step: 0.01, label: "WhatsApp Y" },
     }, collapsedLevaFolder),
   }, collapsedLevaFolder);
   const backgroundControls = useControls("pared-fondo", {
@@ -882,17 +1025,22 @@ function FrontWall3D({ copy, wall }: { copy: SiteCopy["bio"]; wall: WallSurface 
         <WallText color="#d0d4dc" fontFamily={editorialUi} fontSize={rightControls.rightBodySize} fontWeight={500} lineHeight={1.16} maxWidth={1.72} x={rightControls.rightTextX} y={rightControls.socialTextY}>
           Seguime para ver piezas, procesos, color y cortes pensados para marcas, artistas y contenido digital.
         </WallText>
-        {socialLinks.map((link, index) => (
-          <SocialLinkCard3D
-            href={link.href}
-            iconSize={rightControls.socialIconSize}
-            key={link.label}
-            kind={link.kind}
-            width={Math.max(1.72, rightControls.rightPanelWidth - 0.16)}
-            x={rightControls.rightTextX + Math.max(1.72, rightControls.rightPanelWidth - 0.16) / 2}
-            y={rightControls.socialRowY - index * rightControls.socialIconGap}
-          />
-        ))}
+        {socialLinks.map((link, index) => {
+          const iconOffset = getSocialIconOffset(link.kind, rightControls);
+
+          return (
+            <SocialLinkCard3D
+              controls={rightControls}
+              href={link.href}
+              iconOffsetX={iconOffset.x}
+              iconOffsetY={iconOffset.y}
+              key={link.label}
+              kind={link.kind}
+              x={rightControls.rightTextX + rightControls.socialCardWidth / 2}
+              y={rightControls.socialRowY - index * rightControls.socialIconGap}
+            />
+          );
+        })}
       </group>
     </WallSurfaceGroup>
   );

@@ -96,11 +96,26 @@ export type BioRoomPreset = {
     rightTitleY: number;
     rightBodySize: number;
     rightFont: string;
+    socialCardWidth: number;
+    socialCardHeight: number;
+    socialCardOpacity: number;
+    socialCardHoverScale: number;
     socialIconSize: number;
     socialIconX: number;
+    socialIconY: number;
     socialIconGap: number;
     socialRowY: number;
     socialIconHoverScale: number;
+    socialLabelX: number;
+    socialLabelY: number;
+    socialLabelSize: number;
+    socialDescriptionX: number;
+    socialDescriptionY: number;
+    socialDescriptionSize: number;
+    socialDescriptionWidth: number;
+    socialArrowX: number;
+    socialArrowY: number;
+    socialArrowSize: number;
     youtubeIconX: number;
     youtubeIconY: number;
     instagramIconX: number;
@@ -326,11 +341,26 @@ export const bioRoomPreset: BioRoomPreset = {
     "rightTitleY": 0.88,
     "rightBodySize": 0.064,
     "rightFont": "Bebas Neue",
-    "socialIconSize": 0.27,
-    "socialIconX": 0.12,
-    "socialIconGap": 0.36,
+    "socialCardWidth": 1.9000000000000001,
+    "socialCardHeight": 0.32,
+    "socialCardOpacity": 0.58,
+    "socialCardHoverScale": 1.028,
+    "socialIconSize": 0.18000000000000002,
+    "socialIconX": 0.25,
+    "socialIconY": 0,
+    "socialIconGap": 0.39999999999999997,
     "socialRowY": 0.26,
-    "socialIconHoverScale": 1.18,
+    "socialIconHoverScale": 1.24,
+    "socialLabelX": 0.34,
+    "socialLabelY": 0.075,
+    "socialLabelSize": 0.08,
+    "socialDescriptionX": 0.34,
+    "socialDescriptionY": -0.035,
+    "socialDescriptionSize": 0.05499999999999999,
+    "socialDescriptionWidth": 0.84,
+    "socialArrowX": -0.17,
+    "socialArrowY": 0,
+    "socialArrowSize": 0.078,
     "youtubeIconX": 0,
     "youtubeIconY": 0,
     "instagramIconX": 0,

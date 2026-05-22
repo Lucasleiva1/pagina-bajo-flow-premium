@@ -41,3 +41,12 @@ tsconfig.tsbuildinfo
 
 # error docs
 ERROR_*.md
+
+# backup files
+*.bak
+
+# screenshots & temporary scripts
+/*.png
+/screenshot-3001.js
+
+
