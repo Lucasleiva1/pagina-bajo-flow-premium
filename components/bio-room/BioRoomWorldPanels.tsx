@@ -751,6 +751,7 @@ function SocialLinkCard3D({
         center
         className={`bio-room-social-icon ${isHovered ? "is-hovered" : ""}`}
         distanceFactor={5.6}
+        occlude="blending"
         position={[iconX, iconY, 0.14]}
         style={{
           "--bio-social-base": colors.base,
