@@ -57,6 +57,55 @@ export type BioRoomPreset = {
     guideOpacity: number;
     panelOpacity: number;
   };
+  floorTexture: {
+    x: number;
+    y: number;
+    z: number;
+    scaleX: number;
+    scaleZ: number;
+    rotation: number;
+    opacity: number;
+  };
+  floorButtons: {
+    groupX: number;
+    groupY: number;
+    groupZ: number;
+    scale: number;
+    gap: number;
+    bioX: number;
+    bioY: number;
+    bioZ: number;
+    bioWidth: number;
+    bioDepth: number;
+    bioScaleX: number;
+    bioScaleZ: number;
+    bioRotation: number;
+    bioOpacity: number;
+    bioGlowOpacity: number;
+    bioLabelSize: number;
+    skillsX: number;
+    skillsY: number;
+    skillsZ: number;
+    skillsWidth: number;
+    skillsDepth: number;
+    skillsScaleX: number;
+    skillsScaleZ: number;
+    skillsRotation: number;
+    skillsOpacity: number;
+    skillsGlowOpacity: number;
+    skillsLabelSize: number;
+    contactX: number;
+    contactY: number;
+    contactZ: number;
+    contactWidth: number;
+    contactDepth: number;
+    contactScaleX: number;
+    contactScaleZ: number;
+    contactRotation: number;
+    contactOpacity: number;
+    contactGlowOpacity: number;
+    contactLabelSize: number;
+  };
   frontWall: {
     backgroundX: number;
     backgroundY: number;
@@ -313,6 +362,55 @@ export const bioRoomPreset: BioRoomPreset = {
     "floorRoughness": 0.7,
     "guideOpacity": 0.16,
     "panelOpacity": 0.56
+  },
+  "floorTexture": {
+    "x": 0,
+    "y": 0.078,
+    "z": -2.5200000000000005,
+    "scaleX": 1.15,
+    "scaleZ": 0.55,
+    "rotation": 0,
+    "opacity": 0.8200000000000001
+  },
+  "floorButtons": {
+    "groupX": 0,
+    "groupY": 0.072,
+    "groupZ": 0.18,
+    "scale": 1,
+    "gap": -0.01,
+    "bioX": -1.18,
+    "bioY": 0,
+    "bioZ": -0.19999999999999998,
+    "bioWidth": 1.09,
+    "bioDepth": 0.43,
+    "bioScaleX": 0.85,
+    "bioScaleZ": 1,
+    "bioRotation": 0.04920367320510355,
+    "bioOpacity": 1,
+    "bioGlowOpacity": 0,
+    "bioLabelSize": 95,
+    "skillsX": 1.1999999999999997,
+    "skillsY": 0,
+    "skillsZ": -0.18,
+    "skillsWidth": 1.08,
+    "skillsDepth": 0.5,
+    "skillsScaleX": 0.95,
+    "skillsScaleZ": 1.04,
+    "skillsRotation": -0.02920367320510353,
+    "skillsOpacity": 1,
+    "skillsGlowOpacity": 0,
+    "skillsLabelSize": 78,
+    "contactX": 0,
+    "contactY": 0,
+    "contactZ": 0.74,
+    "contactWidth": 1.08,
+    "contactDepth": 0.41000000000000003,
+    "contactScaleX": 0.91,
+    "contactScaleZ": 1.04,
+    "contactRotation": -0.02,
+    "contactOpacity": 1,
+    "contactGlowOpacity": 0,
+    "contactLabelSize": 85
   },
   "frontWall": {
     "leftX": -1.6600000000000001,

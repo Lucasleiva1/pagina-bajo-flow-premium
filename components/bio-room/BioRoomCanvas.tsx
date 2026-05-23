@@ -23,6 +23,7 @@ import {
   type WallSurface,
 } from "@/components/bio-room/BioRoomLayout";
 import { BioRoomWorldPanels } from "@/components/bio-room/BioRoomWorldPanels";
+import { LucasFloorHUD } from "@/components/bio-room/LucasFloorHUD";
 import { bioRoomPreset } from "@/data/bioRoomPreset";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomPresetStore } from "@/lib/useBioRoomPresetStore";
@@ -36,7 +37,7 @@ const collapsedLevaFolder = { collapsed: true } as const;
 const bioLeftWallTexture = "/images/bio-room/bio-left-wall-source-1440.webp";
 const bioRightWallTexture = "/images/bio-room/bio-right-wall-source-1440.webp";
 const bioCeilingTexture = "/images/bio-room/bio-ceiling-source-1440.webp";
-const bioFloorTexture = "/images/bio-room/bio-floor-source-1440.webp";
+const bioFloorTexture = "/images/bio-room/bio-floor-grid-source-1440.webp";
 const cameraFov = 42;
 const sideWallReadableWidth = 7.2;
 const sideWallBackstopMargin = 0.55;
@@ -287,21 +288,33 @@ function CeilingDecorSurface({
 function FloorDecorSurface({
   depth,
   halfWidth,
+  offsetX = 0,
+  offsetY = 0.026,
+  offsetZ = 0,
   opacity = 0.82,
+  rotation = 0,
+  scaleX = 1,
+  scaleZ = 1,
   src,
   z,
 }: {
   depth: number;
   halfWidth: number;
+  offsetX?: number;
+  offsetY?: number;
+  offsetZ?: number;
   opacity?: number;
+  rotation?: number;
+  scaleX?: number;
+  scaleZ?: number;
   src: string;
   z: number;
 }) {
   const texture = useRoomDecorTexture(src);
 
   return (
-    <mesh position={[0, 0.026, z]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[halfWidth * 2, depth]} />
+    <mesh position={[offsetX, offsetY, z + offsetZ]} rotation={[-Math.PI / 2, 0, rotation]}>
+      <planeGeometry args={[halfWidth * 2 * scaleX, depth * scaleZ]} />
       <meshBasicMaterial
         map={texture}
         opacity={opacity}
@@ -345,7 +358,7 @@ function LucasBillboard({ meshRef }: LucasBillboardProps) {
   return (
     <group position={[lucasControls.posX, lucasControls.posY, lucasControls.posZ]}>
       {/* Main character plane */}
-      <mesh position={[0, 0.12, 0]}>
+      <mesh position={[0, 0.12, 0]} renderOrder={10}>
         <planeGeometry args={[lucasControls.width, lucasControls.height]} />
         <meshStandardMaterial
           alphaTest={0.05}
@@ -362,16 +375,10 @@ function LucasBillboard({ meshRef }: LucasBillboardProps) {
         <planeGeometry args={[0.8, lucasControls.height]} />
         <meshBasicMaterial colorWrite={false} depthWrite={false} transparent />
       </mesh>
-      {/* Floor shadow */}
-      <mesh position={[0, -1.13, 0.02]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.92, 80]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.52} />
-      </mesh>
-      {/* Amber glow ring on floor */}
-      <mesh position={[0, -1.12, 0.025]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.58, 0.95, 96]} />
-        <meshBasicMaterial color="#ffb454" transparent opacity={0.3} />
-      </mesh>
+      {/* Dynamic Floor HUD and navigation buttons */}
+      <group position={[0, -1.09, 0.025]}>
+        <LucasFloorHUD />
+      </group>
     </group>
   );
 }
@@ -456,6 +463,16 @@ function RoomShell({
     panelOpacity: { value: bioRoomPreset.visuals.panelOpacity, min: 0.2, max: 1, step: 0.01, label: "Panel fondo" },
   }, collapsedLevaFolder);
 
+  const floorTextureControls = useControls("PISO (Textura)", {
+    x: { value: bioRoomPreset.floorTexture.x, min: -4, max: 4, step: 0.02, label: "X" },
+    y: { value: bioRoomPreset.floorTexture.y, min: 0.005, max: 0.12, step: 0.001, label: "Y altura" },
+    z: { value: bioRoomPreset.floorTexture.z, min: -5, max: 5, step: 0.02, label: "Z" },
+    scaleX: { value: bioRoomPreset.floorTexture.scaleX, min: 0.2, max: 2.5, step: 0.01, label: "Escala ancho" },
+    scaleZ: { value: bioRoomPreset.floorTexture.scaleZ, min: 0.1, max: 2.5, step: 0.01, label: "Escala profundidad" },
+    rotation: { value: bioRoomPreset.floorTexture.rotation, min: -Math.PI, max: Math.PI, step: 0.01, label: "Rotacion" },
+    opacity: { value: bioRoomPreset.floorTexture.opacity, min: 0, max: 1, step: 0.01, label: "Opacidad" },
+  }, collapsedLevaFolder);
+
   useEffect(() => {
     setPresetSection("room", roomControls);
   }, [roomControls, setPresetSection]);
@@ -471,6 +488,10 @@ function RoomShell({
   useEffect(() => {
     setPresetSection("visuals", visualControls);
   }, [setPresetSection, visualControls]);
+
+  useEffect(() => {
+    setPresetSection("floorTexture", floorTextureControls);
+  }, [floorTextureControls, setPresetSection]);
 
   const W = roomControls.halfWidth;
   const D = roomControls.depth;
@@ -577,6 +598,13 @@ function RoomShell({
       <FloorDecorSurface
         depth={D + 4.0}
         halfWidth={W}
+        offsetX={floorTextureControls.x}
+        offsetY={floorTextureControls.y}
+        offsetZ={floorTextureControls.z}
+        opacity={floorTextureControls.opacity}
+        rotation={floorTextureControls.rotation}
+        scaleX={floorTextureControls.scaleX}
+        scaleZ={floorTextureControls.scaleZ}
         src={bioFloorTexture}
         z={centerZ + 2.0}
       />

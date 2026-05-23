@@ -23,6 +23,8 @@ function isBioRoomPreset(value: unknown): value is BioRoomPreset {
     isPresetSectionRecord(preset.lights) &&
     isPresetSectionRecord(preset.cinemaLights) &&
     isPresetSectionRecord(preset.visuals) &&
+    isPresetSectionRecord(preset.floorTexture) &&
+    isPresetSectionRecord(preset.floorButtons) &&
     isPresetSectionRecord(preset.frontWall) &&
     isPresetSectionRecord(preset.bioWall) &&
     isPresetSectionRecord(preset.skillsWall)
@@ -88,6 +90,55 @@ function serializePreset(preset: BioRoomPreset) {
     floorRoughness: number;
     guideOpacity: number;
     panelOpacity: number;
+  };
+  floorTexture: {
+    x: number;
+    y: number;
+    z: number;
+    scaleX: number;
+    scaleZ: number;
+    rotation: number;
+    opacity: number;
+  };
+  floorButtons: {
+    groupX: number;
+    groupY: number;
+    groupZ: number;
+    scale: number;
+    gap: number;
+    bioX: number;
+    bioY: number;
+    bioZ: number;
+    bioWidth: number;
+    bioDepth: number;
+    bioScaleX: number;
+    bioScaleZ: number;
+    bioRotation: number;
+    bioOpacity: number;
+    bioGlowOpacity: number;
+    bioLabelSize: number;
+    skillsX: number;
+    skillsY: number;
+    skillsZ: number;
+    skillsWidth: number;
+    skillsDepth: number;
+    skillsScaleX: number;
+    skillsScaleZ: number;
+    skillsRotation: number;
+    skillsOpacity: number;
+    skillsGlowOpacity: number;
+    skillsLabelSize: number;
+    contactX: number;
+    contactY: number;
+    contactZ: number;
+    contactWidth: number;
+    contactDepth: number;
+    contactScaleX: number;
+    contactScaleZ: number;
+    contactRotation: number;
+    contactOpacity: number;
+    contactGlowOpacity: number;
+    contactLabelSize: number;
   };
   frontWall: {
     backgroundX: number;

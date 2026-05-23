@@ -2118,21 +2118,39 @@ p {
 }
 
 .bio-room-controls button {
-  background: transparent;
-  border: 0;
-  color: rgba(242, 242, 243, 0.62);
+  animation: bio-room-home-flicker 2.8s ease-in-out infinite;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 222, 150, 0.22), transparent 58%),
+    linear-gradient(180deg, rgba(255, 190, 92, 0.18), rgba(112, 70, 22, 0.08));
+  border: 1px solid rgba(255, 205, 112, 0.52);
+  box-shadow:
+    0 0 12px rgba(255, 189, 86, 0.34),
+    0 0 28px rgba(255, 160, 48, 0.18),
+    inset 0 0 16px rgba(255, 226, 163, 0.08);
+  color: #ffd479;
   cursor: pointer;
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.12rem;
   padding: 0.72rem 1rem;
   position: relative;
+  text-shadow:
+    0 0 8px rgba(255, 214, 128, 0.55),
+    0 0 16px rgba(255, 170, 56, 0.28);
   text-transform: uppercase;
-  transition: color 200ms ease;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease;
 }
 
 .bio-room-controls button:hover {
-  color: rgba(242, 242, 243, 0.9);
+  border-color: rgba(255, 225, 155, 0.78);
+  box-shadow:
+    0 0 18px rgba(255, 200, 96, 0.48),
+    0 0 38px rgba(255, 166, 42, 0.25),
+    inset 0 0 18px rgba(255, 235, 180, 0.13);
+  color: #ffe7aa;
 }
 
 .bio-room-controls button span:last-child {
@@ -2142,6 +2160,31 @@ p {
 
 .bio-room-controls button.active {
   color: var(--ink);
+}
+
+@keyframes bio-room-home-flicker {
+  0%,
+  100% {
+    filter: brightness(1);
+    opacity: 0.94;
+  }
+
+  42% {
+    filter: brightness(1.08);
+    opacity: 1;
+  }
+
+  48% {
+    filter: brightness(1.2);
+  }
+
+  52% {
+    filter: brightness(0.95);
+  }
+
+  58% {
+    filter: brightness(1.18);
+  }
 }
 
 .bio-room-control-glow {
@@ -3452,10 +3495,10 @@ p {
     bottom: auto;
     display: grid;
     gap: 0.22rem;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: minmax(8rem, 1fr);
     left: auto;
     margin: 0 auto 1.05rem;
-    max-width: min(100%, 24rem);
+    max-width: min(100%, 12rem);
     overflow: visible;
     position: relative;
     top: auto;

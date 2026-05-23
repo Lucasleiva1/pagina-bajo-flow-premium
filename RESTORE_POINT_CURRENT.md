@@ -1,5 +1,54 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-22 21:31:51 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Bio Room piso y botones
+
+Tag de esta version: important-bio-floor-buttons-2026-05-22-2131
+Mensaje del commit: feat: save bio floor buttons checkpoint
+Archivo detalle: RESTORE_POINT_BIO_FLOOR_BUTTONS_2026-05-22_21-31.md
+
+Esta version queda como punto fuerte despues de ajustar el piso nuevo de la Bio Room, conservar la textura anterior, agregar botones de piso con perspectiva y controles completos, remover el circulo molesto debajo de Lucas, dejar la barra interna con solo `Inicio` y mejorar ese boton con color dorado, brillo y titileo suave.
+
+## Que contiene esta version actual
+
+- Piso actual grid/tech en formatos fuente, WebP y AVIF.
+- Textura anterior mandala conservada en fuente, WebP y AVIF.
+- Botones de piso `BIO`, `HABILIDADES` y `CONTACTO` con controles Leva completos por boton.
+- Controles Leva completos para posicionar, escalar, rotar y ajustar opacidad del piso.
+- Barra de seccion reducida a un unico boton `Inicio`.
+- Boton `Inicio` con brillo dorado y titileo suave.
+
+## Como comparar o volver
+
+Antes de restaurar, verificar siempre:
+
+```powershell
+git status -sb
+git log --oneline --decorate -5
+```
+
+Para comparar contra esta version:
+
+```powershell
+git diff important-bio-floor-buttons-2026-05-22-2131 -- .
+```
+
+Para volver exactamente a esta version, solo si el usuario lo pide:
+
+```powershell
+git fetch --tags origin
+git checkout important-bio-floor-buttons-2026-05-22-2131
+```
+
+---
+
+# Punto de restauracion actual
+
 Fecha de guardado importante: 2026-05-22 16:18:05 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
