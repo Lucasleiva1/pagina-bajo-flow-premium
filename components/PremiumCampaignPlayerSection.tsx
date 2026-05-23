@@ -1,16 +1,17 @@
 "use client";
 
-import { type MouseEvent, type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { SceneShell } from "@/components/SceneShell";
 import type { SiteCopy } from "@/data/site";
 
 type Campaign = SiteCopy["services"]["services"][number];
-
 type DragState = {
-  id: number;
+  currentX: number;
+  hasDragged: boolean;
+  pointerId: number;
   startX: number;
   startY: number;
+  targetIndex: number;
 };
 
 const campaignVideoNames = [
@@ -36,44 +37,43 @@ function getCircularOffset(index: number, active: number, total: number) {
   return offset;
 }
 
-function getCoverFlowStyle(offset: number, isDragging: boolean) {
-  const absOffset = Math.abs(offset);
-  const direction = Math.sign(offset);
-  const isHidden = absOffset > 2;
-  const x = offset === 0 ? 0 : direction * (6.4 + (absOffset - 1) * 2.15);
-  const y = absOffset * 0.45;
-  const z = offset === 0 ? 6 : 5 - absOffset;
-  const rotate = offset === 0 ? 0 : direction * -24;
-  const scale = Math.max(0.74, 1 - absOffset * 0.105);
-
-  return {
-    opacity: isHidden ? 0 : Math.max(0.38, 1 - absOffset * 0.22),
-    pointerEvents: isHidden ? ("none" as const) : ("auto" as const),
-    transform: `translate3d(${x}rem, ${y}rem, ${offset === 0 ? 4 : -absOffset * 52}px) rotateY(${rotate}deg) scale(${isDragging ? 1.025 : scale})`,
-    zIndex: z,
-  };
-}
-
 function getVideoName(campaign: Campaign, index: number) {
   return campaign.videoName || campaignVideoNames[index] || campaignVideoNames[0];
+}
+
+const dragThreshold = 38;
+const clickTolerance = 7;
+
+function getCardStyle(offset: number, dragOffset: number) {
+  const liveOffset = offset + dragOffset;
+  const absOffset = Math.abs(liveOffset);
+  const direction = Math.sign(liveOffset);
+  const isHidden = absOffset > 2.8;
+  const translateX = liveOffset * 3.35;
+  const translateY = absOffset * 0.34;
+  const translateZ = absOffset < 0.08 ? 76 : -absOffset * 82;
+  const scale = Math.max(0.68, 1 - absOffset * 0.12);
+
+  return {
+    filter: `brightness(${Math.max(0.58, 1 - absOffset * 0.1)})`,
+    opacity: isHidden ? 0 : Math.max(0.24, 1 - absOffset * 0.18),
+    pointerEvents: isHidden ? ("none" as const) : ("auto" as const),
+    transform: `translate3d(${translateX}rem, ${translateY}rem, ${translateZ}px) rotateY(${direction * -9}deg) scale(${scale})`,
+    zIndex: Math.round(40 - absOffset * 4),
+  };
 }
 
 export function PremiumCampaignPlayerSection({ copy }: { copy: SiteCopy["services"] }) {
   const campaigns = copy.services;
   const [activeIndex, setActiveIndex] = useState(0);
-  const [loadedIndex, setLoadedIndex] = useState<number | null>(null);
-  const [isDropHot, setIsDropHot] = useState(false);
-  const [dragVector, setDragVector] = useState({ x: 0, y: 0 });
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
   const activeIndexRef = useRef(activeIndex);
-  const dragState = useRef<DragState | null>(null);
-  const playerRef = useRef<HTMLDivElement | null>(null);
+  const dragStateRef = useRef<DragState | null>(null);
+  const suppressClickRef = useRef(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const suppressClick = useRef(false);
-  const reduceMotion = useReducedMotion();
   const activeCampaign = campaigns[activeIndex] ?? campaigns[0];
-  const loadedCampaign = loadedIndex === null ? null : campaigns[loadedIndex];
-  const loadedVideoName =
-    loadedIndex === null || !loadedCampaign ? null : getVideoName(loadedCampaign, loadedIndex);
+  const activeVideoName = getVideoName(activeCampaign, activeIndex);
   activeIndexRef.current = activeIndex;
 
   const progressLabel = useMemo(() => {
@@ -82,50 +82,109 @@ export function PremiumCampaignPlayerSection({ copy }: { copy: SiteCopy["service
     return `${active} / ${total}`;
   }, [activeIndex, campaigns.length]);
 
-  function move(direction: number) {
-    setActiveIndex((current) => (current + direction + campaigns.length) % campaigns.length);
-    setDragVector({ x: 0, y: 0 });
-    setIsDropHot(false);
-  }
+  useEffect(() => {
+    setIsPlaying(false);
+  }, [activeIndex]);
 
-  function loadCampaign(index: number) {
-    setLoadedIndex(index);
+  useEffect(() => {
+    if (!isPlaying) return;
+
     window.requestAnimationFrame(() => {
       videoRef.current?.play().catch(() => undefined);
     });
+  }, [isPlaying, activeVideoName]);
+
+  function move(direction: number) {
+    setActiveIndex((current) => (current + direction + campaigns.length) % campaigns.length);
   }
 
-  function isInsidePlayer(clientX: number, clientY: number) {
-    const rect = playerRef.current?.getBoundingClientRect();
-    if (!rect) return false;
-
-    return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+  function playActiveCampaign() {
+    setIsPlaying(true);
   }
 
-  function updateDragPosition(clientX: number, clientY: number) {
-    const current = dragState.current;
-    if (!current) return;
+  function handleDeckPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
 
-    setDragVector({
-      x: clientX - current.startX,
-      y: clientY - current.startY,
-    });
-    setIsDropHot(isInsidePlayer(clientX, clientY));
+    const target = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-campaign-index]") : null;
+    const targetIndex = Number(target?.dataset.campaignIndex ?? activeIndexRef.current);
+
+    event.preventDefault();
+    dragStateRef.current = {
+      currentX: event.clientX,
+      hasDragged: false,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      targetIndex: Number.isFinite(targetIndex) ? targetIndex : activeIndexRef.current,
+    };
+    setDragOffset(0);
+
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Some browsers may skip pointer capture for synthetic events.
+    }
   }
 
-  function finishDrag(clientX: number, clientY: number) {
-    const current = dragState.current;
-    if (!current) return;
+  function handleDeckPointerMove(event: PointerEvent<HTMLDivElement>) {
+    const dragState = dragStateRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) return;
 
-    dragState.current = null;
-    suppressClick.current = Math.abs(clientX - current.startX) > 8 || Math.abs(clientY - current.startY) > 8;
+    const deltaX = event.clientX - dragState.startX;
+    const deltaY = event.clientY - dragState.startY;
 
-    if (isInsidePlayer(clientX, clientY)) {
-      loadCampaign(activeIndexRef.current);
+    dragState.currentX = event.clientX;
+    if (Math.abs(deltaX) > clickTolerance || Math.abs(deltaY) > clickTolerance) {
+      dragState.hasDragged = true;
+      event.preventDefault();
     }
 
-    setDragVector({ x: 0, y: 0 });
-    setIsDropHot(false);
+    if (!dragState.hasDragged) return;
+
+    const dampedOffset = Math.max(-0.62, Math.min(0.62, deltaX / 170));
+    setDragOffset(dampedOffset);
+  }
+
+  function finishDeckDrag(event: PointerEvent<HTMLDivElement>) {
+    const dragState = dragStateRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) return;
+
+    const deltaX = dragState.currentX - dragState.startX;
+
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // Capture can already be released on pointer cancellation.
+    }
+
+    if (dragState.hasDragged) {
+      suppressClickRef.current = true;
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 0);
+      if (Math.abs(deltaX) > dragThreshold) {
+        move(deltaX < 0 ? 1 : -1);
+      }
+    } else {
+      setActiveIndex(dragState.targetIndex);
+    }
+
+    dragStateRef.current = null;
+    setDragOffset(0);
+  }
+
+  function cancelDeckDrag(event: PointerEvent<HTMLDivElement>) {
+    const dragState = dragStateRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) return;
+
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // Capture can already be released on pointer cancellation.
+    }
+
+    dragStateRef.current = null;
+    setDragOffset(0);
   }
 
   useEffect(() => {
@@ -142,29 +201,7 @@ export function PremiumCampaignPlayerSection({ copy }: { copy: SiteCopy["service
       return rect.top < window.innerHeight * 0.72 && rect.bottom > window.innerHeight * 0.28;
     }
 
-    function handleWindowPointerMove(event: globalThis.PointerEvent) {
-      const current = dragState.current;
-      if (!current || (current.id !== -1 && current.id !== event.pointerId)) return;
-      updateDragPosition(event.clientX, event.clientY);
-    }
-
-    function handleWindowPointerUp(event: globalThis.PointerEvent) {
-      const current = dragState.current;
-      if (!current || (current.id !== -1 && current.id !== event.pointerId)) return;
-      finishDrag(event.clientX, event.clientY);
-    }
-
-    function handleWindowMouseMove(event: globalThis.MouseEvent) {
-      if (!dragState.current) return;
-      updateDragPosition(event.clientX, event.clientY);
-    }
-
-    function handleWindowMouseUp(event: globalThis.MouseEvent) {
-      if (!dragState.current) return;
-      finishDrag(event.clientX, event.clientY);
-    }
-
-    function handleWindowKeyDown(event: globalThis.KeyboardEvent) {
+    function handleWindowKeyDown(event: KeyboardEvent) {
       if (event.defaultPrevented || isTypingTarget(document.activeElement) || !isSectionInView()) return;
 
       if (event.key === "ArrowDown" || event.key === "ArrowRight") {
@@ -179,141 +216,102 @@ export function PremiumCampaignPlayerSection({ copy }: { copy: SiteCopy["service
 
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        loadCampaign(activeIndexRef.current);
+        playActiveCampaign();
       }
     }
 
-    window.addEventListener("pointermove", handleWindowPointerMove);
-    window.addEventListener("pointerup", handleWindowPointerUp);
-    window.addEventListener("mousemove", handleWindowMouseMove);
-    window.addEventListener("mouseup", handleWindowMouseUp);
     window.addEventListener("keydown", handleWindowKeyDown);
 
     return () => {
-      window.removeEventListener("pointermove", handleWindowPointerMove);
-      window.removeEventListener("pointerup", handleWindowPointerUp);
-      window.removeEventListener("mousemove", handleWindowMouseMove);
-      window.removeEventListener("mouseup", handleWindowMouseUp);
       window.removeEventListener("keydown", handleWindowKeyDown);
     };
   });
 
-  function handleActivePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
-    dragState.current = {
-      id: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-    };
-    suppressClick.current = false;
-    event.preventDefault();
-
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {
-      /* Pointer capture is a progressive enhancement for drag reliability. */
-    }
-  }
-
-  function handleActivePointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
-    const current = dragState.current;
-    if (!current || current.id !== event.pointerId) return;
-
-    updateDragPosition(event.clientX, event.clientY);
-  }
-
-  function handleActivePointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
-    const current = dragState.current;
-    if (!current || current.id !== event.pointerId) return;
-
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      /* Ignore browsers that release capture automatically. */
-    }
-
-    finishDrag(event.clientX, event.clientY);
-  }
-
-  function handleActivePointerCancel(event: ReactPointerEvent<HTMLButtonElement>) {
-    dragState.current = null;
-
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      /* Ignore browsers that release capture automatically. */
-    }
-
-    setDragVector({ x: 0, y: 0 });
-    setIsDropHot(false);
-  }
-
-  function handleActiveMouseDown(event: MouseEvent<HTMLButtonElement>) {
-    if (dragState.current || event.button !== 0) return;
-
-    dragState.current = {
-      id: -1,
-      startX: event.clientX,
-      startY: event.clientY,
-    };
-    suppressClick.current = false;
-  }
-
   return (
     <SceneShell className="premium-campaign-scene services-scene" id="services">
       <div className="premium-campaign-bg" aria-hidden="true" />
-      <div className="premium-campaign-shell" data-scene-copy>
-        <aside className="premium-campaign-rail" aria-label={copy.cardLabel}>
-          <div className="premium-campaign-rail-copy">
+      <div className="premium-campaign-console" data-scene-copy>
+        <div className="premium-campaign-stage" aria-live="polite">
+          <div className="premium-campaign-screen" aria-hidden="true">
+            {isPlaying ? (
+              <video
+                autoPlay
+                className="premium-campaign-video"
+                controls={false}
+                key={activeVideoName}
+                loop
+                muted
+                playsInline
+                poster={`/videos/${activeVideoName}-poster.jpg`}
+                preload="metadata"
+                ref={videoRef}
+              >
+                {videoWidths.map((width) => (
+                  <source
+                    key={`webm-${width}`}
+                    media={width === 1920 ? undefined : `(max-width: ${width === 480 ? 600 : width === 768 ? 900 : 1400}px)`}
+                    src={`/videos/${activeVideoName}-${width}.webm`}
+                    type="video/webm"
+                  />
+                ))}
+                {videoWidths.map((width) => (
+                  <source
+                    key={`mp4-${width}`}
+                    media={width === 1920 ? undefined : `(max-width: ${width === 480 ? 600 : width === 768 ? 900 : 1400}px)`}
+                    src={`/videos/${activeVideoName}-${width}.mp4`}
+                    type="video/mp4"
+                  />
+                ))}
+              </video>
+            ) : (
+              <img alt="" className="premium-campaign-poster" src={activeCampaign.screenImage} />
+            )}
+          </div>
+
+          <div className="premium-campaign-chrome premium-campaign-chrome-top" aria-hidden="true">
+            <span>{copy.cardLabel}</span>
+            <span>Resolution 4K</span>
+            <span>FPS 24</span>
+          </div>
+
+          <div className="premium-campaign-copy">
             <p className="kicker">{copy.kicker}</p>
             <h2>{copy.title}</h2>
             <p>{copy.lead}</p>
           </div>
 
           <div
-            className="premium-cover-flow"
+            className="premium-campaign-deck"
+            onPointerCancel={cancelDeckDrag}
+            onPointerDown={handleDeckPointerDown}
+            onPointerMove={handleDeckPointerMove}
+            onPointerUp={finishDeckDrag}
             onWheel={(event) => {
               event.preventDefault();
-              move(event.deltaY > 0 ? 1 : -1);
             }}
-            tabIndex={0}
           >
-            <div className="premium-cover-flow-stack">
+            <div className="premium-campaign-deck-stack">
               {campaigns.map((campaign, index) => {
                 const offset = getCircularOffset(index, activeIndex, campaigns.length);
                 const isActive = index === activeIndex;
-                const isDragging = isActive && (dragVector.x !== 0 || dragVector.y !== 0);
-                const cardStyle = getCoverFlowStyle(offset, isDragging);
-                const dragStyle =
-                  isDragging && !reduceMotion
-                    ? ` translate3d(${dragVector.x}px, ${dragVector.y}px, 96px) rotateZ(${Math.max(-7, Math.min(7, dragVector.x / 34))}deg)`
-                    : "";
 
                 return (
-                  <motion.button
+                  <button
                     aria-label={`${copy.cardLabel}: ${campaign.title}`}
                     aria-pressed={isActive}
-                    className={`premium-campaign-cartridge${isActive ? " active" : ""}${isDragging ? " dragging" : ""}`}
+                    className={`premium-campaign-cartridge${isActive ? " active" : ""}`}
+                    data-campaign-index={index}
                     key={campaign.title}
-                    onClick={() => {
-                      if (suppressClick.current) {
-                        suppressClick.current = false;
+                    onClick={(event) => {
+                      if (suppressClickRef.current) {
+                        event.preventDefault();
+                        suppressClickRef.current = false;
                         return;
                       }
-                      if (isActive) {
-                        loadCampaign(index);
-                        return;
-                      }
+
                       setActiveIndex(index);
                     }}
-                    onPointerCancel={isActive ? handleActivePointerCancel : undefined}
-                    onPointerDown={isActive ? handleActivePointerDown : undefined}
-                    onPointerMove={isActive ? handleActivePointerMove : undefined}
-                    onPointerUp={isActive ? handleActivePointerUp : undefined}
-                    onMouseDown={isActive ? handleActiveMouseDown : undefined}
-                    style={{
-                      ...cardStyle,
-                      transform: `${cardStyle.transform}${dragStyle}`,
-                    }}
+                    style={getCardStyle(offset, dragOffset)}
                     type="button"
                   >
                     <img alt="" aria-hidden="true" src={campaign.cardImage} />
@@ -324,109 +322,39 @@ export function PremiumCampaignPlayerSection({ copy }: { copy: SiteCopy["service
                       <strong>{campaign.title}</strong>
                       <em>{campaign.meta}</em>
                     </span>
-                  </motion.button>
+                  </button>
                 );
               })}
             </div>
           </div>
 
-          <div className="premium-campaign-dial" aria-label={copy.progress}>
-            <button aria-label={copy.previous} onClick={() => move(-1)} type="button">
-              <span aria-hidden="true">‹</span>
-            </button>
-            <button aria-label={copy.loadSelected} onClick={() => loadCampaign(activeIndexRef.current)} type="button">
-              <span aria-hidden="true">▶</span>
-            </button>
-            <button aria-label={copy.next} onClick={() => move(1)} type="button">
-              <span aria-hidden="true">›</span>
-            </button>
-          </div>
-        </aside>
-
-        <section className="premium-campaign-player-panel" aria-live="polite">
-          <div className="premium-campaign-player-top">
-            <div>
-              <span>{copy.activeLabel}</span>
-              <strong>{activeCampaign.title}</strong>
-            </div>
-            <p>{progressLabel}</p>
-          </div>
-
-          <div
-            className={`premium-campaign-player${isDropHot ? " drop-hot" : ""}${loadedCampaign ? " is-loaded" : ""}`}
-            ref={playerRef}
-          >
-            {loadedCampaign && loadedVideoName ? (
-              <video
-                autoPlay
-                className="premium-campaign-video"
-                controls={false}
-                key={loadedVideoName}
-                loop
-                muted
-                playsInline
-                poster={`/videos/${loadedVideoName}-poster.jpg`}
-                preload="metadata"
-                ref={videoRef}
-              >
-                {videoWidths.map((width) => (
-                  <source
-                    key={`webm-${width}`}
-                    media={width === 1920 ? undefined : `(max-width: ${width === 480 ? 600 : width === 768 ? 900 : 1400}px)`}
-                    src={`/videos/${loadedVideoName}-${width}.webm`}
-                    type="video/webm"
-                  />
-                ))}
-                {videoWidths.map((width) => (
-                  <source
-                    key={`mp4-${width}`}
-                    media={width === 1920 ? undefined : `(max-width: ${width === 480 ? 600 : width === 768 ? 900 : 1400}px)`}
-                    src={`/videos/${loadedVideoName}-${width}.mp4`}
-                    type="video/mp4"
-                  />
-                ))}
-              </video>
-            ) : (
-              <div className="premium-campaign-poster-shell">
-                <img alt="" aria-hidden="true" src={activeCampaign.screenImage} />
-              </div>
-            )}
-
-            <div className="premium-campaign-drop-zone" aria-hidden="true">
-              <span />
-              <strong>{loadedCampaign ? copy.dropLoaded : copy.dropIdle}</strong>
-              <small>{copy.dropHint}</small>
-            </div>
-            <div className="premium-campaign-tool-rail" aria-hidden="true">
-              <span>Cut</span>
-              <span>Color</span>
-              <span>Audio</span>
-              <span>Text</span>
-              <span>FX</span>
-            </div>
+          <div className="premium-campaign-active-copy">
+            <span>{copy.activeLabel}</span>
+            <h3>{activeCampaign.headline}</h3>
+            <p>{activeCampaign.description}</p>
           </div>
 
           <div className="premium-campaign-transport">
             <button aria-label={copy.previous} onClick={() => move(-1)} type="button">
-              <span aria-hidden="true">|&lt;</span>
+              <span aria-hidden="true">Prev</span>
             </button>
-            <button aria-label={copy.loadSelected} onClick={() => loadCampaign(activeIndexRef.current)} type="button">
-              <span aria-hidden="true">▶</span>
+            <button
+              aria-label={copy.loadSelected}
+              className={isPlaying ? "is-playing" : undefined}
+              onClick={playActiveCampaign}
+              type="button"
+            >
+              <span aria-hidden="true">{isPlaying ? "Playing" : "Play"}</span>
             </button>
             <div className="premium-campaign-progress-track" aria-hidden="true">
               <i style={{ width: `${((activeIndex + 1) / campaigns.length) * 100}%` }} />
             </div>
+            <strong>{progressLabel}</strong>
             <button aria-label={copy.next} onClick={() => move(1)} type="button">
-              <span aria-hidden="true">&gt;|</span>
+              <span aria-hidden="true">Next</span>
             </button>
           </div>
-
-          <div className="premium-campaign-detail">
-            <span>{activeCampaign.eyebrow}</span>
-            <h3>{activeCampaign.headline}</h3>
-            <p>{activeCampaign.description}</p>
-          </div>
-        </section>
+        </div>
       </div>
     </SceneShell>
   );

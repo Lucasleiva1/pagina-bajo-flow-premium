@@ -41,6 +41,7 @@ const bioFloorTexture = "/images/bio-room/bio-floor-grid-source-1440.webp";
 const cameraFov = 42;
 const sideWallReadableWidth = 7.2;
 const sideWallBackstopMargin = 0.55;
+const bioRoomDevToolsEnabled = false;
 
 /* ──────────────────────── Camera states ──────────────────────── */
 /* Each state faces the target wall HEAD-ON so the Html panels
@@ -259,22 +260,34 @@ function CeilingDecorSurface({
   depth,
   halfWidth,
   height,
+  offsetX = 0,
+  offsetY = 0.024,
+  offsetZ = 0,
   opacity = 0.7,
+  rotation = 0,
+  scaleX = 1,
+  scaleZ = 1,
   src,
   z,
 }: {
   depth: number;
   halfWidth: number;
   height: number;
+  offsetX?: number;
+  offsetY?: number;
+  offsetZ?: number;
   opacity?: number;
+  rotation?: number;
+  scaleX?: number;
+  scaleZ?: number;
   src: string;
   z: number;
 }) {
   const texture = useRoomDecorTexture(src);
 
   return (
-    <mesh position={[0, height - 0.024, z]} rotation={[Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[halfWidth * 2, depth]} />
+    <mesh position={[offsetX, height - offsetY, z + offsetZ]} rotation={[Math.PI / 2, 0, rotation]}>
+      <planeGeometry args={[halfWidth * 2 * scaleX, depth * scaleZ]} />
       <meshBasicMaterial
         map={texture}
         opacity={opacity}
@@ -473,6 +486,16 @@ function RoomShell({
     opacity: { value: bioRoomPreset.floorTexture.opacity, min: 0, max: 1, step: 0.01, label: "Opacidad" },
   }, collapsedLevaFolder);
 
+  const ceilingTextureControls = useControls("TECHO (Textura)", {
+    x: { value: bioRoomPreset.ceilingTexture.x, min: -4, max: 4, step: 0.02, label: "X" },
+    y: { value: bioRoomPreset.ceilingTexture.y, min: 0.005, max: 0.12, step: 0.001, label: "Y altura" },
+    z: { value: bioRoomPreset.ceilingTexture.z, min: -5, max: 5, step: 0.02, label: "Z" },
+    scaleX: { value: bioRoomPreset.ceilingTexture.scaleX, min: 0.2, max: 2.5, step: 0.01, label: "Escala ancho" },
+    scaleZ: { value: bioRoomPreset.ceilingTexture.scaleZ, min: 0.1, max: 2.5, step: 0.01, label: "Escala profundidad" },
+    rotation: { value: bioRoomPreset.ceilingTexture.rotation, min: -Math.PI, max: Math.PI, step: 0.01, label: "Rotacion" },
+    opacity: { value: bioRoomPreset.ceilingTexture.opacity, min: 0, max: 1, step: 0.01, label: "Opacidad" },
+  }, collapsedLevaFolder);
+
   useEffect(() => {
     setPresetSection("room", roomControls);
   }, [roomControls, setPresetSection]);
@@ -492,6 +515,10 @@ function RoomShell({
   useEffect(() => {
     setPresetSection("floorTexture", floorTextureControls);
   }, [floorTextureControls, setPresetSection]);
+
+  useEffect(() => {
+    setPresetSection("ceilingTexture", ceilingTextureControls);
+  }, [ceilingTextureControls, setPresetSection]);
 
   const W = roomControls.halfWidth;
   const D = roomControls.depth;
@@ -622,6 +649,13 @@ function RoomShell({
         depth={D + 4.0}
         halfWidth={W}
         height={H}
+        offsetX={ceilingTextureControls.x}
+        offsetY={ceilingTextureControls.y}
+        offsetZ={ceilingTextureControls.z}
+        opacity={ceilingTextureControls.opacity}
+        rotation={ceilingTextureControls.rotation}
+        scaleX={ceilingTextureControls.scaleX}
+        scaleZ={ceilingTextureControls.scaleZ}
         src={bioCeilingTexture}
         z={centerZ + 2.0}
       />
@@ -831,7 +865,7 @@ function BioRoomSaveButton() {
   const savePreset = useBioRoomPresetStore((state) => state.savePreset);
   const toggleBioLevaDisabled = useBioRoomStore((state) => state.toggleBioLevaDisabled);
 
-  if (process.env.NODE_ENV !== "development") return null;
+  if (!bioRoomDevToolsEnabled || process.env.NODE_ENV !== "development") return null;
 
   return (
     <div className="bio-room-dev-save">
@@ -870,6 +904,7 @@ function useBioRoomDpr(): [number, number] {
 export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
   const dpr = useBioRoomDpr();
   const isBioLevaDisabled = useBioRoomStore((state) => state.isBioLevaDisabled);
+  const showBioRoomLevaPanel = bioRoomDevToolsEnabled && !isBioLevaDisabled;
   const levaPanelRef = useRef<HTMLDivElement>(null);
   const [isLevaMinimized, setIsLevaMinimized] = useState(false);
   const [levaPanelOffset, setLevaPanelOffset] = useState({ x: 0, y: 0 });
@@ -914,7 +949,7 @@ export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
 
   return (
     <div className="bio-room-canvas">
-      {!isBioLevaDisabled ? (
+      {showBioRoomLevaPanel ? (
         <div
           className={`bio-room-leva-panel${isLevaMinimized ? " is-minimized" : ""}`}
           ref={levaPanelRef}
@@ -941,7 +976,9 @@ export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
             />
           </div>
         </div>
-      ) : null}
+      ) : (
+        <Leva hidden />
+      )}
       <BioRoomSaveButton />
       <Canvas
         dpr={dpr}

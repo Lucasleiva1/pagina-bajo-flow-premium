@@ -66,6 +66,15 @@ export type BioRoomPreset = {
     rotation: number;
     opacity: number;
   };
+  ceilingTexture: {
+    x: number;
+    y: number;
+    z: number;
+    scaleX: number;
+    scaleZ: number;
+    rotation: number;
+    opacity: number;
+  };
   floorButtons: {
     groupX: number;
     groupY: number;
@@ -371,6 +380,15 @@ export const bioRoomPreset: BioRoomPreset = {
     "scaleZ": 0.55,
     "rotation": 0,
     "opacity": 0.8200000000000001
+  },
+  "ceilingTexture": {
+    "x": 0,
+    "y": 0.04,
+    "z": -2,
+    "scaleX": 0.99,
+    "scaleZ": 0.6499999999999999,
+    "rotation": 0,
+    "opacity": 0.83
   },
   "floorButtons": {
     "groupX": 0,

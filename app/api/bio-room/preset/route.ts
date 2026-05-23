@@ -24,6 +24,7 @@ function isBioRoomPreset(value: unknown): value is BioRoomPreset {
     isPresetSectionRecord(preset.cinemaLights) &&
     isPresetSectionRecord(preset.visuals) &&
     isPresetSectionRecord(preset.floorTexture) &&
+    isPresetSectionRecord(preset.ceilingTexture) &&
     isPresetSectionRecord(preset.floorButtons) &&
     isPresetSectionRecord(preset.frontWall) &&
     isPresetSectionRecord(preset.bioWall) &&
@@ -92,6 +93,15 @@ function serializePreset(preset: BioRoomPreset) {
     panelOpacity: number;
   };
   floorTexture: {
+    x: number;
+    y: number;
+    z: number;
+    scaleX: number;
+    scaleZ: number;
+    rotation: number;
+    opacity: number;
+  };
+  ceilingTexture: {
     x: number;
     y: number;
     z: number;
