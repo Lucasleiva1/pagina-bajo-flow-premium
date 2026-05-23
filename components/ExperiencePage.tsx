@@ -9,7 +9,7 @@ import { ContactScene } from "@/components/ContactScene";
 import { FooterScene } from "@/components/FooterScene";
 import { Header } from "@/components/Header";
 import { HeroScene } from "@/components/HeroScene";
-import { ServicesScene } from "@/components/ServicesScene";
+import { PremiumCampaignPlayerSection } from "@/components/PremiumCampaignPlayerSection";
 import { WorkScene } from "@/components/WorkScene";
 import { useActiveScene } from "@/lib/useActiveScene";
 import { useBioRoomStore } from "@/lib/useBioRoomStore";
@@ -86,7 +86,7 @@ export function ExperiencePage() {
         <HeroScene copy={copy.hero} />
         <WorkScene copy={copy.work} />
         <BioScene copy={copy.bio} />
-        <ServicesScene copy={copy.services} />
+        <PremiumCampaignPlayerSection copy={copy.services} />
         <ContactScene copy={copy.contact} />
         <FooterScene copy={copy.footer} />
       </main>

@@ -1,12 +1,59 @@
 # Punto de restauracion actual
 
+Fecha de guardado importante: 2026-05-23 00:14:09 -03:00
+Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
+Rama: main
+Remoto: origin/main
+Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
+
+## Version importante actual: Reproductor de campañas premium interactivo (Cartuchos y Drag & Drop)
+
+Tag de esta version: important-premium-campaigns-2026-05-23-0014
+Mensaje del commit: feat: save premium campaigns player checkpoint
+Archivo detalle: RESTORE_POINT_PREMIUM_CAMPAIGNS_2026-05-23_00-14.md
+
+Esta version implementa la nueva seccion de Campanhas/Campaigns (reemplazando a la estatica de Servicios) en formato de un reproductor de cartuchos interactivo 2D premium, con simulacion fisica de arrastre (drag and drop) de tarjetas y soporte para reproduccion de videos responsivos optimizados (MP4 y WebM en multiples resoluciones).
+
+## Que contiene esta version actual
+
+- Nuevo componente interactivo `components/PremiumCampaignPlayerSection.tsx` con soporte para Coverflow, arrastre (drag/drop), interacciones fluidas de puntero, soporte de navegacion por teclado (flechas, Enter/Espacio) y gestos.
+- Soporte para multiples resoluciones y formatos de video (WebM y MP4 en 480, 768, 1280 y 1920px) cargados dinamicamente desde `/public/videos/`.
+- Textos actualizados y unificados en `data/site.ts` en three idiomas (ES/EN/PT) adaptados a la estetica de "Campañas" y "Cartuchos".
+- Nueva textura limpia de piso `public/assets/bio-room/bio-floor-grid-clean-source.png` e imagenes optimizadas.
+- Integracion del reproductor en `components/ExperiencePage.tsx`.
+- Estilos extendidos en `app/globals.css` para el reproductor interactivo premium.
+
+## Como comparar o volver
+
+Antes de restaurar, verificar siempre:
+
+```powershell
+git status -sb
+git log --oneline --decorate -5
+```
+
+Para comparar contra esta version:
+
+```powershell
+git diff important-premium-campaigns-2026-05-23-0014 -- .
+```
+
+Para volver exactamente a esta version, solo si el usuario lo pide:
+
+```powershell
+git fetch --tags origin
+git checkout important-premium-campaigns-2026-05-23-0014
+```
+
+---
+
 Fecha de guardado importante: 2026-05-22 21:31:51 -03:00
 Proyecto: C:\Users\jaell\Desktop\pagina-bajo-flow-premium
 Rama: main
 Remoto: origin/main
 Repositorio: https://github.com/Lucasleiva1/pagina-bajo-flow-premium.git
 
-## Version importante actual: Bio Room piso y botones
+## Version anterior: Bio Room piso y botones
 
 Tag de esta version: important-bio-floor-buttons-2026-05-22-2131
 Mensaje del commit: feat: save bio floor buttons checkpoint

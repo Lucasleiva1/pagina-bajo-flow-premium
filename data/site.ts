@@ -45,7 +45,7 @@ export const siteCopy = {
       { label: "Inicio", href: "#intro" },
       { label: "Trabajos", href: "#work" },
       { label: "Bio", href: "#bio" },
-      { label: "Servicios", href: "#services" },
+      { label: "Campañas", href: "#services" },
       { label: "Contacto", href: "#contact" },
     ],
     hero: {
@@ -199,16 +199,24 @@ export const siteCopy = {
       ],
     },
     services: {
-      kicker: "Servicios audiovisuales",
-      title: "Produccion visual para piezas que venden, conectan y se recuerdan.",
+      kicker: "Campañas audiovisuales",
+      title: "Cartuchos premium para campañas, reels y piezas con impacto.",
       lead:
-        "Un panel de servicios pensado como sala de control: estrategia, ritmo, color, sonido y entrega final para cada formato.",
+        "Navega piezas audiovisuales como cartuchos digitales: selecciona una campaña, arrastrala al reproductor y mirala en escena.",
       screenLabel: "Pantalla activa",
-      cardLabel: "Seleccionar servicio",
-      cta: "Ver enfoque",
-      sideRailLeft: "servicios audiovisuales",
-      sideRailRight: "creamos historias que conectan",
+      cardLabel: "Seleccionar campaña",
+      cta: "Ver campaña",
+      sideRailLeft: "campañas audiovisuales",
+      sideRailRight: "publicidad con ritmo",
       status: "Disponible para proyectos",
+      activeLabel: "Campaña activa",
+      dropIdle: "Solta el cartucho aca",
+      dropLoaded: "Campaña cargada",
+      dropHint: "Arrastra o toca la tarjeta activa para reproducir",
+      loadSelected: "Reproducir campaña seleccionada",
+      previous: "Campaña anterior",
+      next: "Campaña siguiente",
+      progress: "Progreso de campañas",
       services: [
         {
           title: "YouTube & Video Largo",
@@ -219,6 +227,7 @@ export const siteCopy = {
           meta: "Formato horizontal / 4K / narrativa",
           cardImage: "/images/services/cards/service-01.png",
           screenImage: "/images/services/screens/service-01.png",
+          videoName: "campaign-youtube-video-largo",
         },
         {
           title: "Reels & Shorts",
@@ -229,6 +238,7 @@ export const siteCopy = {
           meta: "9:16 / social / retencion",
           cardImage: "/images/services/cards/service-02.png",
           screenImage: "/images/services/screens/service-02.png",
+          videoName: "campaign-reels-shorts",
         },
         {
           title: "Postproduccion",
@@ -239,6 +249,7 @@ export const siteCopy = {
           meta: "DaVinci / Fairlight / color",
           cardImage: "/images/services/cards/service-03.png",
           screenImage: "/images/services/screens/service-03.png",
+          videoName: "campaign-postproduccion",
         },
         {
           title: "Ads & Contenido Comercial",
@@ -249,6 +260,7 @@ export const siteCopy = {
           meta: "Ads / producto / campana",
           cardImage: "/images/services/cards/service-04.png",
           screenImage: "/images/services/screens/service-04.png",
+          videoName: "campaign-ads-contenido-comercial",
         },
         {
           title: "Motion & Visual Design",
@@ -259,6 +271,7 @@ export const siteCopy = {
           meta: "Fusion / grafica / visual design",
           cardImage: "/images/services/cards/service-05.png",
           screenImage: "/images/services/screens/service-05.png",
+          videoName: "campaign-motion-visual-design",
         },
       ],
     },
@@ -286,7 +299,7 @@ export const siteCopy = {
       { label: "Intro", href: "#intro" },
       { label: "Work", href: "#work" },
       { label: "Bio", href: "#bio" },
-      { label: "Services", href: "#services" },
+      { label: "Campaigns", href: "#services" },
       { label: "Contact", href: "#contact" },
     ],
     hero: {
@@ -440,16 +453,24 @@ export const siteCopy = {
       ],
     },
     services: {
-      kicker: "Audiovisual services",
-      title: "Visual production for pieces that sell, connect, and stay memorable.",
+      kicker: "Audiovisual campaigns",
+      title: "Premium cartridges for campaigns, reels, and high-impact pieces.",
       lead:
-        "A services panel designed like a control room: strategy, pacing, color, sound, and final delivery for each format.",
+        "Browse audiovisual pieces like digital cartridges: select a campaign, drag it into the player, and watch it in scene.",
       screenLabel: "Active screen",
-      cardLabel: "Select service",
-      cta: "View approach",
-      sideRailLeft: "audiovisual services",
-      sideRailRight: "we create stories that connect",
+      cardLabel: "Select campaign",
+      cta: "View campaign",
+      sideRailLeft: "audiovisual campaigns",
+      sideRailRight: "advertising with rhythm",
       status: "Available for projects",
+      activeLabel: "Active campaign",
+      dropIdle: "Drop the cartridge here",
+      dropLoaded: "Campaign loaded",
+      dropHint: "Drag or tap the active card to play",
+      loadSelected: "Play selected campaign",
+      previous: "Previous campaign",
+      next: "Next campaign",
+      progress: "Campaign progress",
       services: [
         {
           title: "YouTube & Long-Form Video",
@@ -460,6 +481,7 @@ export const siteCopy = {
           meta: "Horizontal / 4K / narrative",
           cardImage: "/images/services/cards/service-01.png",
           screenImage: "/images/services/screens/service-01.png",
+          videoName: "campaign-youtube-video-largo",
         },
         {
           title: "Reels & Shorts",
@@ -470,6 +492,7 @@ export const siteCopy = {
           meta: "9:16 / social / retention",
           cardImage: "/images/services/cards/service-02.png",
           screenImage: "/images/services/screens/service-02.png",
+          videoName: "campaign-reels-shorts",
         },
         {
           title: "Postproduction",
@@ -480,6 +503,7 @@ export const siteCopy = {
           meta: "DaVinci / Fairlight / color",
           cardImage: "/images/services/cards/service-03.png",
           screenImage: "/images/services/screens/service-03.png",
+          videoName: "campaign-postproduccion",
         },
         {
           title: "Ads & Commercial Content",
@@ -490,6 +514,7 @@ export const siteCopy = {
           meta: "Ads / product / campaign",
           cardImage: "/images/services/cards/service-04.png",
           screenImage: "/images/services/screens/service-04.png",
+          videoName: "campaign-ads-contenido-comercial",
         },
         {
           title: "Motion & Visual Design",
@@ -500,6 +525,7 @@ export const siteCopy = {
           meta: "Fusion / graphics / visual design",
           cardImage: "/images/services/cards/service-05.png",
           screenImage: "/images/services/screens/service-05.png",
+          videoName: "campaign-motion-visual-design",
         },
       ],
     },
@@ -527,7 +553,7 @@ export const siteCopy = {
       { label: "Início", href: "#intro" },
       { label: "Trabalhos", href: "#work" },
       { label: "Bio", href: "#bio" },
-      { label: "Servicos", href: "#services" },
+      { label: "Campanhas", href: "#services" },
       { label: "Contato", href: "#contact" },
     ],
     hero: {
@@ -681,16 +707,24 @@ export const siteCopy = {
       ],
     },
     services: {
-      kicker: "Servicos audiovisuais",
-      title: "Producao visual para pecas que vendem, conectam e ficam na memoria.",
+      kicker: "Campanhas audiovisuais",
+      title: "Cartuchos premium para campanhas, reels e pecas de impacto.",
       lead:
-        "Um painel de servicos pensado como sala de controle: estrategia, ritmo, cor, som e entrega final para cada formato.",
+        "Navegue pecas audiovisuais como cartuchos digitais: selecione uma campanha, arraste para o player e assista em cena.",
       screenLabel: "Tela ativa",
-      cardLabel: "Selecionar servico",
-      cta: "Ver abordagem",
-      sideRailLeft: "servicos audiovisuais",
-      sideRailRight: "criamos historias que conectam",
+      cardLabel: "Selecionar campanha",
+      cta: "Ver campanha",
+      sideRailLeft: "campanhas audiovisuais",
+      sideRailRight: "publicidade com ritmo",
       status: "Disponivel para projetos",
+      activeLabel: "Campanha ativa",
+      dropIdle: "Solte o cartucho aqui",
+      dropLoaded: "Campanha carregada",
+      dropHint: "Arraste ou toque no cartao ativo para reproduzir",
+      loadSelected: "Reproduzir campanha selecionada",
+      previous: "Campanha anterior",
+      next: "Proxima campanha",
+      progress: "Progresso das campanhas",
       services: [
         {
           title: "YouTube & Video Longo",
@@ -701,6 +735,7 @@ export const siteCopy = {
           meta: "Horizontal / 4K / narrativa",
           cardImage: "/images/services/cards/service-01.png",
           screenImage: "/images/services/screens/service-01.png",
+          videoName: "campaign-youtube-video-largo",
         },
         {
           title: "Reels & Shorts",
@@ -711,6 +746,7 @@ export const siteCopy = {
           meta: "9:16 / social / retencao",
           cardImage: "/images/services/cards/service-02.png",
           screenImage: "/images/services/screens/service-02.png",
+          videoName: "campaign-reels-shorts",
         },
         {
           title: "Pos-producao",
@@ -721,6 +757,7 @@ export const siteCopy = {
           meta: "DaVinci / Fairlight / cor",
           cardImage: "/images/services/cards/service-03.png",
           screenImage: "/images/services/screens/service-03.png",
+          videoName: "campaign-postproduccion",
         },
         {
           title: "Ads & Conteudo Comercial",
@@ -731,6 +768,7 @@ export const siteCopy = {
           meta: "Ads / produto / campanha",
           cardImage: "/images/services/cards/service-04.png",
           screenImage: "/images/services/screens/service-04.png",
+          videoName: "campaign-ads-contenido-comercial",
         },
         {
           title: "Motion & Visual Design",
@@ -741,6 +779,7 @@ export const siteCopy = {
           meta: "Fusion / grafica / visual design",
           cardImage: "/images/services/cards/service-05.png",
           screenImage: "/images/services/screens/service-05.png",
+          videoName: "campaign-motion-visual-design",
         },
       ],
     },
@@ -833,6 +872,14 @@ export const siteCopy = {
     sideRailLeft: string;
     sideRailRight: string;
     status: string;
+    activeLabel: string;
+    dropIdle: string;
+    dropLoaded: string;
+    dropHint: string;
+    loadSelected: string;
+    previous: string;
+    next: string;
+    progress: string;
     services: Array<{
       title: string;
       eyebrow: string;
@@ -841,6 +888,7 @@ export const siteCopy = {
       meta: string;
       cardImage: string;
       screenImage: string;
+      videoName: string;
     }>;
   };
   contact: {
