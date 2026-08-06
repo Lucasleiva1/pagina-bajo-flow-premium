@@ -15,11 +15,13 @@ type DragState = {
 };
 
 const campaignVideoNames = [
-  "campaign-youtube-video-largo",
-  "campaign-reels-shorts",
-  "campaign-postproduccion",
-  "campaign-ads-contenido-comercial",
-  "campaign-motion-visual-design",
+  "campaign-publi-1",
+  "campaign-publi-2",
+  "campaign-publi-3",
+  "campaign-publi-4",
+  "campaign-publi-5",
+  "campaign-publi-6",
+  "campaign-publi-7",
 ] as const;
 
 const videoWidths = [480, 768, 1280, 1920] as const;

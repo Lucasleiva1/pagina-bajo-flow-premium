@@ -84,26 +84,18 @@ export function WorkGallery3D({
               aria-label={`${labels.project} ${formatIndex(index)}: ${project.title}`}
               className={`work-card ${slot}${isActive ? " active" : ""}`}
               key={project.title}
+              suppressHydrationWarning
             >
               {!isActive && isVisible && (
                 <button
                   aria-label={`Select ${project.title}`}
                   className="work-card-interaction"
                   onClick={() => selectProject(index)}
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    width: "100%",
-                    height: "100%",
-                    opacity: 0,
-                    cursor: "pointer",
-                    zIndex: 10,
-                    border: "none",
-                    background: "transparent",
-                  }}
+                  type="button"
+                  suppressHydrationWarning
                 />
               )}
-              <div className="work-card-media-wrap">
+              <div className="work-card-media-wrap" suppressHydrationWarning>
                 <video
                   autoPlay
                   className="work-card-media"

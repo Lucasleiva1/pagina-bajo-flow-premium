@@ -1,11 +1,17 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
 type ResponsiveVideoProps = {
   autoPlay?: boolean;
   className?: string;
   controls?: boolean;
+  isPlaying?: boolean;
   loop?: boolean;
   muted?: boolean;
   name: string;
   onEnded?: () => void;
+  onTimeUpdate?: (event: React.SyntheticEvent<HTMLVideoElement>) => void;
   playsInline?: boolean;
   poster?: boolean;
   preload?: "auto" | "metadata" | "none";
@@ -22,22 +28,39 @@ export function ResponsiveVideo({
   autoPlay = true,
   className,
   controls = false,
-  loop = true,
+  isPlaying = true,
+  loop = false,
   muted = true,
   name,
   onEnded,
+  onTimeUpdate,
   playsInline = true,
   poster = true,
-  preload = "metadata",
+  preload = "auto",
 }: ResponsiveVideoProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid) return;
+
+    if (isPlaying) {
+      vid.play().catch(() => {});
+    } else {
+      vid.pause();
+    }
+  }, [isPlaying, name]);
+
   return (
     <video
+      ref={videoRef}
       autoPlay={autoPlay}
       className={className}
       controls={controls}
       loop={loop}
       muted={muted}
       onEnded={onEnded}
+      onTimeUpdate={onTimeUpdate}
       playsInline={playsInline}
       poster={poster ? `/videos/${name}-poster.jpg` : undefined}
       preload={preload}
@@ -61,3 +84,4 @@ export function ResponsiveVideo({
     </video>
   );
 }
+
