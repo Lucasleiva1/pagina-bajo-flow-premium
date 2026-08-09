@@ -27,6 +27,12 @@ html {
   scroll-snap-type: y mandatory;
 }
 
+html.campaign-fullscreen-scroll-lock,
+html.work-fullscreen-scroll-lock {
+  scroll-behavior: auto;
+  scroll-snap-type: none;
+}
+
 body {
   background:
     radial-gradient(circle at 78% 18%, rgba(94, 161, 255, 0.18), transparent 30rem),
@@ -91,12 +97,7 @@ canvas {
 }
 
 .scene-border {
-  border: 1px solid rgba(242, 242, 243, 0.17);
-  border-radius: 18px;
-  inset: 1rem;
-  pointer-events: none;
-  position: absolute;
-  z-index: 12;
+  display: none;
 }
 
 .site-header {
@@ -322,92 +323,87 @@ p {
   z-index: -3;
 }
 
-/* Netflix-style Progress Bar Lines Switcher */
-.hero-netflix-switcher {
+/* Controles de portada: progreso real del video activo. */
+.hero-video-progress {
   position: absolute;
-  bottom: 2.5rem;
-  right: 3rem;
+  bottom: clamp(1.35rem, 3vw, 2.5rem);
+  left: 50%;
   z-index: 10;
-  background: rgba(6, 7, 11, 0.65);
-  border: 1px solid rgba(242, 242, 243, 0.14);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  padding: 0.6rem 1rem;
-  border-radius: 16px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
-  transform: translateZ(0);
+  transform: translateX(-50%);
 }
 
-.netflix-bars-container {
+.hero-video-progress-list {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: clamp(0.3rem, 1vw, 0.55rem);
 }
 
-.netflix-bar-segment {
+.hero-video-progress-item {
   background: transparent;
   border: none;
-  padding: 0.4rem 0.2rem;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  min-width: 2.8rem;
-  transition: transform 180ms ease;
+  display: grid;
+  min-height: 2.75rem;
+  min-width: 2.9rem;
+  padding: 0.5rem 0.18rem;
+  place-items: center;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.netflix-bar-segment:hover {
-  transform: translateY(-2px);
+.hero-video-progress-item:active {
+  transform: scale(0.97);
 }
 
-.netflix-bar-track {
+.hero-video-progress-track {
   width: 100%;
-  height: 4px;
+  height: 0.2rem;
   background: rgba(242, 242, 243, 0.2);
   border-radius: 999px;
   overflow: hidden;
   position: relative;
+  transition: background-color 160ms ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.netflix-bar-fill {
+.hero-video-progress-fill {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
   background: linear-gradient(90deg, var(--pink), var(--blue));
   border-radius: 999px;
-  box-shadow: 0 0 10px rgba(255, 77, 141, 0.8);
+  box-shadow: 0 0 0.65rem rgba(255, 77, 141, 0.55);
   transition: width 100ms linear;
 }
 
-.netflix-bar-segment.active .netflix-bar-track {
-  height: 5px;
-  background: rgba(242, 242, 243, 0.3);
+.hero-video-progress-item.is-active .hero-video-progress-track {
+  background: rgba(242, 242, 243, 0.44);
+  transform: scaleY(1.25);
 }
 
-.netflix-bar-num {
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  transition: color 180ms ease;
+.hero-video-progress-item:focus-visible {
+  border-radius: 999px;
+  outline: 2px solid rgba(242, 242, 243, 0.9);
+  outline-offset: 0.2rem;
 }
 
-.netflix-bar-segment.active .netflix-bar-num,
-.netflix-bar-segment:hover .netflix-bar-num {
-  color: #ffffff;
+@media (hover: hover) and (pointer: fine) {
+  .hero-video-progress-item:hover .hero-video-progress-track {
+    background: rgba(242, 242, 243, 0.46);
+    transform: scaleY(1.25);
+  }
 }
 
 @media (max-width: 768px) {
-  .hero-netflix-switcher {
-    bottom: 1.25rem;
-    right: 50%;
-    transform: translateX(50%);
-    padding: 0.5rem 0.8rem;
+  .hero-video-progress-item {
+    min-width: 2.25rem;
   }
-  .netflix-bar-segment {
-    min-width: 2.2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-video-progress-item,
+  .hero-video-progress-track,
+  .hero-video-progress-fill {
+    transition: none;
   }
 }
 
@@ -3207,8 +3203,8 @@ p {
 
 .premium-campaign-stage::after {
   background:
-    linear-gradient(90deg, rgba(3, 4, 7, 0.86), transparent 32%, transparent 68%, rgba(3, 4, 7, 0.68)),
-    linear-gradient(180deg, rgba(3, 4, 7, 0.78), transparent 30%, rgba(3, 4, 7, 0.78));
+    linear-gradient(90deg, rgba(3, 4, 7, 0.82), transparent 29%, transparent 70%, rgba(3, 4, 7, 0.58)),
+    linear-gradient(180deg, rgba(3, 4, 7, 0.68), transparent 30%, rgba(3, 4, 7, 0.74));
   content: "";
   inset: 0;
   pointer-events: none;
@@ -3224,17 +3220,90 @@ p {
   z-index: 1;
 }
 
-.premium-campaign-video,
-.premium-campaign-poster {
-  filter: brightness(0.76) saturate(0.82);
+.premium-campaign-screen-backdrop,
+.premium-campaign-video {
   height: 100%;
   object-fit: cover;
-  transform: scale(1.02);
+  position: absolute;
   width: 100%;
 }
 
+.work-card-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.85rem;
+}
+
+.work-fullscreen-trigger {
+  align-items: center;
+  background: rgba(3, 5, 9, 0.56);
+  border: 1px solid rgba(242, 242, 243, 0.3);
+  border-radius: 50%;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-grid;
+  flex: 0 0 auto;
+  height: 2.55rem;
+  padding: 0;
+  place-items: center;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  width: 2.55rem;
+}
+
+.work-fullscreen-trigger svg {
+  fill: none;
+  height: 1rem;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  width: 1rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .work-fullscreen-trigger:hover {
+    background: rgba(255, 77, 141, 0.16);
+    border-color: rgba(255, 138, 210, 0.72);
+    color: #ffb5e3;
+  }
+}
+
+.work-fullscreen-trigger:focus-visible {
+  background: rgba(255, 77, 141, 0.16);
+  border-color: rgba(255, 138, 210, 0.72);
+  outline: 2px solid rgba(255, 138, 210, 0.72);
+  outline-offset: 0.2rem;
+}
+
+.work-fullscreen-trigger:active {
+  transform: scale(0.97);
+}
+
+.premium-campaign-screen-backdrop {
+  filter: blur(1.6rem) brightness(0.42) saturate(1.12);
+  inset: 0;
+  transform: scale(1.09);
+}
+
 .premium-campaign-video {
-  filter: brightness(0.7) saturate(0.86);
+  filter: brightness(0.78) saturate(0.94);
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.012);
+  transition: opacity 260ms var(--campaign-ease);
+}
+
+.premium-campaign-video.is-ready {
+  opacity: 1;
+}
+
+.premium-campaign-screen.is-vertical .premium-campaign-video {
+  object-fit: contain;
+  transform: none;
 }
 
 .premium-campaign-chrome {
@@ -3358,21 +3427,43 @@ p {
   outline-offset: 0.35rem;
 }
 
-.premium-campaign-cartridge img {
+.premium-campaign-cartridge-media {
+  background: rgba(3, 4, 7, 0.96);
+  border-bottom: 1px solid rgba(232, 218, 190, 0.15);
+  border-top: 1px solid rgba(232, 218, 190, 0.15);
+  display: block;
+  height: auto;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  top: 22%;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+.premium-campaign-cartridge-media::after {
+  background: linear-gradient(180deg, transparent 55%, rgba(3, 4, 7, 0.38));
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.premium-campaign-cartridge-media img {
   height: 100%;
   object-fit: cover;
   opacity: 0.88;
-  transform: scale(1.01);
+  transform: scale(1.005);
   transition:
     opacity 180ms ease,
     transform 220ms ease;
   width: 100%;
 }
 
-.premium-campaign-cartridge:hover img,
-.premium-campaign-cartridge.active img {
+.premium-campaign-cartridge:hover .premium-campaign-cartridge-media img,
+.premium-campaign-cartridge.active .premium-campaign-cartridge-media img {
   opacity: 1;
-  transform: scale(1.035);
+  transform: scale(1.025);
 }
 
 .premium-campaign-cartridge-shine {
@@ -3470,7 +3561,7 @@ p {
   bottom: 0;
   display: grid;
   gap: clamp(0.6rem, 1.6vw, 1.4rem);
-  grid-template-columns: auto auto minmax(8rem, 1fr) auto auto;
+  grid-template-columns: auto auto minmax(8rem, 1fr) auto auto auto;
   left: clamp(1.5rem, 3vw, 2.4rem);
   min-height: clamp(4.4rem, 8.6svh, 5.9rem);
   padding: clamp(0.72rem, 1.6svh, 1.1rem) 0;
@@ -3535,6 +3626,174 @@ p {
   font-weight: 900;
   letter-spacing: 0.16rem;
   white-space: nowrap;
+}
+
+.premium-campaign-fullscreen {
+  align-items: center;
+  background: rgba(1, 2, 4, 0.98);
+  display: grid;
+  inset: 0;
+  justify-items: center;
+  padding: clamp(4.8rem, 9vh, 7rem) clamp(1rem, 4vw, 4rem) clamp(1rem, 4vh, 2.5rem);
+  position: fixed;
+  z-index: 1000;
+}
+
+.premium-campaign-fullscreen::before {
+  background:
+    radial-gradient(circle at 14% 8%, rgba(216, 175, 103, 0.12), transparent 28rem),
+    radial-gradient(circle at 84% 86%, rgba(255, 77, 157, 0.08), transparent 32rem);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.premium-campaign-fullscreen video {
+  background: #000;
+  border: 1px solid rgba(232, 218, 190, 0.2);
+  box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.78);
+  height: min(82vh, calc(100vw * 0.5625));
+  max-height: calc(100vh - 7rem);
+  max-width: 100%;
+  object-fit: contain;
+  position: relative;
+  width: min(100%, calc((100vh - 7rem) * 1.7778));
+  z-index: 1;
+}
+
+.premium-campaign-fullscreen video.is-vertical {
+  height: min(82vh, calc((100vw - 2rem) * 1.7778));
+  width: min(46rem, calc((100vh - 7rem) * 0.5625));
+}
+
+.premium-campaign-fullscreen-heading {
+  align-items: center;
+  display: flex;
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  justify-content: space-between;
+  left: clamp(1rem, 4vw, 4rem);
+  position: absolute;
+  right: clamp(1rem, 4vw, 4rem);
+  top: clamp(1rem, 2.5vh, 1.8rem);
+  z-index: 2;
+}
+
+.premium-campaign-fullscreen-heading > div {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.premium-campaign-fullscreen-heading span,
+.premium-campaign-fullscreen-heading strong {
+  color: var(--ink);
+}
+
+.premium-campaign-fullscreen-heading > div span {
+  color: rgba(247, 240, 228, 0.56);
+  font-size: 0.58rem;
+  font-weight: 850;
+  letter-spacing: 0.16rem;
+  text-transform: uppercase;
+}
+
+.premium-campaign-fullscreen-heading > div strong {
+  font-family: var(--font-editorial);
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+  font-weight: 400;
+}
+
+.premium-campaign-fullscreen-heading button {
+  align-items: center;
+  background: rgba(247, 240, 228, 0.07);
+  border: 1px solid rgba(232, 218, 190, 0.22);
+  border-radius: 999px;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.62rem;
+  font-weight: 850;
+  gap: 0.7rem;
+  letter-spacing: 0.12rem;
+  min-height: 2.7rem;
+  padding: 0 1rem;
+  text-transform: uppercase;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.premium-campaign-fullscreen-heading .premium-campaign-fullscreen-close {
+  border-radius: 50%;
+  height: 2.85rem;
+  min-height: 2.85rem;
+  min-width: 2.85rem;
+  padding: 0;
+  width: 2.85rem;
+}
+
+.premium-campaign-fullscreen-close > span {
+  display: grid;
+  height: 1rem;
+  place-items: center;
+  position: relative;
+  transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+  width: 1rem;
+}
+
+.premium-campaign-fullscreen-close i,
+.premium-campaign-fullscreen-close i::before,
+.premium-campaign-fullscreen-close i::after {
+  display: block;
+  height: 1px;
+  position: absolute;
+  width: 1rem;
+}
+
+.premium-campaign-fullscreen-close i::before,
+.premium-campaign-fullscreen-close i::after {
+  background: currentColor;
+  content: "";
+  left: 0;
+  top: 0;
+}
+
+.premium-campaign-fullscreen-close i::before {
+  transform: rotate(45deg);
+}
+
+.premium-campaign-fullscreen-close i::after {
+  transform: rotate(-45deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .premium-campaign-fullscreen-close:hover > span {
+    transform: rotate(90deg);
+  }
+}
+
+.premium-campaign-fullscreen-heading button:hover,
+.premium-campaign-fullscreen-heading button:focus-visible {
+  background: rgba(216, 175, 103, 0.15);
+  border-color: rgba(240, 210, 154, 0.55);
+  outline: none;
+}
+
+.premium-campaign-transport .premium-campaign-fullscreen-trigger {
+  padding: 0;
+  width: 2.7rem;
+}
+
+.premium-campaign-fullscreen-trigger svg {
+  fill: none;
+  height: 1.08rem;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  width: 1.08rem;
+}
+
+.premium-campaign-fullscreen-heading button:active {
+  transform: scale(0.97);
 }
 
 .contact-scene {
@@ -4580,7 +4839,7 @@ p {
 
   .premium-campaign-transport {
     gap: 0.45rem;
-    grid-template-columns: auto auto minmax(3rem, 1fr) auto auto;
+    grid-template-columns: auto auto minmax(3rem, 1fr) auto auto auto;
     left: 1rem;
     min-height: 4.8rem;
     right: 1rem;
@@ -4634,7 +4893,7 @@ p {
   }
 
   .premium-campaign-transport {
-    grid-template-columns: auto auto 1fr auto;
+    grid-template-columns: auto auto 1fr auto auto;
   }
 
   .premium-campaign-transport button:first-child,

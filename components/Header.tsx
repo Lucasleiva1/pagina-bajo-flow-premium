@@ -11,6 +11,9 @@ type HeaderProps = {
   isHidden?: boolean;
 };
 
+// Cambiar a true cuando se decida volver a mostrar el selector.
+const SHOW_LANGUAGE_SWITCHER = false;
+
 export function Header({
   activeScene,
   copy,
@@ -63,20 +66,22 @@ export function Header({
             </a>
           ))}
         </nav>
-        <div className="language-switcher" aria-label={copy.languageAria} role="group">
-          <span className="sr-only">{copy.languageLabel}</span>
-          {languages.map((option) => (
-            <button
-              aria-pressed={language === option.code}
-              className={language === option.code ? "active" : ""}
-              key={option.code}
-              onClick={() => onLanguageChange(option.code)}
-              type="button"
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        {SHOW_LANGUAGE_SWITCHER ? (
+          <div className="language-switcher" aria-label={copy.languageAria} role="group">
+            <span className="sr-only">{copy.languageLabel}</span>
+            {languages.map((option) => (
+              <button
+                aria-pressed={language === option.code}
+                className={language === option.code ? "active" : ""}
+                key={option.code}
+                onClick={() => onLanguageChange(option.code)}
+                type="button"
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
     </header>
   );

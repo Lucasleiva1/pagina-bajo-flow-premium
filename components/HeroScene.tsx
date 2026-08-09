@@ -12,11 +12,11 @@ type HeroSceneProps = {
 };
 
 const HERO_VIDEOS = [
-  { id: "hero-portada-1", label: "01", title: "Showreel 01" },
-  { id: "hero-portada-2", label: "02", title: "Showreel 02" },
-  { id: "hero-portada-3", label: "03", title: "Showreel 03" },
-  { id: "hero-portada-4", label: "04", title: "Showreel 04" },
-  { id: "hero-portada-5", label: "05", title: "Showreel 05" },
+  { id: "hero-portada-1", title: "Showreel 01" },
+  { id: "hero-portada-2", title: "Showreel 02" },
+  { id: "hero-portada-3", title: "Showreel 03" },
+  { id: "hero-portada-4", title: "Showreel 04" },
+  { id: "hero-portada-5", title: "Showreel 05" },
 ];
 
 export function HeroScene({ copy }: HeroSceneProps) {
@@ -55,6 +55,8 @@ export function HeroScene({ copy }: HeroSceneProps) {
   };
 
   const handleSelect = (index: number) => {
+    if (index === activeIndex) return;
+
     setProgress(0);
     setActiveIndex(index);
   };
@@ -97,30 +99,27 @@ export function HeroScene({ copy }: HeroSceneProps) {
           </div>
         </div>
 
-        {/* Netflix-style Progress Bar Lines Switcher */}
-        <nav className="hero-netflix-switcher" aria-label="Selección de Portada Netflix">
-          <div className="netflix-bars-container">
+        <nav className="hero-video-progress" aria-label="Selección de portadas">
+          <div className="hero-video-progress-list">
             {HERO_VIDEOS.map((vid, idx) => {
-              let fillWidth = "0%";
-              if (idx < activeIndex) fillWidth = "100%";
-              else if (idx === activeIndex) fillWidth = `${Math.min(100, Math.max(0, progress))}%`;
+              const fillWidth = idx === activeIndex ? `${Math.min(100, Math.max(0, progress))}%` : "0%";
 
               return (
                 <button
                   key={vid.id}
-                  className={`netflix-bar-segment ${idx === activeIndex ? "active" : ""}`}
+                  aria-current={idx === activeIndex ? "true" : undefined}
+                  aria-label={`Reproducir ${vid.title}`}
+                  className={`hero-video-progress-item ${idx === activeIndex ? "is-active" : ""}`}
                   onClick={() => handleSelect(idx)}
                   title={`Ver ${vid.title}`}
-                  aria-label={`Portada ${vid.label}: ${vid.title}`}
                   type="button"
                 >
-                  <span className="netflix-bar-track">
+                  <span className="hero-video-progress-track">
                     <span
-                      className="netflix-bar-fill"
+                      className="hero-video-progress-fill"
                       style={{ width: fillWidth }}
                     />
                   </span>
-                  <span className="netflix-bar-num">{vid.label}</span>
                 </button>
               );
             })}
@@ -130,5 +129,4 @@ export function HeroScene({ copy }: HeroSceneProps) {
     </div>
   );
 }
-
 
