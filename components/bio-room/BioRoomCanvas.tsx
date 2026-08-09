@@ -2,7 +2,7 @@
 
 import { type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import { PerspectiveCamera } from "@react-three/drei";
+import { PerspectiveCamera as DreiPerspectiveCamera } from "@react-three/drei";
 import { useControls, folder, Leva } from "leva";
 import {
   AdditiveBlending,
@@ -13,6 +13,7 @@ import {
   LinearMipmapLinearFilter,
   MathUtils,
   Mesh,
+  PerspectiveCamera as ThreePerspectiveCamera,
   SRGBColorSpace,
   TextureLoader,
   Vector3,
@@ -39,6 +40,9 @@ const bioRightWallTexture = "/images/bio-room/bio-right-wall-source-1440.webp";
 const bioCeilingTexture = "/images/bio-room/bio-ceiling-source-1440.webp";
 const bioFloorTexture = "/images/bio-room/bio-floor-grid-source-1440.webp";
 const cameraFov = 42;
+const mobileCameraFov = 54;
+const mobileFrontWallPanRange = 0.62;
+const mobileSideWallPanRange = 1.65;
 const sideWallReadableWidth = 7.2;
 const sideWallBackstopMargin = 0.55;
 const bioRoomDevToolsEnabled = false;
@@ -79,6 +83,7 @@ function CameraRig({ layout }: { layout: BioRoomLayout }) {
 
   // Detect mobile or touch devices to disable parallax
   const isMobileOrTouch = useRef(false);
+  const prefersReducedMotion = useRef(false);
   const parallaxOffset = useRef(new Vector3(0, 0, 0));
   const localRight = useRef(new Vector3());
   const localUp = useRef(new Vector3());
@@ -88,6 +93,7 @@ function CameraRig({ layout }: { layout: BioRoomLayout }) {
       const isMobileSize = window.innerWidth <= 860;
       const isTouch = navigator.maxTouchPoints > 0;
       isMobileOrTouch.current = isMobileSize || isTouch;
+      prefersReducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     };
     checkMobileOrTouch();
     window.addEventListener("resize", checkMobileOrTouch);
@@ -95,7 +101,29 @@ function CameraRig({ layout }: { layout: BioRoomLayout }) {
   }, []);
 
   useFrame((state, delta) => {
-    setCameraFrame(activeRoomView, layout, size.width / size.height, sideWallZoom, desiredPosition.current, desiredTarget.current);
+    const isCompactViewport = size.width <= 860;
+    const perspectiveCamera = camera as ThreePerspectiveCamera;
+    const targetFov = isCompactViewport ? mobileCameraFov : cameraFov;
+    const nextFov = prefersReducedMotion.current
+      ? targetFov
+      : MathUtils.damp(perspectiveCamera.fov, targetFov, 8, delta);
+
+    if (Math.abs(perspectiveCamera.fov - nextFov) > 0.001) {
+      perspectiveCamera.fov = nextFov;
+      perspectiveCamera.updateProjectionMatrix();
+    }
+
+    setCameraFrame(
+      activeRoomView,
+      layout,
+      size.width / size.height,
+      sideWallZoom,
+      useBioRoomStore.getState().mobileWallPan,
+      isCompactViewport,
+      nextFov,
+      desiredPosition.current,
+      desiredTarget.current,
+    );
 
     // Determine target parallax limit based on active view
     let maxX = 0;
@@ -131,8 +159,13 @@ function CameraRig({ layout }: { layout: BioRoomLayout }) {
     desiredPosition.current.addScaledVector(localUp.current, currentY);
 
     const speed = 1 - Math.pow(0.025, delta);
-    camera.position.lerp(desiredPosition.current, speed);
-    target.current.lerp(desiredTarget.current, speed);
+    if (prefersReducedMotion.current) {
+      camera.position.copy(desiredPosition.current);
+      target.current.copy(desiredTarget.current);
+    } else {
+      camera.position.lerp(desiredPosition.current, speed);
+      target.current.lerp(desiredTarget.current, speed);
+    }
     camera.lookAt(target.current);
   });
 
@@ -144,22 +177,38 @@ function setCameraFrame(
   layout: BioRoomLayout,
   aspect: number,
   sideWallZoom: number,
+  mobileWallPan: number,
+  isCompactViewport: boolean,
+  activeCameraFov: number,
   position: Vector3,
   target: Vector3,
 ) {
   if (activeRoomView === "bio" || activeRoomView === "gallery") {
-    const verticalFov = MathUtils.degToRad(cameraFov);
-    const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * Math.max(aspect, 1.12));
+    const verticalFov = MathUtils.degToRad(activeCameraFov);
+    const fittedAspect = isCompactViewport ? aspect : Math.max(aspect, 1.12);
+    const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * fittedAspect);
     const heightDistance = layout.height / (2 * Math.tan(verticalFov / 2));
     const widthDistance = sideWallReadableWidth / (2 * Math.tan(horizontalFov / 2));
     const fittedDistance = Math.max(heightDistance, widthDistance) * 1.1 * (1 + sideWallZoom);
     const maxDistanceInsideRoom = layout.halfWidth * 2 - sideWallBackstopMargin;
-    const distance = Math.min(fittedDistance, maxDistanceInsideRoom);
+    const distance = isCompactViewport
+      ? maxDistanceInsideRoom
+      : Math.min(fittedDistance, maxDistanceInsideRoom);
     const wall = activeRoomView === "bio" ? layout.walls.characterRightWall : layout.walls.characterLeftWall;
     const direction = activeRoomView === "bio" ? 1 : -1;
+    const panDirection = activeRoomView === "bio" ? -1 : 1;
+    const targetZ = layout.centerZ - 0.25
+      + (isCompactViewport ? mobileWallPan * mobileSideWallPanRange * panDirection : 0);
 
-    target.set(wall.position[0], layout.height * 0.5, layout.centerZ - 0.25);
-    position.set(wall.position[0] + direction * distance, layout.height * 0.52, layout.centerZ - 0.25);
+    target.set(wall.position[0], layout.height * 0.5, targetZ);
+    position.set(wall.position[0] + direction * distance, layout.height * 0.52, targetZ);
+    return;
+  }
+
+  if (isCompactViewport) {
+    const frontWallPanX = mobileWallPan * mobileFrontWallPanRange;
+    position.set(frontWallPanX, layout.height * 0.49, layout.zBack + layout.depth + 1.65);
+    target.set(frontWallPanX, layout.height * 0.43, layout.zBack - 0.05);
     return;
   }
 
@@ -340,10 +389,18 @@ function FloorDecorSurface({
 
 /* ──────────────────────── Lucas billboard ──────────────────────── */
 type LucasBillboardProps = {
+  characterScale?: number;
+  floorHudScale?: number;
+  floorHudSpacing?: number;
   meshRef: React.RefObject<Mesh | null>;
 };
 
-function LucasBillboard({ meshRef }: LucasBillboardProps) {
+function LucasBillboard({
+  characterScale = 1,
+  floorHudScale = 1,
+  floorHudSpacing = 1,
+  meshRef,
+}: LucasBillboardProps) {
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
   const texture = useLoader(
     TextureLoader,
@@ -368,29 +425,36 @@ function LucasBillboard({ meshRef }: LucasBillboardProps) {
     setPresetSection("lucas", lucasControls);
   }, [lucasControls, setPresetSection]);
 
+  const characterScaleAnchorY = (characterScale - 1) * (lucasControls.height / 2 - 0.12);
+
   return (
     <group position={[lucasControls.posX, lucasControls.posY, lucasControls.posZ]}>
-      {/* Main character plane */}
-      <mesh position={[0, 0.12, 0]} renderOrder={10}>
-        <planeGeometry args={[lucasControls.width, lucasControls.height]} />
-        <meshStandardMaterial
-          alphaTest={0.05}
-          emissive="#ffffff"
-          emissiveIntensity={lucasControls.emissiveIntensity}
-          emissiveMap={texture}
-          map={texture}
-          side={DoubleSide}
-          transparent
-        />
-      </mesh>
-      {/* Invisible raycast occlusion target with narrower width (0.8) representing actual body width */}
-      <mesh position={[0, 0.12, 0.01]} ref={meshRef}>
-        <planeGeometry args={[0.8, lucasControls.height]} />
-        <meshBasicMaterial colorWrite={false} depthWrite={false} transparent />
-      </mesh>
+      <group position={[0, characterScaleAnchorY, 0]} scale={characterScale}>
+        {/* Main character plane */}
+        <mesh position={[0, 0.12, 0]} renderOrder={10}>
+          <planeGeometry args={[lucasControls.width, lucasControls.height]} />
+          <meshStandardMaterial
+            alphaTest={0.05}
+            emissive="#ffffff"
+            emissiveIntensity={lucasControls.emissiveIntensity}
+            emissiveMap={texture}
+            map={texture}
+            side={DoubleSide}
+            transparent
+          />
+        </mesh>
+        {/* Invisible raycast occlusion target with narrower width (0.8) representing actual body width */}
+        <mesh position={[0, 0.12, 0.01]} ref={meshRef}>
+          <planeGeometry args={[0.8, lucasControls.height]} />
+          <meshBasicMaterial colorWrite={false} depthWrite={false} transparent />
+        </mesh>
+      </group>
       {/* Dynamic Floor HUD and navigation buttons */}
       <group position={[0, -1.09, 0.025]}>
-        <LucasFloorHUD />
+        <LucasFloorHUD
+          horizontalSpacingMultiplier={floorHudSpacing}
+          scaleMultiplier={floorHudScale}
+        />
       </group>
     </group>
   );
@@ -830,6 +894,7 @@ function RoomShell({
 /* ──────────────────────── Scene wrapper ──────────────────────── */
 function SceneContent({ copy }: BioRoomCanvasProps) {
   const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
+  const isCompactViewport = useThree((state) => state.size.width <= 860);
   const groupRef = useRef<Group>(null);
   const showLucas = activeRoomView === "home" || activeRoomView === "contact";
   const lucasMeshRef = useRef<Mesh>(null);
@@ -841,7 +906,11 @@ function SceneContent({ copy }: BioRoomCanvasProps) {
 
   return (
     <>
-      <PerspectiveCamera makeDefault fov={cameraFov} position={[0, 1.6, 6.2]} />
+      <DreiPerspectiveCamera
+        makeDefault
+        fov={isCompactViewport ? mobileCameraFov : cameraFov}
+        position={[0, 1.6, 6.2]}
+      />
       <RoomShell>
         {(layout) => (
           <>
@@ -851,7 +920,12 @@ function SceneContent({ copy }: BioRoomCanvasProps) {
         )}
       </RoomShell>
       <group ref={groupRef} visible={showLucas}>
-        <LucasBillboard meshRef={lucasMeshRef} />
+        <LucasBillboard
+          characterScale={isCompactViewport ? 1.28 : 1}
+          floorHudScale={isCompactViewport ? 1.12 : 1}
+          floorHudSpacing={isCompactViewport ? 0.9 : 1}
+          meshRef={lucasMeshRef}
+        />
       </group>
     </>
   );
@@ -893,7 +967,7 @@ function useBioRoomDpr(): [number, number] {
     const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
     const isCompactViewport = window.matchMedia("(max-width: 768px)").matches;
     const isTouchDevice = navigator.maxTouchPoints > 0;
-    const maxDpr = isCompactViewport || isTouchDevice || deviceMemory <= 4 ? 1.5 : 2;
+    const maxDpr = isCompactViewport ? 1.25 : isTouchDevice || deviceMemory <= 4 ? 1.5 : 2;
 
     setDpr([1, maxDpr]);
   }, []);

@@ -238,7 +238,13 @@ function FloorButton({
   );
 }
 
-export function LucasFloorHUD() {
+export function LucasFloorHUD({
+  horizontalSpacingMultiplier = 1,
+  scaleMultiplier = 1,
+}: {
+  horizontalSpacingMultiplier?: number;
+  scaleMultiplier?: number;
+}) {
   const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
 
@@ -301,7 +307,7 @@ export function LucasFloorHUD() {
         accent: "#ffb454",
         index: "01",
         label: "BIO",
-        position: [controls.bioX - controls.gap, controls.bioY, controls.bioZ],
+        position: [(controls.bioX - controls.gap) * horizontalSpacingMultiplier, controls.bioY, controls.bioZ],
         rotation: controls.bioRotation,
         view: "bio",
       },
@@ -309,7 +315,7 @@ export function LucasFloorHUD() {
         accent: "#9f7bff",
         index: "02",
         label: "HABILIDADES",
-        position: [controls.skillsX, controls.skillsY, controls.skillsZ],
+        position: [controls.skillsX * horizontalSpacingMultiplier, controls.skillsY, controls.skillsZ],
         rotation: controls.skillsRotation,
         view: "gallery",
       },
@@ -336,13 +342,17 @@ export function LucasFloorHUD() {
       controls.skillsX,
       controls.skillsY,
       controls.skillsZ,
+      horizontalSpacingMultiplier,
     ],
   );
 
   if (activeRoomView !== "home") return null;
 
   return (
-    <group position={[controls.groupX, controls.groupY, controls.groupZ]} scale={controls.scale}>
+    <group
+      position={[controls.groupX, controls.groupY, controls.groupZ]}
+      scale={controls.scale * scaleMultiplier}
+    >
       {buttons.map((button) => (
         <FloorButton
           buttonDepth={

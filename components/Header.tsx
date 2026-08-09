@@ -37,8 +37,11 @@ export function Header({
     event.preventDefault();
 
     const headerHeight = document.querySelector<HTMLElement>(".site-header")?.getBoundingClientRect().height ?? 0;
+    const isMobileBioRoom = target.id === "bio" && window.innerWidth <= 860;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerHeight - 12);
+    const headerOffset = isMobileBioRoom ? 0 : headerHeight + 12;
+    const mobileBioOverscan = isMobileBioRoom ? 16 : 0;
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerOffset + mobileBioOverscan);
 
     window.history.replaceState(null, "", href);
     window.scrollTo({
