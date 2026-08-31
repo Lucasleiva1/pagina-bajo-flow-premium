@@ -4028,6 +4028,10 @@ p {
   .nav-links {
     gap: 0.72rem;
     flex: 0 0 100%;
+    /* Centrado en celular. "safe" evita que, si los items no entran y hay que
+       deslizar, el primero quede fuera de alcance. */
+    justify-content: center;
+    justify-content: safe center;
     max-width: 100%;
     order: 3;
     overflow-x: auto;
