@@ -334,27 +334,8 @@ export function WorkGallery3D({
               </div>
 
               <div className="work-card-footer">
-                <div className="work-tools" aria-label={labels.tools}>
-                  {project.tools.map((tool) => (
-                    <span key={tool}>{tool}</span>
-                  ))}
-                </div>
                 {isActive ? (
                   <div className="work-card-actions">
-                    <a
-                      className="work-view-case"
-                      href={project.href}
-                      onClick={(event) => event.stopPropagation()}
-                      onPointerDown={(event) => event.stopPropagation()}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      {labels.viewCase}
-                      <svg aria-hidden="true" viewBox="0 0 16 16">
-                        <path d="M5 3h8v8" />
-                        <path d="M13 3 3 13" />
-                      </svg>
-                    </a>
                     <button
                       aria-label={`Abrir ${project.title} en pantalla completa con sonido`}
                       className="work-fullscreen-trigger"
