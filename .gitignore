@@ -49,4 +49,8 @@ ERROR_*.md
 /*.png
 /screenshot-3001.js
 
+# archivos de trabajo temporales (respaldos de video, salidas de scripts)
+/tmp/
+/output/
+
 

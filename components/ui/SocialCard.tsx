@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { useRef } from "react";
-import { SocialGlyph } from "@/components/ui/Icons";
 
 type SocialCardProps = {
   label: string;
@@ -30,7 +30,14 @@ export function SocialCard({ label, handle, href, icon }: SocialCardProps) {
       rel="noreferrer"
       target="_blank"
     >
-      <SocialGlyph type={icon} />
+      <Image
+        alt=""
+        aria-hidden="true"
+        className="social-icon"
+        height={128}
+        src={`/images/social/${icon}.png`}
+        width={128}
+      />
       <strong>{label}</strong>
       <small>{handle}</small>
     </a>

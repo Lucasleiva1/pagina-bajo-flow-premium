@@ -1,5 +1,8 @@
 :root {
   color-scheme: dark;
+  /* Alto real de la barra superior. Lo publica ExperiencePage al montar y
+     cada vez que la barra cambia de tamano; este valor es solo el respaldo. */
+  --header-h: 5.4rem;
   --bg: #080b12;
   --bg-soft: #101724;
   --ink: #f2f2f3;
@@ -3883,13 +3886,27 @@ p {
   margin-top: 0.5rem;
 }
 
+/* Icono de red como imagen. Igual que el glifo dibujado que reemplaza: todo
+   se mide en em, asi alcanza con cambiar el font-size para escalarlo. */
+.social-icon {
+  flex: none;
+  font-size: 1rem;
+  height: 5em;
+  object-fit: contain;
+  width: 5em;
+}
+
 .social-glyph {
+  /* Todo el interior del icono se mide en em: alcanza con cambiar este
+     font-size para escalar el glifo completo en pantallas chicas. */
   border: 1px solid rgba(242, 242, 243, 0.2);
   border-radius: 999px;
   display: block;
-  height: 2.8rem;
+  flex: none;
+  font-size: 1rem;
+  height: 2.8em;
   position: relative;
-  width: 2.8rem;
+  width: 2.8em;
 }
 
 .social-glyph::before,
@@ -3902,58 +3919,313 @@ p {
 }
 
 .social-glyph.play::before {
-  border-bottom: 0.42rem solid transparent;
-  border-left: 0.68rem solid var(--pink);
-  border-top: 0.42rem solid transparent;
-  margin-left: 0.08rem;
+  border-bottom: 0.42em solid transparent;
+  border-left: 0.68em solid var(--pink);
+  border-top: 0.42em solid transparent;
+  margin-left: 0.08em;
 }
 
 .social-glyph.frame::before {
-  border: 2px solid var(--blue);
-  border-radius: 0.42rem;
-  height: 1.1rem;
-  width: 1.1rem;
+  border: 0.125em solid var(--blue);
+  border-radius: 0.42em;
+  height: 1.1em;
+  width: 1.1em;
 }
 
 .social-glyph.frame::after {
   background: var(--pink);
   border-radius: 999px;
-  height: 0.28rem;
+  height: 0.28em;
   left: 64%;
   top: 36%;
-  width: 0.28rem;
+  width: 0.28em;
 }
 
 .social-glyph.dot::before {
   background: var(--blue);
   border-radius: 999px;
-  box-shadow: 0.42rem 0 0 var(--pink), -0.42rem 0 0 var(--violet);
-  height: 0.42rem;
-  width: 0.42rem;
+  box-shadow: 0.42em 0 0 var(--pink), -0.42em 0 0 var(--violet);
+  height: 0.42em;
+  width: 0.42em;
 }
 
 .social-glyph.bolt::before {
   background: linear-gradient(135deg, var(--blue), var(--pink));
   clip-path: polygon(48% 0, 76% 0, 58% 38%, 86% 38%, 34% 100%, 46% 55%, 22% 55%);
-  height: 1.55rem;
-  width: 1.05rem;
+  height: 1.55em;
+  width: 1.05em;
 }
 
+/* ==================================================================
+   PIE DE PAGINA
+   Un foco cenital sobre una tarima, todo dibujado con CSS: asi la luz
+   puede titilar y la escena se adapta a cualquier pantalla sin cargar
+   una imagen. Encima, los datos de contacto y los accesos.
+   ================================================================== */
 .footer-scene {
-  align-items: center;
+  align-content: stretch;
+  background: radial-gradient(circle at 50% 12%, rgba(18, 12, 24, 0.9), #05070c 62%);
   display: grid;
-  justify-items: center;
-  text-align: center;
+  overflow: hidden;
 }
 
-.footer-mark {
-  max-width: 54rem;
+/* --- El foco y la tarima ------------------------------------------ */
+.footer-stage {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
 }
 
-.footer-mark span {
+.footer-beam {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 141, 196, 0.42) 0%,
+    rgba(186, 128, 218, 0.2) 36%,
+    rgba(120, 150, 235, 0.09) 64%,
+    transparent 90%
+  );
+  clip-path: polygon(46.8% 0, 53.2% 0, 72% 100%, 28% 100%);
+  filter: blur(46px);
+  height: 66%;
+  left: 50%;
+  /* Los costados del haz se desvanecen: si no, el cono se ve como un
+     triangulo recortado en vez de luz. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  width: min(44rem, 60vw);
+  animation: footer-flicker 5.2s ease-in-out infinite;
+}
+
+/* El charco de luz sobre el que apoya la tarima. */
+.footer-glow {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 150, 205, 0.3),
+    rgba(120, 90, 190, 0.14) 42%,
+    transparent 72%
+  );
+  filter: blur(12px);
+  height: 26%;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -34%);
+  width: min(58rem, 78vw);
+  animation: footer-flicker 5.2s ease-in-out infinite;
+}
+
+.footer-podium {
+  height: clamp(4.6rem, 13svh, 8rem);
+  left: 50%;
+  position: absolute;
+  top: 55%;
+  transform: translate(-50%, -50%);
+  width: min(31rem, 46vw);
+}
+
+/* La tapa: el borde claro que la rodea es el filo iluminado de la tarima. */
+.footer-podium-top {
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(232, 198, 232, 0.55), transparent 66%),
+    linear-gradient(180deg, rgba(56, 45, 72, 0.96), rgba(26, 22, 38, 0.97));
+  border: 1px solid rgba(255, 172, 214, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 0 3rem rgba(206, 130, 196, 0.26);
+  display: block;
+  height: 64%;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 2;
+}
+
+/* El cuerpo, apenas asomando por detras de la tapa. */
+.footer-podium-edge {
+  background: linear-gradient(180deg, rgba(26, 22, 34, 0.97), rgba(9, 8, 14, 0.92));
+  border-radius: 0 0 50% 50% / 0 0 48% 48%;
+  display: block;
+  height: 62%;
+  position: absolute;
+  top: 31%;
+  width: 100%;
+  z-index: 1;
+}
+
+/* Titileo de la luz: cambios chicos y a destiempo, como un foco real. */
+@keyframes footer-flicker {
+  0%, 100% { opacity: 1; }
+  17% { opacity: 0.9; }
+  23% { opacity: 1; }
+  41% { opacity: 0.84; }
+  47% { opacity: 0.97; }
+  62% { opacity: 0.88; }
+  71% { opacity: 1; }
+  84% { opacity: 0.93; }
+}
+
+/* --- El contenido -------------------------------------------------- */
+.footer-inner {
+  display: grid;
+  gap: clamp(1.2rem, 3.4svh, 2.6rem);
+  grid-template-rows: 1fr auto auto;
+  height: 100%;
+  position: relative;
+  width: 100%;
+  z-index: 3;
+}
+
+.footer-top {
+  align-items: start;
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.footer-brand {
+  max-width: 34rem;
+}
+
+.footer-brand h2 {
+  font-size: clamp(1.9rem, 3.4vw, 3.4rem);
+  line-height: 1.04;
+  margin: 0.9rem 0 0;
+}
+
+.footer-contact {
+  display: grid;
+  justify-items: start;
+  margin-top: clamp(0.5rem, 2.5svh, 2.4rem);
+  min-width: min(18rem, 34vw);
+}
+
+.footer-contact-line {
+  color: var(--ink);
+  display: block;
+  font-size: clamp(0.88rem, 1.05vw, 1.06rem);
+  margin-top: 0.55rem;
+}
+
+.footer-contact-static {
   color: var(--muted);
-  letter-spacing: 0.18rem;
-  text-transform: uppercase;
+  padding: 0.35rem 0.6rem;
+}
+
+.footer-cta {
+  align-items: center;
+  color: var(--pink);
+  display: inline-flex;
+  font-family: var(--font-editorial);
+  font-size: clamp(1.02rem, 1.35vw, 1.32rem);
+  gap: 0.6rem;
+  margin-top: 1.15rem;
+}
+
+/* La flecha diagonal del enlace principal. */
+.footer-cta svg {
+  fill: none;
+  height: 1.05em;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  transition: transform 220ms ease;
+  width: 1.05em;
+}
+
+.footer-rows {
+  align-items: center;
+  border-top: 1px solid rgba(242, 242, 243, 0.14);
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.4rem, 2vw, 1.6rem);
+  padding-top: clamp(0.8rem, 2.4svh, 1.6rem);
+}
+
+.footer-nav,
+.footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.2rem, 1.4vw, 1.1rem);
+}
+
+.footer-nav {
+  flex: 1 1 auto;
+}
+
+/* La barra que separa secciones de redes. */
+.footer-social {
+  border-left: 1px solid rgba(242, 242, 243, 0.14);
+  padding-left: clamp(0.8rem, 2.4vw, 2rem);
+}
+
+.footer-legal {
+  border-top: 1px solid rgba(242, 242, 243, 0.14);
+  color: rgba(242, 242, 243, 0.5);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+  gap: 0.8rem 1.6rem;
+  justify-content: space-between;
+  letter-spacing: 0.1rem;
+  padding-top: clamp(0.7rem, 2svh, 1.3rem);
+}
+
+/* --- El resplandor que sigue al puntero ---------------------------- */
+.footer-glow-link {
+  --x: 50%;
+  --y: 50%;
+  border-radius: 0.55rem;
+  color: inherit;
+  cursor: pointer;
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  position: relative;
+  transition: color 200ms ease;
+}
+
+.footer-glow-link::before {
+  background: radial-gradient(circle at var(--x) var(--y), rgba(255, 77, 141, 0.34), transparent 4.6rem);
+  border-radius: inherit;
+  content: "";
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 220ms ease;
+  z-index: -1;
+}
+
+.footer-nav .footer-glow-link,
+.footer-social .footer-glow-link {
+  color: var(--muted);
+  font-size: clamp(0.82rem, 1vw, 0.98rem);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer-glow-link:hover::before {
+    opacity: 1;
+  }
+
+  .footer-glow-link:hover {
+    color: var(--ink);
+  }
+
+  .footer-cta:hover {
+    color: #ff8ad2;
+  }
+
+  .footer-cta:hover svg {
+    transform: translate(2px, -2px);
+  }
+}
+
+.footer-glow-link:focus-visible {
+  outline: 1px solid rgba(94, 161, 255, 0.7);
+  outline-offset: 2px;
 }
 
 @media (max-width: 1180px) {
@@ -5023,4 +5295,576 @@ p {
 @media (prefers-reduced-motion: reduce) {
   .loading-mark { animation: none; }
   .loading-screen { transition: none; }
+}
+
+
+/* ------------------------------------------------------------------
+   CONTACTO EN CELULAR
+   Las cuatro redes tienen que entrar enteras en pantalla, incluso en
+   equipos de gama baja (320x480). La seccion es una columna de alto
+   fijo (100svh) y todo adentro se mide con clamp() atado a svh, asi
+   se comprime solo cuando la pantalla es mas baja en vez de cortarse.
+   ------------------------------------------------------------------ */
+@media (max-width: 860px) {
+  .scene.contact-scene {
+    align-content: center;
+    display: grid;
+    gap: clamp(0.7rem, 3svh, 1.9rem);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: 100svh;
+    justify-content: stretch;
+    overflow: hidden;
+    padding-bottom: clamp(1rem, 4svh, 2.6rem);
+    padding-top: calc(var(--header-h) + clamp(0.5rem, 2.2svh, 1.4rem));
+  }
+
+  .contact-scene .contact-copy {
+    min-height: 0;
+  }
+
+  .contact-scene .contact-copy .kicker {
+    font-size: clamp(0.52rem, 1.7svh, 0.68rem);
+    margin-bottom: clamp(0.3rem, 1.2svh, 0.8rem);
+  }
+
+  .contact-scene .contact-copy h2 {
+    font-size: clamp(1.3rem, 6.2vw + 0.15rem, 2.4rem);
+    line-height: 1.14;
+    margin: 0;
+  }
+
+  .contact-scene .contact-copy p:not(.kicker) {
+    font-size: clamp(0.72rem, 2.05svh, 0.92rem);
+    line-height: 1.45;
+    margin-top: clamp(0.35rem, 1.5svh, 0.95rem);
+  }
+
+  .contact-scene .social-grid {
+    align-content: center;
+    gap: clamp(0.45rem, 1.8svh, 0.95rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 0;
+  }
+
+  .contact-scene .social-card {
+    align-content: center;
+    border-radius: 0.9rem;
+    display: grid;
+    gap: clamp(0.25rem, 1svh, 0.55rem);
+    justify-items: start;
+    min-height: 0;
+    min-width: 0;
+    padding: clamp(0.55rem, 2svh, 1.05rem);
+  }
+
+  .contact-scene .social-card .social-glyph {
+    font-size: clamp(0.6rem, 1.65svh, 0.85rem);
+  }
+
+  /* El icono se mide contra la altura disponible: con el celular acostado
+     tiene que achicarse o se come la fila de abajo. */
+  .contact-scene .social-card .social-icon {
+    font-size: clamp(0.34rem, 1.5svh, 0.8rem);
+  }
+
+  .contact-scene .social-card strong {
+    font-size: clamp(0.8rem, 2.35svh, 1.05rem);
+    line-height: 1.15;
+    margin-top: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-scene .social-card small {
+    font-size: clamp(0.56rem, 1.85svh, 0.74rem);
+    line-height: 1.2;
+    margin-top: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Pantallas muy bajas (celulares chicos, o el navegador con la barra de
+   herramientas visible): el parrafo largo es lo primero que sobra. */
+@media (max-width: 860px) and (max-height: 620px) {
+  .contact-scene .contact-copy p:not(.kicker) {
+    display: none;
+  }
+
+  .scene.contact-scene {
+    padding-top: calc(var(--header-h) + clamp(0.3rem, 1.4svh, 0.8rem));
+  }
+}
+
+
+/* ------------------------------------------------------------------
+   TRABAJOS EN CELULAR
+   La seccion se arma como una columna de 100svh: titulo arriba y la
+   galeria ocupando lo que sobra. El ancho de la tarjeta se ata tambien
+   a svh, asi en pantallas bajas se achica en vez de cortarse el pie
+   de la tarjeta (titulo de la obra y boton de pantalla completa).
+   ------------------------------------------------------------------ */
+@media (max-width: 860px) {
+  .scene.work-scene {
+    display: grid;
+    gap: clamp(0.35rem, 1.5svh, 1.1rem);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 100svh;
+    padding-bottom: clamp(3.2rem, 8svh, 4.4rem);
+    padding-top: calc(var(--header-h) + clamp(0.35rem, 1.6svh, 1rem));
+  }
+
+  .work-scene .work-heading {
+    margin-left: 0;
+    min-height: 0;
+  }
+
+  .work-scene .work-heading .kicker {
+    font-size: clamp(0.5rem, 1.55svh, 0.68rem);
+    letter-spacing: 0.24rem;
+    margin-bottom: clamp(0.2rem, 0.9svh, 0.7rem);
+  }
+
+  .work-scene .work-heading h2 {
+    font-size: clamp(1.45rem, 6.4vw + 0.1rem, 2.85rem);
+    line-height: 1.04;
+    margin-bottom: 0;
+  }
+
+  .work-scene .work-stage {
+    height: auto;
+    margin-top: 0;
+    min-height: 0;
+    position: relative;
+  }
+
+  .work-scene .work-card {
+    /* El ancho manda: el alto sale del aspect-ratio 4/5. Atarlo tambien a
+       svh es lo que evita que la tarjeta se pase de alto. */
+    --card-w: min(72vw, 21rem, 40svh);
+    width: var(--card-w);
+  }
+
+  .work-scene .work-card.left {
+    --x: calc(var(--card-w) * -0.88);
+  }
+
+  .work-scene .work-card.right {
+    --x: calc(var(--card-w) * 0.88);
+  }
+
+  /* El encabezado de la tarjeta se mide contra el ancho real de la tarjeta:
+     con tarjetas chicas "FORMATO VERTICAL / HORIZONTAL" se cortaba. */
+  .work-scene .work-card-meta {
+    font-size: max(0.46rem, min(0.68rem, calc(var(--card-w) * 0.055)));
+    gap: 0.4rem;
+    left: calc(var(--card-w) * 0.06);
+    letter-spacing: 0.07rem;
+    right: calc(var(--card-w) * 0.06);
+    top: calc(var(--card-w) * 0.06);
+  }
+
+  /* El pie de la tarjeta tambien se mide contra la tarjeta: con distancias
+     fijas, en tarjetas bajas el titulo se montaba sobre el encabezado. */
+  .work-scene .work-card-copy {
+    bottom: calc(var(--card-w) * 0.3);
+    left: calc(var(--card-w) * 0.06);
+    max-width: calc(100% - var(--card-w) * 0.12);
+  }
+
+  .work-scene .work-card-footer {
+    bottom: calc(var(--card-w) * 0.055);
+    left: calc(var(--card-w) * 0.06);
+    right: calc(var(--card-w) * 0.06);
+  }
+
+  .work-scene .work-card-meta .runtime {
+    font-size: max(0.42rem, min(0.6rem, calc(var(--card-w) * 0.048)));
+    letter-spacing: 0.02rem;
+    max-width: 62%;
+    white-space: normal;
+  }
+
+  .work-scene .work-card .project-category {
+    font-size: max(0.46rem, min(0.72rem, calc(var(--card-w) * 0.052)));
+    letter-spacing: 0.16rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .work-scene .work-card-copy h3 {
+    font-size: max(0.95rem, min(1.95rem, calc(var(--card-w) * 0.155)));
+    max-width: 100%;
+  }
+}
+
+/* Pantallas bajas: se comprime el titulo de la seccion y la tarjeta. */
+@media (max-width: 860px) and (max-height: 620px) {
+  .work-scene .work-heading h2 {
+    font-size: clamp(1.3rem, 5.8vw + 0.1rem, 1.95rem);
+  }
+
+  .work-scene .work-card {
+    --card-w: min(68vw, 17rem, 37svh);
+  }
+}
+
+
+/* ------------------------------------------------------------------
+   CAMPANAS EN CELULAR
+   En escritorio las piezas van posicionadas de forma absoluta con
+   distancias fijas en rem; en pantallas bajas eso no entraba y el
+   mazo se montaba sobre el titulo y los controles quedaban afuera.
+   En celular el tablero pasa a ser una columna real: titulo / mazo /
+   texto de la campana / controles. El mazo toma el alto que sobra y
+   su ancho sale del aspect-ratio del cartucho.
+   ------------------------------------------------------------------ */
+@media (max-width: 860px) {
+  .premium-campaign-scene.services-scene {
+    height: 100svh;
+    min-height: 0;
+    padding: calc(var(--header-h) + clamp(0.3rem, 1.4svh, 0.9rem)) 0.8rem clamp(0.55rem, 1.6svh, 1rem);
+  }
+
+  .services-scene .premium-campaign-stage {
+    display: grid;
+    gap: clamp(0.3rem, 1.1svh, 0.85rem);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    padding: clamp(2.4rem, 5.6svh, 3.3rem) 1rem 0;
+  }
+
+  .services-scene .premium-campaign-copy {
+    left: auto;
+    max-width: none;
+    min-height: 0;
+    position: static;
+    right: auto;
+    top: auto;
+  }
+
+  .services-scene .premium-campaign-copy .kicker {
+    font-size: clamp(0.48rem, 1.5svh, 0.62rem);
+  }
+
+  .services-scene .premium-campaign-copy h2 {
+    font-size: clamp(1.32rem, 6.2vw, 2.6rem);
+    line-height: 1.02;
+    margin: clamp(0.2rem, 0.9svh, 0.6rem) 0 0;
+    max-width: 100%;
+  }
+
+  .services-scene .premium-campaign-deck {
+    /* El cartucho es 9/16 y deriva su ancho del alto: el mazo copia esa
+       proporcion para quedar siempre centrado sobre las cartas. El 88%
+       deja el aire que necesita la carta activa, que la perspectiva
+       agranda y si no se montaba sobre el titulo. */
+    align-self: center;
+    aspect-ratio: 9 / 16;
+    bottom: auto;
+    height: 88%;
+    justify-self: center;
+    left: auto;
+    margin: 0;
+    min-height: 0;
+    position: relative;
+    transform: none;
+    width: auto;
+  }
+
+  .services-scene .premium-campaign-active-copy {
+    bottom: auto;
+    left: auto;
+    max-width: none;
+    min-height: 0;
+    position: static;
+    right: auto;
+    top: auto;
+    transform: none;
+  }
+
+  .services-scene .premium-campaign-active-copy span {
+    font-size: clamp(0.48rem, 1.5svh, 0.62rem);
+    letter-spacing: 0.18rem;
+    margin-bottom: clamp(0.15rem, 0.7svh, 0.45rem);
+  }
+
+  .services-scene .premium-campaign-active-copy h3 {
+    font-size: clamp(1.45rem, 7.4vw, 3rem);
+    line-height: 0.95;
+    max-width: 100%;
+  }
+
+  .services-scene .premium-campaign-transport {
+    bottom: auto;
+    left: auto;
+    min-height: 0;
+    padding: clamp(0.45rem, 1.3svh, 0.9rem) 0;
+    position: static;
+    right: auto;
+  }
+}
+
+
+/* ------------------------------------------------------------------
+   CAMPANAS CON EL CELULAR ACOSTADO
+   Apaisado hay ancho de sobra y muy poca altura: apilar en una sola
+   columna hacia que los dos titulos se pisaran y el mazo quedara sin
+   alto. Volvemos a dos columnas: textos a la izquierda, mazo a la
+   derecha y los controles cruzando abajo.
+   ------------------------------------------------------------------ */
+@media (max-width: 860px) and (orientation: landscape) {
+  .services-scene .premium-campaign-stage {
+    column-gap: clamp(0.8rem, 3vw, 1.8rem);
+    grid-template-columns: minmax(0, 1fr) min(32vw, 26svh);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    /* Arriba vive la fila "SELECCIONAR CAMPANA": sin este respiro el
+       titulo se le montaba encima. */
+    padding: clamp(2.6rem, 9.5svh, 3.4rem) 1.25rem 0;
+  }
+
+  /* El cartucho queda angosto con tan poca altura: dejamos solo el titulo
+     para que no se corte contra el borde. */
+  .services-scene .premium-campaign-cartridge-copy em,
+  .services-scene .premium-campaign-cartridge-copy small {
+    display: none;
+  }
+
+  .services-scene .premium-campaign-cartridge-copy {
+    bottom: 0.55rem;
+    left: 0.55rem;
+    right: 0.55rem;
+  }
+
+  .services-scene .premium-campaign-cartridge-copy strong {
+    font-size: clamp(0.58rem, 1.7svh, 0.78rem);
+    line-height: 1.1;
+  }
+
+  .services-scene .premium-campaign-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .services-scene .premium-campaign-copy h2 {
+    font-size: clamp(1.15rem, 3.4vw + 0.2rem, 2rem);
+  }
+
+  .services-scene .premium-campaign-deck {
+    align-self: center;
+    aspect-ratio: 9 / 16;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    height: 90%;
+    justify-self: center;
+    width: auto;
+  }
+
+  .services-scene .premium-campaign-active-copy {
+    align-self: end;
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .services-scene .premium-campaign-active-copy h3 {
+    font-size: clamp(1.25rem, 3.8vw + 0.2rem, 2.2rem);
+  }
+
+  .services-scene .premium-campaign-transport {
+    grid-column: 1 / 3;
+    grid-row: 3;
+  }
+}
+
+
+/* ------------------------------------------------------------------
+   PORTADA EN CELULAR
+   El bloque de texto se centraba sin tener en cuenta la barra superior
+   y en pantallas bajas el "Lucas Leiva / Editor audiovisual" quedaba
+   debajo del menu. Ahora la portada arranca despues de la barra real y
+   los tamanos se comprimen con la altura disponible.
+   ------------------------------------------------------------------ */
+@media (max-width: 860px) {
+  .scene.hero-scene {
+    align-content: center;
+    height: 100svh;
+    min-height: 100svh;
+    padding-bottom: clamp(3rem, 8svh, 4.2rem);
+    padding-top: calc(var(--header-h) + clamp(0.4rem, 1.8svh, 1.2rem));
+  }
+
+  .hero-scene .hero-copy .kicker {
+    font-size: clamp(0.52rem, 1.6svh, 0.7rem);
+    margin-bottom: clamp(0.25rem, 1.1svh, 0.8rem);
+  }
+
+  .hero-scene h1 {
+    font-size: clamp(1.6rem, 7.4vw + 0.1rem, 3rem);
+    line-height: 1.05;
+  }
+
+  .hero-scene .hero-lead {
+    font-size: clamp(0.78rem, 2.05svh, 1rem);
+    line-height: 1.5;
+    margin-top: clamp(0.5rem, 2svh, 1.1rem);
+  }
+
+  .hero-scene .hero-actions {
+    gap: clamp(0.45rem, 1.6svh, 0.9rem);
+    margin-top: clamp(0.75rem, 3svh, 2.1rem);
+  }
+
+  .hero-scene .magnetic-button {
+    min-height: 0;
+    padding-block: clamp(0.62rem, 2svh, 1.05rem);
+  }
+}
+
+
+/* ------------------------------------------------------------------
+   PIE DE PAGINA EN CELULAR
+   Parado, todo pasa a una sola columna y el foco queda de fondo, con
+   menos peso, para no pelear con el texto. Acostado se mantienen las
+   dos columnas, que es lo que entra bien con tan poca altura.
+   ------------------------------------------------------------------ */
+@media (max-width: 860px) {
+  .scene.footer-scene {
+    height: 100svh;
+    padding-bottom: clamp(0.9rem, 3svh, 1.8rem);
+    padding-top: calc(var(--header-h) + clamp(0.4rem, 1.8svh, 1.1rem));
+  }
+
+  .footer-inner {
+    gap: clamp(0.7rem, 2.4svh, 1.6rem);
+  }
+
+  .footer-brand h2 {
+    font-size: clamp(1.35rem, 6vw, 2.3rem);
+    margin-top: clamp(0.3rem, 1.2svh, 0.8rem);
+  }
+
+  .footer-contact-line {
+    font-size: clamp(0.8rem, 2.1svh, 0.98rem);
+    margin-top: clamp(0.2rem, 0.9svh, 0.5rem);
+  }
+
+  .footer-cta {
+    font-size: clamp(0.95rem, 2.5svh, 1.15rem);
+    margin-top: clamp(0.55rem, 1.8svh, 1.1rem);
+  }
+
+  .footer-rows {
+    gap: clamp(0.3rem, 1.4svh, 0.8rem);
+    padding-top: clamp(0.5rem, 1.8svh, 1.1rem);
+  }
+
+  .footer-nav .footer-glow-link,
+  .footer-social .footer-glow-link {
+    font-size: clamp(0.72rem, 1.95svh, 0.9rem);
+    padding: 0.28rem 0.45rem;
+  }
+
+  .footer-legal {
+    font-size: clamp(0.6rem, 1.6svh, 0.72rem);
+    gap: 0.3rem 1rem;
+    letter-spacing: 0.06rem;
+    padding-top: clamp(0.45rem, 1.6svh, 1rem);
+  }
+
+  /* El foco queda de fondo: mas chico y con menos presencia. */
+  .footer-stage {
+    opacity: 0.62;
+  }
+
+  .footer-beam {
+    width: min(26rem, 76vw);
+  }
+
+  .footer-podium {
+    height: clamp(3rem, 9svh, 5rem);
+    top: 58%;
+    width: min(19rem, 62vw);
+  }
+}
+
+/* Parado: una sola columna, y las redes debajo de las secciones. */
+@media (max-width: 860px) and (orientation: portrait) {
+  .footer-top {
+    grid-template-columns: 1fr;
+    gap: clamp(0.6rem, 2.2svh, 1.4rem);
+  }
+
+  .footer-brand {
+    max-width: none;
+  }
+
+  .footer-contact {
+    margin-top: 0;
+    min-width: 0;
+  }
+
+  .footer-rows {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-social {
+    border-left: 0;
+    border-top: 1px solid rgba(242, 242, 243, 0.1);
+    padding-left: 0;
+    padding-top: clamp(0.35rem, 1.4svh, 0.8rem);
+    width: 100%;
+  }
+
+  .footer-legal {
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+}
+
+/* Acostado hay ancho de sobra: se mantienen las dos columnas. */
+@media (max-width: 860px) and (orientation: landscape) {
+  .footer-top {
+    gap: clamp(1rem, 3vw, 2.4rem);
+  }
+
+  .footer-brand h2 {
+    font-size: clamp(1.2rem, 3.4vw, 2rem);
+  }
+
+  .footer-contact {
+    margin-top: 0;
+    min-width: min(14rem, 38vw);
+  }
+
+  .footer-podium {
+    top: 52%;
+    width: min(15rem, 32vw);
+  }
+}
+
+/* Pantallas parado muy bajas: se aprieta lo justo para que la ultima
+   linea del pie no quede cortada. */
+@media (max-width: 860px) and (max-height: 540px) and (orientation: portrait) {
+  .footer-inner {
+    gap: clamp(0.35rem, 1.5svh, 0.9rem);
+  }
+
+  .footer-brand h2 {
+    font-size: clamp(1.18rem, 5.4vw, 1.7rem);
+  }
+
+  .footer-contact-line {
+    margin-top: 0.12rem;
+  }
+
+  .footer-cta {
+    margin-top: 0.45rem;
+  }
+
+  .footer-legal {
+    font-size: 0.57rem;
+    letter-spacing: 0.04rem;
+  }
 }

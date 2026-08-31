@@ -26,6 +26,33 @@ export function ExperiencePage() {
     document.documentElement.lang = language;
   }, [language]);
 
+  // La barra superior cambia de alto segun el equipo (en celular pasa a dos
+  // filas, y el ancho del idioma varia). Publicamos su alto real en --header-h
+  // para que ninguna seccion tenga que adivinarlo y quede tapada.
+  useEffect(() => {
+    const header = document.querySelector<HTMLElement>(".site-header");
+    if (!header) return;
+
+    const publish = () => {
+      const height = Math.round(header.getBoundingClientRect().height);
+      if (height > 0) {
+        document.documentElement.style.setProperty("--header-h", `${height}px`);
+      }
+    };
+
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(header);
+    window.addEventListener("resize", publish);
+    window.addEventListener("orientationchange", publish);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", publish);
+      window.removeEventListener("orientationchange", publish);
+    };
+  }, []);
+
   // Marcamos la seccion activa sobre los <section> que ya existen, sin envolver
   // nada: cambiar la estructura del DOM es justo lo que rompe la sala 3D.
   useEffect(() => {
@@ -75,7 +102,12 @@ export function ExperiencePage() {
         <BioScene copy={copy.bio} isActive={activeId === "bio"} />
         <PremiumCampaignPlayerSection copy={copy.services} isActive={activeId === "services"} />
         <ContactScene copy={copy.contact} />
-        <FooterScene copy={copy.footer} />
+        <FooterScene
+          copy={copy.footer}
+          navItems={copy.navItems}
+          onNavigate={goToId}
+          socialLinks={copy.contact.socialLinks}
+        />
       </main>
     </>
   );

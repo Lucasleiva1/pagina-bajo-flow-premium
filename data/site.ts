@@ -6,30 +6,40 @@ export const languageOptions: Array<{ code: Language; label: string }> = [
   { code: "pt", label: "PT" },
 ];
 
+// DATOS DE CONTACTO DEL PIE. Los dos primeros son de relleno: hay que
+// reemplazarlos por los reales de Lucas antes de publicar.
+export const contactDetails = {
+  email: "hola@bajoflow.com", // PENDIENTE: correo real
+  phone: "+54 9 11 1234 5678", // PENDIENTE: telefono real
+  phoneHref: "+5491112345678", // PENDIENTE: telefono real, sin espacios
+  owner: "Lucas Leiva",
+};
+
+// El icono es el nombre del archivo en /public/images/social.
 const baseSocialLinks = [
   {
     label: "YouTube",
     handle: "@bajoflow",
     href: "https://www.youtube.com/@bajoflow",
-    icon: "play",
+    icon: "youtube",
   },
   {
     label: "Instagram",
     handle: "@lucasleivafabian",
     href: "https://www.instagram.com/lucasleivafabian",
-    icon: "frame",
+    icon: "instagram",
   },
   {
     label: "Facebook",
     handle: "/lucasleivafabian",
     href: "https://www.facebook.com/lucasleivafabian",
-    icon: "dot",
+    icon: "facebook",
   },
   {
     label: "TikTok",
     handle: "@lucasleiva444",
     href: "https://www.tiktok.com/@lucasleiva444",
-    icon: "bolt",
+    icon: "tiktok",
   },
 ];
 
@@ -306,8 +316,13 @@ export const siteCopy = {
     },
     footer: {
       kicker: "Bajo Flow",
-      title: "Edición, color, audio y dirección visual para piezas que se sienten grandes.",
-      location: "Lucas Leiva - Buenos Aires",
+      title: "Tu próximo proyecto merece la mejor versión.",
+      contactKicker: "Hablemos",
+      location: "Buenos Aires, Argentina",
+      cta: "Hablemos de tu proyecto",
+      navLabel: "Secciones",
+      socialLabel: "Redes",
+      tagline: "Hecho con intención. Editado con precisión.",
     },
   },
   en: {
@@ -582,8 +597,13 @@ export const siteCopy = {
     },
     footer: {
       kicker: "Bajo Flow",
-      title: "Editing, color, audio, and visual direction for pieces that feel big.",
-      location: "Lucas Leiva - Buenos Aires",
+      title: "Your next project deserves its best version.",
+      contactKicker: "Let's talk",
+      location: "Buenos Aires, Argentina",
+      cta: "Let's talk about your project",
+      navLabel: "Sections",
+      socialLabel: "Social",
+      tagline: "Made with intent. Edited with precision.",
     },
   },
   pt: {
@@ -836,8 +856,13 @@ export const siteCopy = {
     },
     footer: {
       kicker: "Bajo Flow",
-      title: "Edição, cor, áudio e direção visual para peças que parecem grandes.",
-      location: "Lucas Leiva - Buenos Aires",
+      title: "Seu próximo projeto merece a melhor versão.",
+      contactKicker: "Vamos conversar",
+      location: "Buenos Aires, Argentina",
+      cta: "Vamos falar do seu projeto",
+      navLabel: "Seções",
+      socialLabel: "Redes",
+      tagline: "Feito com intenção. Editado com precisão.",
     },
   },
 } satisfies Record<Language, {
@@ -944,7 +969,12 @@ export const siteCopy = {
   footer: {
     kicker: string;
     title: string;
+    contactKicker: string;
     location: string;
+    cta: string;
+    navLabel: string;
+    socialLabel: string;
+    tagline: string;
   };
 }>;
 
