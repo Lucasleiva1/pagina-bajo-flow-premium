@@ -4,12 +4,13 @@ import type { SiteCopy } from "@/data/site";
 
 type BioSceneProps = {
   copy: SiteCopy["bio"];
+  isActive: boolean;
 };
 
-export function BioScene({ copy }: BioSceneProps) {
+export function BioScene({ copy, isActive }: BioSceneProps) {
   return (
     <SceneShell className="bio-scene" id="bio">
-      <BioRoomExperience copy={copy} />
+      <BioRoomExperience copy={copy} isActive={isActive} />
     </SceneShell>
   );
 }

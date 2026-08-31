@@ -20,11 +20,14 @@
   box-sizing: border-box;
 }
 
+/* La pagina ya no scrollea: es un pase de secciones con difuminado.
+   El alto queda fijo al viewport y el desplazamiento vertical se anula. */
 html {
   background: var(--bg);
-  scroll-behavior: smooth;
+  height: 100%;
+  overflow: hidden;
+  scroll-behavior: auto;
   scroll-padding-top: 0;
-  scroll-snap-type: y mandatory;
 }
 
 html.campaign-fullscreen-scroll-lock,
@@ -40,8 +43,10 @@ body {
     var(--bg);
   color: var(--ink);
   font-family: var(--font-ui);
+  height: 100%;
   margin: 0;
   min-height: 100vh;
+  overflow: hidden;
   overflow-x: hidden;
 }
 
@@ -81,19 +86,44 @@ canvas {
   display: block;
 }
 
-.snap-stage {
-  position: relative;
+/* Todas las secciones apiladas en el mismo lugar. Ninguna se mueve nunca:
+   solo cambia la opacidad. Asi la sala 3D se monta una vez y no se destruye. */
+.section-stack {
+  inset: 0;
+  position: fixed;
   z-index: 1;
 }
 
 .scene {
+  inset: 0;
   isolation: isolate;
-  min-height: 100vh;
+  opacity: 0;
   overflow: hidden;
   padding: 7.5rem 7vw 4.5rem;
-  position: relative;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 600ms ease;
+  visibility: hidden;
+  z-index: 1;
+}
+
+.scene.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  z-index: 2;
+}
+
+/* La seccion que se va sigue visible mientras dura el cruce. */
+.scene:not(.is-active) {
+  transition: opacity 600ms ease, visibility 0s linear 600ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene,
+  .scene:not(.is-active) {
+    transition: none;
+  }
 }
 
 .scene-border {
@@ -4900,4 +4930,90 @@ p {
     scroll-behavior: auto !important;
     transition-duration: 1ms !important;
   }
+}
+
+/* ---------------------------------------------------------------
+   PANTALLA DE CARGA INICIAL
+   Espera solo lo de la portada. Se va sola con un tope de 7 s.
+   --------------------------------------------------------------- */
+.loading-screen {
+  align-items: center;
+  background: #04060c;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  opacity: 1;
+  position: fixed;
+  transition: opacity 700ms ease;
+  z-index: 9999;
+}
+
+.loading-screen.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-inner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  padding: 2rem;
+  width: min(420px, 82vw);
+}
+
+.loading-brand {
+  align-items: center;
+  display: flex;
+  gap: 0.85rem;
+}
+
+.loading-brand strong {
+  color: #f2f2f3;
+  font-family: var(--font-editorial-condensed), var(--font-ui), sans-serif;
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  font-weight: 400;
+  letter-spacing: 0.34em;
+}
+
+.loading-mark {
+  background: linear-gradient(90deg, #ff4d8d, #ffd166, #5ea1ff);
+  border-radius: 999px;
+  display: block;
+  height: 0.72rem;
+  width: 2.6rem;
+  animation: loading-mark-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-mark-pulse {
+  0%, 100% { opacity: 1; transform: scaleX(1); }
+  50% { opacity: 0.55; transform: scaleX(0.72); }
+}
+
+.loading-bar {
+  background: rgba(242, 242, 243, 0.14);
+  border-radius: 999px;
+  height: 2px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.loading-bar span {
+  background: linear-gradient(90deg, #ff4d8d, #5ea1ff);
+  display: block;
+  height: 100%;
+  transition: width 260ms ease;
+}
+
+.loading-caption {
+  color: rgba(242, 242, 243, 0.5);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-mark { animation: none; }
+  .loading-screen { transition: none; }
 }

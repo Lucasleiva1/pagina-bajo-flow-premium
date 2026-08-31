@@ -10,6 +10,7 @@ import { playWhoosh, playModalOpen, playClickTick } from "@/lib/soundEffects";
 
 type BioRoomExperienceProps = {
   copy: SiteCopy["bio"];
+  isActive: boolean;
 };
 
 type MobileWallPan = {
@@ -20,7 +21,7 @@ type MobileWallPan = {
   startY: number;
 };
 
-export function BioRoomExperience({ copy }: BioRoomExperienceProps) {
+export function BioRoomExperience({ copy, isActive }: BioRoomExperienceProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
   const isOverlayOpen = useBioRoomStore((state) => state.isOverlayOpen);
@@ -58,49 +59,8 @@ export function BioRoomExperience({ copy }: BioRoomExperienceProps) {
   }, [isOverlayOpen]);
 
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(max-width: 860px)").matches) return;
-
-    const root = document.documentElement;
-    const body = document.body;
-
-    if (!isSideRoomView) {
-      root.classList.remove("bio-room-scroll-locked");
-      body.classList.remove("bio-room-scroll-locked");
-      return;
-    }
-
-    sectionRef.current?.scrollIntoView({ block: "start" });
-    root.classList.add("bio-room-scroll-locked");
-    body.classList.add("bio-room-scroll-locked");
-
-    return () => {
-      root.classList.remove("bio-room-scroll-locked");
-      body.classList.remove("bio-room-scroll-locked");
-    };
-  }, [isSideRoomView]);
-
-  useEffect(() => {
-    const element = sectionRef.current;
-    if (!element) return;
-
-    function handleWheel(event: WheelEvent) {
-      if (window.matchMedia("(max-width: 860px)").matches) return;
-
-      if (isSideRoomView) {
-        event.preventDefault();
-        event.stopPropagation();
-        adjustSideWallZoom(event.deltaY > 0 ? 0.045 : -0.045);
-      }
-    }
-
-    element.addEventListener("wheel", handleWheel, { passive: false });
-
-    return () => {
-      element.removeEventListener("wheel", handleWheel);
-    };
-  }, [adjustSideWallZoom, isSideRoomView]);
+  // El bloqueo de scroll y el zoom con rueda se quitaron: la pagina ya no
+  // scrollea y la rueda cambia de seccion en todo el sitio.
 
 
   function handleReturnHome() {
@@ -163,7 +123,7 @@ export function BioRoomExperience({ copy }: BioRoomExperienceProps) {
       onPointerUp={finishMobileWallPan}
       ref={sectionRef}
     >
-      <BioRoomCanvas copy={copy} />
+      <BioRoomCanvas copy={copy} isActive={isActive} />
       {isRoomViewOpen ? (
         <button
           aria-label="Volver al centro de la Bio Room"

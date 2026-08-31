@@ -8,6 +8,7 @@ import type { Project } from "@/data/site";
 type WorkGallery3DProps = {
   active: number;
   dragOffset?: number;
+  isSectionActive?: boolean;
   labels: {
     gallery: string;
     project: string;
@@ -38,9 +39,16 @@ function formatIndex(index: number) {
   return String(index + 1).padStart(2, "0");
 }
 
+function posterForVideo(src: string) {
+  const name = src.split("/").pop()?.replace(/\.\w+$/, "");
+
+  return name ? `/images/work/${name}-poster.jpg` : undefined;
+}
+
 export function WorkGallery3D({
   active,
   dragOffset = 0,
+  isSectionActive = true,
   labels,
   projects,
   setActive,
@@ -49,6 +57,9 @@ export function WorkGallery3D({
   const dragXSpring = useSpring(0, { stiffness: 220, damping: 26 });
   const dragTiltSpring = useSpring(0, { stiffness: 220, damping: 26 });
   const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
+  const [hasEnteredView, setHasEnteredView] = useState(false);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const cardVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const fullscreenCloseFrameRef = useRef<number | null>(null);
   const fullscreenContainerRef = useRef<HTMLDivElement | null>(null);
   const fullscreenTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -63,6 +74,29 @@ export function WorkGallery3D({
     dragXSpring.set(dragOffset);
     dragTiltSpring.set(dragOffset / -28);
   }, [dragOffset, dragXSpring, dragTiltSpring]);
+
+  // Performance: los videos no se descargan hasta la primera vez que la seccion
+  // se vuelve activa. Despues quedan montados para siempre (nunca se recargan).
+  const isInView = isSectionActive;
+
+  useEffect(() => {
+    if (isSectionActive) setHasEnteredView(true);
+  }, [isSectionActive]);
+
+  // Performance: solo la tarjeta central reproduce; las laterales quedan en su poster.
+  useEffect(() => {
+    if (!hasEnteredView) return;
+
+    cardVideoRefs.current.forEach((video, index) => {
+      if (!video) return;
+
+      if (index === active && isInView && fullscreenIndex === null) {
+        video.play().catch(() => undefined);
+      } else {
+        video.pause();
+      }
+    });
+  }, [active, fullscreenIndex, hasEnteredView, isInView]);
 
   const transform = useTransform(
     [dragXSpring, dragTiltSpring],
@@ -236,7 +270,7 @@ export function WorkGallery3D({
     : null;
 
   return (
-    <div className="work-canvas cinematic-gallery" aria-label={labels.gallery}>
+    <div className="work-canvas cinematic-gallery" aria-label={labels.gallery} ref={galleryRef}>
       <div className="gallery-atmosphere" aria-hidden="true" />
       <motion.div
         className={`gallery-orbit${dragOffset !== 0 ? " dragging" : ""}`}
@@ -271,13 +305,16 @@ export function WorkGallery3D({
               )}
               <div className="work-card-media-wrap" suppressHydrationWarning>
                 <video
-                  autoPlay
                   className="work-card-media"
                   loop
                   muted
                   playsInline
-                  preload="auto"
-                  src={project.video}
+                  poster={posterForVideo(project.video)}
+                  preload={hasEnteredView && isActive ? "metadata" : "none"}
+                  ref={(node) => {
+                    cardVideoRefs.current[index] = node;
+                  }}
+                  src={hasEnteredView && isVisible ? project.video : undefined}
                 >
                   <track kind="captions" />
                 </video>

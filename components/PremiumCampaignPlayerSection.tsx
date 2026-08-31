@@ -99,12 +99,19 @@ function getCardStyle(offset: number, dragOffset: number) {
   };
 }
 
-export function PremiumCampaignPlayerSection({ copy }: { copy: SiteCopy["services"] }) {
+export function PremiumCampaignPlayerSection({
+  copy,
+  isActive = true,
+}: {
+  copy: SiteCopy["services"];
+  isActive?: boolean;
+}) {
   const campaigns = copy.services;
   const [activeIndex, setActiveIndex] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isInView, setIsInView] = useState(false);
+  // Con las secciones apiladas, la que manda es cual esta activa.
+  const isInView = isActive;
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [playbackProgress, setPlaybackProgress] = useState(0);
@@ -144,20 +151,6 @@ export function PremiumCampaignPlayerSection({ copy }: { copy: SiteCopy["service
     resumeTimeRef.current = 0;
   }, [activeIndex]);
 
-  useEffect(() => {
-    const section = document.getElementById("services");
-    if (!section) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsInView(entry.isIntersecting && entry.intersectionRatio >= 0.42);
-      },
-      { threshold: [0, 0.42, 0.7] },
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     const video = videoRef.current;

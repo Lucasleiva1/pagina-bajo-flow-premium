@@ -32,6 +32,7 @@ import { type BioRoomView, useBioRoomStore } from "@/lib/useBioRoomStore";
 
 type BioRoomCanvasProps = {
   copy: SiteCopy["bio"];
+  isActive?: boolean;
 };
 
 const collapsedLevaFolder = { collapsed: true } as const;
@@ -975,7 +976,7 @@ function useBioRoomDpr(): [number, number] {
   return dpr;
 }
 
-export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
+export function BioRoomCanvas({ copy, isActive = true }: BioRoomCanvasProps) {
   const dpr = useBioRoomDpr();
   const isBioLevaDisabled = useBioRoomStore((state) => state.isBioLevaDisabled);
   const showBioRoomLevaPanel = bioRoomDevToolsEnabled && !isBioLevaDisabled;
@@ -1056,6 +1057,10 @@ export function BioRoomCanvas({ copy }: BioRoomCanvasProps) {
       <BioRoomSaveButton />
       <Canvas
         dpr={dpr}
+        // Clave: el Canvas NUNCA se desmonta. Cuando la seccion no esta activa
+        // solo se congela el motor ("demand"), conservando el contexto WebGL y
+        // las texturas ya cargadas. Al volver retoma al instante, sin recargar.
+        frameloop={isActive ? "always" : "demand"}
         gl={{
           alpha: false,
           antialias: true,

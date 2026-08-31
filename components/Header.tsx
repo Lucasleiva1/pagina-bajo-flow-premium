@@ -8,6 +8,7 @@ type HeaderProps = {
   language: Language;
   languages: Array<{ code: Language; label: string }>;
   onLanguageChange: (language: Language) => void;
+  onNavigate: (id: string) => void;
   isHidden?: boolean;
 };
 
@@ -21,33 +22,17 @@ export function Header({
   language,
   languages,
   onLanguageChange,
+  onNavigate,
   isHidden,
 }: HeaderProps) {
+  // Ya no hay scroll de documento: el menu cambia de seccion con el difuminado.
   const handleNavClick = (href: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     if (!href.startsWith("#")) {
       return;
     }
 
-    const target = document.querySelector<HTMLElement>(href);
-
-    if (!target) {
-      return;
-    }
-
     event.preventDefault();
-
-    const headerHeight = document.querySelector<HTMLElement>(".site-header")?.getBoundingClientRect().height ?? 0;
-    const isMobileBioRoom = target.id === "bio" && window.innerWidth <= 860;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const headerOffset = isMobileBioRoom ? 0 : headerHeight + 12;
-    const mobileBioOverscan = isMobileBioRoom ? 16 : 0;
-    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerOffset + mobileBioOverscan);
-
-    window.history.replaceState(null, "", href);
-    window.scrollTo({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      top,
-    });
+    onNavigate(href.replace("#", ""));
   };
 
   return (

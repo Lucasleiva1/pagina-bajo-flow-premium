@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { SceneShell } from "@/components/SceneShell";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { MagneticButton } from "@/components/ui/MagneticButton";
@@ -9,6 +9,7 @@ import type { SiteCopy } from "@/data/site";
 
 type HeroSceneProps = {
   copy: SiteCopy["hero"];
+  isActive: boolean;
 };
 
 const HERO_VIDEOS = [
@@ -19,27 +20,14 @@ const HERO_VIDEOS = [
   { id: "hero-portada-5", title: "Showreel 05" },
 ];
 
-export function HeroScene({ copy }: HeroSceneProps) {
+export function HeroScene({ copy, isActive }: HeroSceneProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [isInView, setIsInView] = useState(true);
   const heroRef = useRef<HTMLDivElement>(null);
 
-  // Performance Optimization: Pause video playback when hero is scrolled out of viewport
-  useEffect(() => {
-    const node = heroRef.current;
-    if (!node) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsInView(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+  // Con las secciones apiladas todas estan siempre "en pantalla": la que manda
+  // es cual esta activa. El video solo corre en la seccion visible.
+  const isInView = isActive;
 
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const vid = e.currentTarget;

@@ -8,9 +8,10 @@ import type { SiteCopy } from "@/data/site";
 
 type WorkSceneProps = {
   copy: SiteCopy["work"];
+  isActive: boolean;
 };
 
-export function WorkScene({ copy }: WorkSceneProps) {
+export function WorkScene({ copy, isActive }: WorkSceneProps) {
   const [active, setActive] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const dragStart = useRef<number | null>(null);
@@ -68,6 +69,7 @@ export function WorkScene({ copy }: WorkSceneProps) {
         <WorkGallery3D
           active={active}
           dragOffset={dragOffset}
+          isSectionActive={isActive}
           labels={{
             gallery: `${copy.kicker} 3D`,
             project: copy.projectAria,
