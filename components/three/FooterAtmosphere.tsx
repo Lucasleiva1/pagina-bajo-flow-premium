@@ -875,7 +875,13 @@ export function FooterAtmosphere({ isActive, intensityRef }: FooterAtmospherePro
   // antialias mas parejo que hay, saca el escalonado de TODO (siluetas,
   // lineas y bordes dibujados por shader) y no necesita ni composer ni
   // pasadas extra. En celular se respeta el tope del dispositivo.
-  const dprFinal: [number, number] = [1, compact ? Math.min(dpr[1], resolucionInterna) : resolucionInterna];
+  //
+  // OJO: tiene que ser UN numero, no un rango. Un rango [min, max] en React
+  // Three Fiber significa "arranca en el minimo y sube solo si el equipo da",
+  // y como nada lo hace subir se quedaba clavado en 1. Con esto puesto el
+  // deslizador parecia funcionar (porque al moverlo se reasignaba a mano)
+  // pero al abrir la pagina no se aplicaba nunca.
+  const dprFinal = compact ? Math.min(dpr[1], resolucionInterna) : resolucionInterna;
 
   const efectos: React.ReactElement[] = [];
   if (resplandor) {

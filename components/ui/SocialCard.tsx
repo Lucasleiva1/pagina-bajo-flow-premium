@@ -30,12 +30,18 @@ export function SocialCard({ label, handle, href, icon }: SocialCardProps) {
       rel="noreferrer"
       target="_blank"
     >
+      {/* suppressHydrationWarning: las extensiones del navegador (bloqueadores,
+          modo oscuro, ahorro de datos) tocan los <img> antes de que React
+          arranque, y eso dispara el aviso de hidratacion aunque el servidor y
+          el cliente esten bien. Es el mismo remedio que ya usa el layout en
+          <html> y <body>. */}
       <Image
         alt=""
         aria-hidden="true"
         className="social-icon"
         height={128}
         src={`/images/social/${icon}.png`}
+        suppressHydrationWarning
         width={128}
       />
       <strong>{label}</strong>
