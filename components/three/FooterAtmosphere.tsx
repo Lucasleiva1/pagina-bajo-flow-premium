@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentType, type RefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Bloom, EffectComposer, SMAA } from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
 import {
   AdditiveBlending,
   BoxGeometry,
@@ -11,10 +13,16 @@ import {
   Float32BufferAttribute,
   MathUtils,
   Quaternion,
+  UnsignedByteType,
   Vector3,
   type Group,
   type Mesh,
 } from "three";
+import {
+  postprocesadoActivo,
+  useFooterRenderStore,
+  VALORES_BASE,
+} from "@/lib/useFooterRenderStore";
 
 /* ===================================================================
    ATMOSFERA DEL PIE DE PAGINA
@@ -66,6 +74,22 @@ function lampBreath(time: number) {
 function lampSpread(time: number) {
   return 1 + Math.sin(time * 0.33) * 0.06 + Math.sin(time * 0.19 + 2.1) * 0.035;
 }
+
+/**
+ * SUAVIZADO DE BORDES, CON LA MEZCLA CORREGIDA.
+ *
+ * El SMAA viene con un modo de mezcla que SUMA su resultado sobre la imagen
+ * original. En una escena normal casi no se nota; en esta, donde el haz y el
+ * polvo ya se dibujan sumando luz, el resultado era la escena al doble de
+ * brillo. Medido: +29,8 niveles sobre 255 en la zona del haz, con el composer
+ * vacio dando +0,00, asi que la culpa era del efecto y no del pipeline.
+ *
+ * SRC hace que la salida REEMPLACE a la entrada, que es lo que un antialias
+ * tiene que hacer. El componente de la libreria no expone esa opcion, pero
+ * React Three Fiber aplica las props con guion como rutas anidadas, asi que
+ * "blendMode-blendFunction" llega a efecto.blendMode.blendFunction.
+ */
+const SuavizadoSMAA = SMAA as unknown as ComponentType<Record<string, unknown>>;
 
 /* -------------------------------------------------------------------
    1. EL HAZ
@@ -142,15 +166,20 @@ function Beam({ intensityRef }: { intensityRef: RefObject<number> }) {
 
   useFrame((state) => {
     const time = state.clock.elapsedTime;
+    // Se lee el estado sin suscribirse: asi mover un control del panel no
+    // vuelve a montar la escena, solo cambia el valor del proximo cuadro.
+    const { luzHaz, luzApertura, luzParpadeo } = useFooterRenderStore.getState();
+
     uniforms.uTime.value = time;
     uniforms.uIntensity.value = MathUtils.lerp(uniforms.uIntensity.value, intensityRef.current, 0.045);
-    uniforms.uLamp.value = lampBreath(time);
+    // Solo el brillo del HAZ: la lente tiene su propio control.
+    uniforms.uLamp.value = (1 + (lampBreath(time) - 1) * luzParpadeo) * luzHaz;
 
     // El cono se abre y se cierra a lo ancho. El eje del haz es la Y local,
     // asi que se escala en X y Z y el largo queda intacto.
     const mesh = meshRef.current;
     if (mesh) {
-      const spread = lampSpread(time);
+      const spread = (1 + (lampSpread(time) - 1) * luzParpadeo) * luzApertura;
       mesh.scale.set(spread, 1, spread);
     }
   });
@@ -219,13 +248,16 @@ function LensGlow({ intensityRef }: { intensityRef: RefObject<number> }) {
 
   useFrame((state) => {
     const time = state.clock.elapsedTime;
+    const { luzLente, luzApertura, luzParpadeo } = useFooterRenderStore.getState();
+
     uniforms.uIntensity.value = MathUtils.lerp(uniforms.uIntensity.value, intensityRef.current, 0.045);
-    uniforms.uLamp.value = lampBreath(time);
+    // Solo el brillo de la LENTE, independiente del haz.
+    uniforms.uLamp.value = (1 + (lampBreath(time) - 1) * luzParpadeo) * luzLente;
 
     // El circulo de luz late junto con el haz: si no, se despegan y se nota.
     const mesh = meshRef.current;
     if (mesh) {
-      const spread = 1 + (lampSpread(time) - 1) * 0.55;
+      const spread = (1 + (lampSpread(time) - 1) * 0.55 * luzParpadeo) * (0.5 + luzApertura * 0.5);
       mesh.scale.set(spread, spread, 1);
     }
   });
@@ -309,11 +341,11 @@ function ProjectorHead() {
       </mesh>
       {/* Dos aros: son lo unico del proyector que devuelve algo de luz. */}
       <mesh position={[0, 0.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.62, 0.045, 6, 36]} />
+        <torusGeometry args={[0.62, 0.045, 12, 56]} />
         <meshBasicMaterial color="#243044" />
       </mesh>
       <mesh position={[0, -0.18, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.72, 0.03, 6, 36]} />
+        <torusGeometry args={[0.72, 0.03, 12, 56]} />
         <meshBasicMaterial color="#141c29" />
       </mesh>
     </group>
@@ -339,6 +371,8 @@ const dustVertexShader = /* glsl */ `
   uniform float uBeamSpread;
   uniform float uRiseSpeed;
   uniform float uRiseSpan;
+  /** 0 congela el bamboleo lateral; va de la mano con la velocidad al flotar. */
+  uniform float uMotion;
 
   attribute float aSeed;
   attribute float aScale;
@@ -357,9 +391,9 @@ const dustVertexShader = /* glsl */ `
     drifted.y += (phase - 0.5) * uRiseSpan;
 
     // Encima del ascenso, un bamboleo lateral para que no suban en linea recta.
-    drifted.x += sin(uTime * 0.190 + aSeed * 6.283) * 0.23;
-    drifted.z += sin(uTime * 0.164 + aSeed * 3.117) * 0.20;
-    drifted.y += cos(uTime * 0.143 + aSeed * 12.71) * 0.09;
+    drifted.x += sin(uTime * 0.190 + aSeed * 6.283) * 0.23 * uMotion;
+    drifted.z += sin(uTime * 0.164 + aSeed * 3.117) * 0.20 * uMotion;
+    drifted.y += cos(uTime * 0.143 + aSeed * 12.71) * 0.09 * uMotion;
 
     // Distancia al eje del haz: es lo que decide si la particula se ve.
     vec3 toPoint = drifted - uBeamOrigin;
@@ -372,7 +406,7 @@ const dustVertexShader = /* glsl */ `
     inside *= 1.0 - smoothstep(uBeamLength * 0.62, uBeamLength, along);
 
     // Centelleo: el polvo real entra y sale del foco todo el tiempo.
-    float twinkle = 0.68 + 0.32 * sin(uTime * 1.15 + aSeed * 21.7);
+    float twinkle = 1.0 - 0.32 * uMotion * (1.0 - sin(uTime * 1.15 + aSeed * 21.7));
     vBright = (0.07 + 0.93 * inside) * twinkle * wrapFade;
 
     vec4 mvPosition = modelViewMatrix * vec4(drifted, 1.0);
@@ -431,9 +465,10 @@ function Dust({ count, intensityRef }: { count: number; intensityRef: RefObject<
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uSize: { value: 0.1 },
+      uMotion: { value: 1 },
+      uSize: { value: VALORES_BASE.dustSize },
       uColor: { value: new Vector3(0.82, 0.89, 1.0) },
-      uOpacity: { value: 0.9 },
+      uOpacity: { value: VALORES_BASE.dustOpacity },
       uIntensity: { value: 1 },
       uBeamOrigin: { value: LENS },
       uBeamDir: { value: BEAM_DIR },
@@ -441,17 +476,27 @@ function Dust({ count, intensityRef }: { count: number; intensityRef: RefObject<
       uBeamStart: { value: BEAM_START_RADIUS },
       uBeamSpread: { value: BEAM_SPREAD },
       // Tarda unos 23 s en recorrer el tramo entero: se ve subir, no volar.
-      uRiseSpeed: { value: 0.075 },
+      uRiseSpeed: { value: VALORES_BASE.dustRiseSpeed },
       uRiseSpan: { value: 1.75 },
     }),
     [],
   );
 
   useFrame((state) => {
+    const { polvoVelocidad, polvoTamano, polvoBrillo, luzApertura } = useFooterRenderStore.getState();
+
     uniforms.uTime.value = state.clock.elapsedTime;
     // El polvo gana algo menos que el haz cuando el boton se ilumina.
     const target = 1 + (intensityRef.current - 1) * 0.7;
     uniforms.uIntensity.value = MathUtils.lerp(uniforms.uIntensity.value, target, 0.045);
+
+    uniforms.uSize.value = VALORES_BASE.dustSize * polvoTamano;
+    uniforms.uOpacity.value = VALORES_BASE.dustOpacity * polvoBrillo;
+    uniforms.uRiseSpeed.value = VALORES_BASE.dustRiseSpeed * polvoVelocidad;
+    // En 0 el polvo queda suspendido y quieto, sin bamboleo ni centelleo.
+    uniforms.uMotion.value = Math.min(polvoVelocidad, 1);
+    // Si el cono se abre, la zona iluminada del polvo se abre con el.
+    uniforms.uBeamSpread.value = BEAM_SPREAD * luzApertura;
   });
 
   return (
@@ -570,6 +615,14 @@ const filmFragmentShader = /* glsl */ `
   varying vec3 vNormalW;
   varying vec3 vWorldPos;
 
+  // Banda con bordes de ancho controlado. Si el ancho se calcula en pixeles
+  // (con fwidth) el borde queda igual de suave este la cinta cerca o lejos.
+  float banda(float valor, float desde, float hasta, float ancho) {
+    float w = max(ancho, 0.0015);
+    return smoothstep(desde - w, desde + w, valor)
+         * (1.0 - smoothstep(hasta - w, hasta + w, valor));
+  }
+
   void main() {
     vec3 normal = normalize(vNormalW);
     vec3 toLight = normalize(uLightPos - vWorldPos);
@@ -580,6 +633,15 @@ const filmFragmentShader = /* glsl */ `
     float along = vUv.x;
     float across = vUv.y;
 
+    // SUAVIZADO GRATIS. fwidth dice cuanto cambia una coordenada entre un
+    // pixel y el de al lado. Usando ese valor como ancho de transicion, las
+    // perforaciones y las lineas de fotograma nunca quedan escalonadas, sin
+    // necesidad de una pasada extra de pantalla completa. El tope evita que
+    // la banda desaparezca cuando la cinta se ve casi de canto.
+    float anchoCruz = min(fwidth(across) * 1.2, 0.05);
+    float anchoPerf = min(fwidth(along * uPerfPitch) * 1.2, 0.3);
+    float anchoFrame = min(fwidth(along * uFramePitch) * 1.2, 0.3);
+
     // PROPORCIONES DE 35 MM. Es lo que hace que se lea como pelicula y no
     // como un engranaje: cuatro perforaciones chicas por cada fotograma,
     // no un diente gigante por cuadro.
@@ -587,16 +649,16 @@ const filmFragmentShader = /* glsl */ `
     float frameCell = fract(along * uFramePitch);
 
     // Las dos filas de perforaciones, metidas hacia adentro del borde.
-    float rowTop = smoothstep(0.055, 0.075, across) * (1.0 - smoothstep(0.150, 0.170, across));
-    float rowBottom = smoothstep(0.830, 0.850, across) * (1.0 - smoothstep(0.925, 0.945, across));
+    float rowTop = banda(across, 0.065, 0.160, anchoCruz);
+    float rowBottom = banda(across, 0.840, 0.935, anchoCruz);
     float rows = max(rowTop, rowBottom);
-    float holeAlong = smoothstep(0.30, 0.345, perfCell) * (1.0 - smoothstep(0.545, 0.59, perfCell));
+    float holeAlong = banda(perfCell, 0.3225, 0.5675, anchoPerf);
     float perforation = rows * holeAlong;
 
     // La ventana de imagen y la linea que separa un fotograma del otro.
-    float image = smoothstep(0.215, 0.240, across) * (1.0 - smoothstep(0.760, 0.785, across));
+    float image = banda(across, 0.2275, 0.7725, anchoCruz);
     float toFrameEdge = min(frameCell, 1.0 - frameCell);
-    float frameLine = image * (1.0 - smoothstep(0.006, 0.020, toFrameEdge));
+    float frameLine = image * (1.0 - smoothstep(0.010, 0.010 + max(anchoFrame, 0.006), toFrameEdge));
 
     // Cada fotograma revelo distinto: una variacion fija por cuadro alcanza
     // para que la cinta no parezca una textura repetida.
@@ -641,12 +703,20 @@ function FilmStrip({ segments, opacity, animated }: { segments: number; opacity:
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   useFrame((state) => {
+    const { cintaOpacidad, cintaBalanceo } = useFooterRenderStore.getState();
+    uniforms.uOpacity.value = opacity * cintaOpacidad;
+
     const group = groupRef.current;
-    if (!group || !animated) return;
+    if (!group) return;
+    if (!animated) {
+      group.rotation.y = 0;
+      group.rotation.z = 0;
+      return;
+    }
     // Balanceo casi invisible: periodos larguisimos y amplitud de grados.
     const time = state.clock.elapsedTime;
-    group.rotation.y = Math.sin(time * 0.075) * 0.055;
-    group.rotation.z = Math.sin(time * 0.052 + 1.4) * 0.03;
+    group.rotation.y = Math.sin(time * 0.075) * 0.055 * cintaBalanceo;
+    group.rotation.z = Math.sin(time * 0.052 + 1.4) * 0.03 * cintaBalanceo;
   });
 
   return (
@@ -694,6 +764,25 @@ function CameraParallax({ enabled, depth }: { enabled: boolean; depth: number })
     camera.position.z = depth;
     camera.lookAt(0, 0, 0);
   });
+
+  return null;
+}
+
+/**
+ * RESOLUCION INTERNA EN CALIENTE.
+ * Cambiar la prop "dpr" del Canvas no reasigna la resolucion de un lienzo ya
+ * creado; hay que pedirselo al motor con setDpr. Sin esto el deslizador de
+ * resolucion se movia y no pasaba absolutamente nada.
+ */
+function ResolucionInterna({ compact, topeDispositivo }: { compact: boolean; topeDispositivo: number }) {
+  const setDpr = useThree((state) => state.setDpr);
+  const resolucion = useFooterRenderStore((estado) => estado.resolucionInterna);
+
+  useEffect(() => {
+    // En computadora se permite dibujar por encima de la pantalla (eso es el
+    // supersampling). En celular no: ahi el tope del dispositivo manda.
+    setDpr(compact ? Math.min(topeDispositivo, resolucion) : resolucion);
+  }, [compact, resolucion, setDpr, topeDispositivo]);
 
   return null;
 }
@@ -755,10 +844,54 @@ export function FooterAtmosphere({ isActive, intensityRef }: FooterAtmospherePro
     return () => document.removeEventListener("visibilitychange", sync);
   }, []);
 
+  // Estos si necesitan suscripcion: cambiarlos rehace geometria o el pipeline.
+  const efectosActivos = useFooterRenderStore((estado) => estado.efectosActivos);
+  const efectosEnCelular = useFooterRenderStore((estado) => estado.efectosEnCelular);
+  const suavizado = useFooterRenderStore((estado) => estado.suavizado);
+  const resplandor = useFooterRenderStore((estado) => estado.resplandor);
+  const resplandorIntensidad = useFooterRenderStore((estado) => estado.resplandorIntensidad);
+  const resplandorUmbral = useFooterRenderStore((estado) => estado.resplandorUmbral);
+  const resplandorRadio = useFooterRenderStore((estado) => estado.resplandorRadio);
+  const resolucionInterna = useFooterRenderStore((estado) => estado.resolucionInterna);
+  const polvoCantidad = useFooterRenderStore((estado) => estado.polvoCantidad);
+  const parallax = useFooterRenderStore((estado) => estado.parallax);
+
   const { compact, reduced, dpr } = profile;
   const animated = isActive && pageVisible && !reduced;
-  const dustCount = compact ? 90 : 420;
+  const baseDust = compact ? VALORES_BASE.dustCountCompact : VALORES_BASE.dustCount;
+  const dustCount = Math.max(0, Math.round(baseDust * polvoCantidad));
   const cameraDepth = compact ? 8.4 : 6;
+
+  // El postprocesado corre solo si el interruptor maestro esta puesto y el
+  // dispositivo lo permite. Apagado, no se monta el composer y la escena se
+  // dibuja por el mismo camino de siempre.
+  const conEfectos = postprocesadoActivo(
+    { efectosActivos, efectosEnCelular } as Parameters<typeof postprocesadoActivo>[0],
+    compact,
+  );
+
+  // LA RESOLUCION INTERNA MANDA. Dibujar por encima de la resolucion de la
+  // pantalla y dejar que el navegador reduzca es supersampling: es el
+  // antialias mas parejo que hay, saca el escalonado de TODO (siluetas,
+  // lineas y bordes dibujados por shader) y no necesita ni composer ni
+  // pasadas extra. En celular se respeta el tope del dispositivo.
+  const dprFinal: [number, number] = [1, compact ? Math.min(dpr[1], resolucionInterna) : resolucionInterna];
+
+  const efectos: React.ReactElement[] = [];
+  if (resplandor) {
+    efectos.push(
+      <Bloom
+        intensity={resplandorIntensidad}
+        key="resplandor"
+        luminanceSmoothing={resplandorRadio}
+        luminanceThreshold={resplandorUmbral}
+        mipmapBlur
+      />,
+    );
+  }
+  if (suavizado) {
+    efectos.push(<SuavizadoSMAA blendMode-blendFunction={BlendFunction.SRC} key="suavizado" />);
+  }
 
   return (
     <Canvas
@@ -766,14 +899,15 @@ export function FooterAtmosphere({ isActive, intensityRef }: FooterAtmospherePro
       // El canvas no se desmonta nunca: cuando el pie no esta activo solo se
       // congela el motor, conservando el contexto WebGL ya creado.
       frameloop={animated ? "always" : "demand"}
-      dpr={dpr}
+      dpr={dprFinal}
       gl={{ alpha: true, antialias: !compact, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
         gl.shadowMap.enabled = false;
       }}
     >
       <DemandPainter active={isActive} />
-      <CameraParallax depth={cameraDepth} enabled={animated && !compact} />
+      <ResolucionInterna compact={compact} topeDispositivo={dpr[1]} />
+      <CameraParallax depth={cameraDepth} enabled={animated && !compact && parallax} />
 
       <group position={[LENS.x, LENS.y, LENS.z]} quaternion={BEAM_QUATERNION}>
         <ProjectorHead />
@@ -782,7 +916,32 @@ export function FooterAtmosphere({ isActive, intensityRef }: FooterAtmospherePro
 
       <LensGlow intensityRef={intensityRef} />
       <Dust count={dustCount} intensityRef={intensityRef} />
-      <FilmStrip animated={animated} opacity={compact ? 0.4 : 0.52} segments={compact ? 44 : 88} />
+      <FilmStrip
+        animated={animated}
+        opacity={compact ? VALORES_BASE.filmOpacityCompact : VALORES_BASE.filmOpacity}
+        segments={compact ? 44 : 88}
+      />
+
+      {/* Con el interruptor maestro apagado esto no existe: ni composer ni
+          pasadas extra, exactamente el render de antes de instalar nada.
+          Si hay efectos pero no suavizado, se deja el MSAA del navegador
+          para no quedar peor que al principio.
+
+          UnsignedByteType es CLAVE y no es un detalle: por defecto el
+          composer usa un bufer lineal de media precision, y como los
+          shaders de esta escena escriben el color ya listo para pantalla,
+          al final se les aplicaba una segunda conversion y toda la escena
+          se aclaraba. Con este bufer el espacio de color es el mismo que
+          el del lienzo y prender los efectos no cambia el aspecto. */}
+      {conEfectos && efectos.length > 0 ? (
+        <EffectComposer
+          enableNormalPass={false}
+          frameBufferType={UnsignedByteType}
+          multisampling={suavizado ? 0 : 4}
+        >
+          {efectos}
+        </EffectComposer>
+      ) : null}
     </Canvas>
   );
 }

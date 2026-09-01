@@ -3,6 +3,7 @@
 import { useCallback, useRef } from "react";
 import { SceneShell } from "@/components/SceneShell";
 import { FooterAtmosphere } from "@/components/three/FooterAtmosphere";
+import { FooterRenderPanel, PANEL_RENDER_HABILITADO } from "@/components/three/FooterRenderPanel";
 import { contactDetails, type SiteCopy } from "@/data/site";
 
 type FooterSceneProps = {
@@ -41,6 +42,11 @@ export function FooterScene({ copy, socialLinks, onNavigate, isActive }: FooterS
       <div aria-hidden="true" className="footer-atmos">
         <FooterAtmosphere intensityRef={intensityRef} isActive={isActive} />
       </div>
+
+      {/* Panel de trabajo. Solo aparece en local; en la pagina publicada no
+          existe. Nada de la escena depende de el: si se saca, todo sigue
+          funcionando con los valores guardados en el centro de control. */}
+      {PANEL_RENDER_HABILITADO && isActive ? <FooterRenderPanel /> : null}
       {/* El fundido desde negro hacia la ultima escena. */}
       <div aria-hidden="true" className="footer-veil" />
 
