@@ -104,7 +104,7 @@ export function ExperiencePage() {
         <ContactScene copy={copy.contact} />
         <FooterScene
           copy={copy.footer}
-          navItems={copy.navItems}
+          isActive={activeId === "footer"}
           onNavigate={goToId}
           socialLinks={copy.contact.socialLinks}
         />

@@ -17,6 +17,9 @@
   --font-editorial-serif: "DM Serif Display", "Bodoni 72", "Didot", "Times New Roman", serif;
   --font-editorial-condensed: "Bebas Neue", "Arial Narrow", "Impact", sans-serif;
   --font-editorial-ui: "Space Grotesk", "Inter", "Segoe UI", system-ui, sans-serif;
+  /* Monoespaciada del sistema: da la lectura de metadata tecnica en el pie
+     sin sumar una fuente mas para descargar. */
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
 }
 
 * {
@@ -3957,275 +3960,382 @@ p {
 }
 
 /* ==================================================================
-   PIE DE PAGINA
-   Un foco cenital sobre una tarima, todo dibujado con CSS: asi la luz
-   puede titilar y la escena se adapta a cualquier pantalla sin cargar
-   una imagen. Encima, los datos de contacto y los accesos.
+   PIE DE PAGINA — EL ULTIMO PLANO
+   Contacto hace la invitacion y esto cierra la pieza: sala a oscuras,
+   el proyector todavia encendido y el titulo final.
+
+   Todo lo que se lee es HTML: el texto, el boton, el BAJO FLOW y la
+   chapa de datos. Si el WebGL no arrancara, el pie se veria igual de
+   bien; la escena 3D solo aporta el haz, el polvo y la cinta detras.
    ================================================================== */
 .footer-scene {
-  align-content: stretch;
-  background: radial-gradient(circle at 50% 12%, rgba(18, 12, 24, 0.9), #05070c 62%);
-  display: grid;
+  background:
+    radial-gradient(ellipse 72% 58% at 24% 44%, rgba(22, 36, 60, 0.5), transparent 72%),
+    radial-gradient(circle at 50% 112%, rgba(11, 19, 33, 0.8), transparent 60%),
+    #03050a;
+  display: block;
   overflow: hidden;
+  padding:
+    calc(var(--header-h) + clamp(0.5rem, 2.2svh, 1.9rem))
+    clamp(1.25rem, 3.6vw, 3.6rem)
+    clamp(0.9rem, 2.4svh, 1.9rem);
 }
 
-/* --- El foco y la tarima ------------------------------------------ */
-.footer-stage {
+/* --- La atmosfera 3D ----------------------------------------------
+   Decorativa y nada mas: no recibe puntero ni la ve el lector de
+   pantalla. Entra mucho mas lento que la seccion (1,9 s contra 0,6 s),
+   asi el corte con Contacto se siente un fundido y no un cambio de
+   diapositiva. ------------------------------------------------------ */
+.footer-atmos {
   inset: 0;
+  opacity: 0;
   pointer-events: none;
   position: absolute;
+  transition: opacity 1900ms cubic-bezier(0.4, 0, 0.2, 1) 140ms;
   z-index: 1;
 }
 
-.footer-beam {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 141, 196, 0.42) 0%,
-    rgba(186, 128, 218, 0.2) 36%,
-    rgba(120, 150, 235, 0.09) 64%,
-    transparent 90%
-  );
-  clip-path: polygon(46.8% 0, 53.2% 0, 72% 100%, 28% 100%);
-  filter: blur(46px);
-  height: 66%;
-  left: 50%;
-  /* Los costados del haz se desvanecen: si no, el cono se ve como un
-     triangulo recortado en vez de luz. */
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
-  position: absolute;
-  top: 0;
-  transform: translateX(-50%);
-  width: min(44rem, 60vw);
-  animation: footer-flicker 5.2s ease-in-out infinite;
+.footer-scene.is-active .footer-atmos {
+  opacity: 1;
 }
 
-/* El charco de luz sobre el que apoya la tarima. */
-.footer-glow {
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 150, 205, 0.3),
-    rgba(120, 90, 190, 0.14) 42%,
-    transparent 72%
-  );
-  filter: blur(12px);
-  height: 26%;
-  left: 50%;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -34%);
-  width: min(58rem, 78vw);
-  animation: footer-flicker 5.2s ease-in-out infinite;
-}
-
-.footer-podium {
-  height: clamp(4.6rem, 13svh, 8rem);
-  left: 50%;
-  position: absolute;
-  top: 55%;
-  transform: translate(-50%, -50%);
-  width: min(31rem, 46vw);
-}
-
-/* La tapa: el borde claro que la rodea es el filo iluminado de la tarima. */
-.footer-podium-top {
+/* El fundido desde negro. Arranca tapando todo y se retira dejando
+   solo una vineta, que es la que sostiene la lectura del texto. */
+.footer-veil {
   background:
-    radial-gradient(ellipse at 50% 38%, rgba(232, 198, 232, 0.55), transparent 66%),
-    linear-gradient(180deg, rgba(56, 45, 72, 0.96), rgba(26, 22, 38, 0.97));
-  border: 1px solid rgba(255, 172, 214, 0.8);
-  border-radius: 50%;
-  box-shadow: 0 0 3rem rgba(206, 130, 196, 0.26);
-  display: block;
-  height: 64%;
+    radial-gradient(ellipse 78% 72% at 50% 48%, rgba(3, 5, 10, 0.3), rgba(3, 5, 10, 0.94) 76%),
+    #03050a;
+  inset: 0;
+  opacity: 1;
+  pointer-events: none;
   position: absolute;
-  top: 0;
-  width: 100%;
+  transition: opacity 1700ms cubic-bezier(0.4, 0, 0.2, 1) 100ms;
   z-index: 2;
 }
 
-/* El cuerpo, apenas asomando por detras de la tapa. */
-.footer-podium-edge {
-  background: linear-gradient(180deg, rgba(26, 22, 34, 0.97), rgba(9, 8, 14, 0.92));
-  border-radius: 0 0 50% 50% / 0 0 48% 48%;
-  display: block;
-  height: 62%;
-  position: absolute;
-  top: 31%;
-  width: 100%;
-  z-index: 1;
-}
-
-/* Titileo de la luz: cambios chicos y a destiempo, como un foco real. */
-@keyframes footer-flicker {
-  0%, 100% { opacity: 1; }
-  17% { opacity: 0.9; }
-  23% { opacity: 1; }
-  41% { opacity: 0.84; }
-  47% { opacity: 0.97; }
-  62% { opacity: 0.88; }
-  71% { opacity: 1; }
-  84% { opacity: 0.93; }
+.footer-scene.is-active .footer-veil {
+  opacity: 0.34;
 }
 
 /* --- El contenido -------------------------------------------------- */
-.footer-inner {
+.footer-final {
   display: grid;
-  gap: clamp(1.2rem, 3.4svh, 2.6rem);
+  gap: clamp(0.7rem, 2.4svh, 1.9rem);
   grid-template-rows: 1fr auto auto;
   height: 100%;
+  min-width: 0;
   position: relative;
   width: 100%;
   z-index: 3;
 }
 
-.footer-top {
-  align-items: start;
+/* NIVEL A: la llamada. Centrada, con mucho aire alrededor. */
+.footer-final-head {
+  align-content: center;
   display: grid;
-  gap: clamp(1.5rem, 4vw, 4rem);
-  grid-template-columns: minmax(0, 1fr) auto;
+  justify-items: center;
+  min-width: 0;
+  text-align: center;
 }
 
-.footer-brand {
-  max-width: 34rem;
+.footer-slate-label {
+  color: rgba(202, 216, 238, 0.6);
+  font-family: var(--font-mono);
+  font-size: clamp(0.56rem, 0.7vw, 0.72rem);
+  letter-spacing: 0.42em;
+  margin: 0;
+  text-indent: 0.42em;
+  text-transform: uppercase;
 }
 
-.footer-brand h2 {
-  font-size: clamp(1.9rem, 3.4vw, 3.4rem);
-  line-height: 1.04;
-  margin: 0.9rem 0 0;
-}
-
-.footer-contact {
-  display: grid;
-  justify-items: start;
-  margin-top: clamp(0.5rem, 2.5svh, 2.4rem);
-  min-width: min(18rem, 34vw);
-}
-
-.footer-contact-line {
-  color: var(--ink);
+/* La marca de claqueta: una linea finita con un punto de luz al medio. */
+.footer-slate-tick {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(94, 161, 255, 0.28) 28%,
+    rgba(94, 161, 255, 0.45) 50%,
+    rgba(94, 161, 255, 0.28) 72%,
+    transparent
+  );
   display: block;
-  font-size: clamp(0.88rem, 1.05vw, 1.06rem);
-  margin-top: 0.55rem;
+  height: 1px;
+  margin-top: clamp(0.65rem, 1.7svh, 1.05rem);
+  position: relative;
+  width: min(21rem, 48vw);
 }
 
-.footer-contact-static {
-  color: var(--muted);
-  padding: 0.35rem 0.6rem;
+.footer-slate-tick::after {
+  background: #a9ceff;
+  border-radius: 50%;
+  box-shadow: 0 0 9px 2px rgba(94, 161, 255, 0.5);
+  content: "";
+  height: 3px;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
 }
 
-.footer-cta {
+.footer-final-title {
+  color: #eef2f8;
+  font-family: var(--font-editorial-serif);
+  font-size: clamp(1.55rem, 3.5vw, 3.35rem);
+  font-weight: 400;
+  line-height: 1.12;
+  /* 24ch corta justo despues de "proyecto", como el plano de referencia.
+     Sin balance: equilibrar los renglones aca genera tres lineas. */
+  margin: clamp(0.9rem, 2.4svh, 1.8rem) 0 0;
+  max-width: 24ch;
+}
+
+/* El boton: casi negro, un filo de azul acero y un resplandor contenido.
+   Nada de azul saturado de panel de control. */
+.footer-final-cta {
   align-items: center;
-  color: var(--pink);
+  background: linear-gradient(180deg, rgba(10, 18, 32, 0.72), rgba(3, 6, 12, 0.86));
+  border: 1px solid rgba(94, 161, 255, 0.4);
+  box-shadow:
+    0 0 26px rgba(58, 116, 200, 0.13),
+    inset 0 0 26px rgba(94, 161, 255, 0.05);
+  color: #dfe8f6;
   display: inline-flex;
-  font-family: var(--font-editorial);
-  font-size: clamp(1.02rem, 1.35vw, 1.32rem);
-  gap: 0.6rem;
-  margin-top: 1.15rem;
+  font-family: var(--font-editorial-ui);
+  font-size: clamp(0.64rem, 0.84vw, 0.8rem);
+  gap: 0.85rem;
+  letter-spacing: 0.24em;
+  margin-top: clamp(1rem, 2.8svh, 2.1rem);
+  padding: clamp(0.8rem, 1.8svh, 1.1rem) clamp(1.4rem, 2.9vw, 2.5rem);
+  text-indent: 0.24em;
+  text-transform: uppercase;
+  transition:
+    background 460ms ease,
+    border-color 460ms ease,
+    box-shadow 460ms ease,
+    color 460ms ease;
 }
 
-/* La flecha diagonal del enlace principal. */
-.footer-cta svg {
+.footer-final-cta svg {
   fill: none;
   height: 1.05em;
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.8;
-  transition: transform 220ms ease;
+  stroke-width: 1.6;
+  transition: transform 460ms cubic-bezier(0.16, 1, 0.3, 1);
   width: 1.05em;
 }
 
-.footer-rows {
-  align-items: center;
-  border-top: 1px solid rgba(242, 242, 243, 0.14);
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.4rem, 2vw, 1.6rem);
-  padding-top: clamp(0.8rem, 2.4svh, 1.6rem);
+@media (hover: hover) and (pointer: fine) {
+  .footer-final-cta:hover {
+    background: linear-gradient(180deg, rgba(16, 28, 48, 0.8), rgba(5, 9, 17, 0.9));
+    border-color: rgba(126, 182, 255, 0.66);
+    box-shadow:
+      0 0 38px rgba(70, 134, 224, 0.2),
+      inset 0 0 30px rgba(94, 161, 255, 0.09);
+    color: #f3f7fd;
+  }
+
+  .footer-final-cta:hover svg {
+    transform: translateX(5px);
+  }
 }
 
-.footer-nav,
-.footer-social {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.2rem, 1.4vw, 1.1rem);
+.footer-final-cta:focus-visible {
+  outline: 1px solid rgba(158, 199, 255, 0.85);
+  outline-offset: 3px;
 }
 
-.footer-nav {
-  flex: 1 1 auto;
-}
-
-/* La barra que separa secciones de redes. */
-.footer-social {
-  border-left: 1px solid rgba(242, 242, 243, 0.14);
-  padding-left: clamp(0.8rem, 2.4vw, 2rem);
-}
-
-.footer-legal {
-  border-top: 1px solid rgba(242, 242, 243, 0.14);
-  color: rgba(242, 242, 243, 0.5);
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 0.74rem;
-  gap: 0.8rem 1.6rem;
-  justify-content: space-between;
-  letter-spacing: 0.1rem;
-  padding-top: clamp(0.7rem, 2svh, 1.3rem);
-}
-
-/* --- El resplandor que sigue al puntero ---------------------------- */
-.footer-glow-link {
-  --x: 50%;
-  --y: 50%;
-  border-radius: 0.55rem;
-  color: inherit;
-  cursor: pointer;
-  display: inline-block;
-  padding: 0.35rem 0.6rem;
-  position: relative;
-  transition: color 200ms ease;
-}
-
-.footer-glow-link::before {
-  background: radial-gradient(circle at var(--x) var(--y), rgba(255, 77, 141, 0.34), transparent 4.6rem);
-  border-radius: inherit;
-  content: "";
-  inset: 0;
+/* NIVEL B: el titulo final.
+   Sigue siendo texto de verdad (se lee, se selecciona, se traduce). El
+   aspecto de piedra sale de dos capas de fondo recortadas contra las
+   letras: un degradado frio de grafito y una trama finisima encima. */
+.footer-wordmark {
+  background:
+    repeating-linear-gradient(96deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 7px),
+    linear-gradient(
+      177deg,
+      #e9eff8 0%,
+      #c5d0e1 20%,
+      #9aa7bd 44%,
+      #6f7c95 66%,
+      #4b5670 85%,
+      #363f52 100%
+    );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-family: var(--font-editorial-serif);
+  /* Tope doble: por ancho y por alto. En un portatil bajo o un celular
+     acostado el limite que manda es el alto, no el ancho. */
+  font-size: min(15.6vw, 27svh, 15.5rem);
+  font-weight: 400;
+  letter-spacing: 0.004em;
+  line-height: 0.87;
+  margin: 0;
   opacity: 0;
+  position: relative;
+  text-align: center;
+  /* El relieve: dos capas macizas hacen el canto de la letra y las dos
+     ultimas la apoyan sobre el piso. Se dibujan detras del glifo, asi que
+     el degradado de grafito de arriba queda intacto. */
+  text-shadow:
+    0 0.018em 0 rgba(30, 37, 50, 0.95),
+    0 0.038em 0 rgba(16, 21, 30, 0.95),
+    0 0.058em 0.02em rgba(8, 11, 17, 0.9),
+    0 0.09em 0.14em rgba(0, 0, 0, 0.8);
+  text-transform: uppercase;
+  transform: translateY(0.12em);
+  transition:
+    opacity 1500ms ease 380ms,
+    transform 1500ms cubic-bezier(0.16, 1, 0.3, 1) 380ms;
+  white-space: nowrap;
+}
+
+.footer-scene.is-active .footer-wordmark {
+  opacity: 1;
+  transform: none;
+}
+
+/* El charco de luz sobre el que apoyan las letras. */
+.footer-wordmark::before {
+  background: radial-gradient(ellipse 58% 100% at 50% 100%, rgba(96, 140, 205, 0.16), transparent 72%);
+  bottom: -0.1em;
+  content: "";
+  height: 0.55em;
+  left: 0;
   pointer-events: none;
   position: absolute;
-  transition: opacity 220ms ease;
+  right: 0;
   z-index: -1;
 }
 
-.footer-nav .footer-glow-link,
-.footer-social .footer-glow-link {
-  color: var(--muted);
-  font-size: clamp(0.82rem, 1vw, 0.98rem);
+
+/* NIVEL C: la chapa de datos, con estetica de metadata de copia final. */
+.footer-slate {
+  align-items: center;
+  border-top: 1px solid rgba(160, 186, 224, 0.13);
+  column-gap: clamp(1rem, 2.6vw, 2.6rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto auto;
+  min-width: 0;
+  padding-top: clamp(0.8rem, 2.1svh, 1.5rem);
+}
+
+.footer-slate-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem clamp(0.8rem, 2.4vw, 2.4rem);
+  min-width: 0;
+}
+
+.footer-slate-links a {
+  color: rgba(224, 233, 246, 0.84);
+  font-family: var(--font-editorial-ui);
+  font-size: clamp(0.6rem, 0.76vw, 0.75rem);
+  letter-spacing: 0.2em;
+  padding-bottom: 0.32rem;
+  position: relative;
+  text-transform: uppercase;
+  transition: color 300ms ease;
+}
+
+/* El subrayado azul finito de cada enlace. */
+.footer-slate-links a::after {
+  background: rgba(94, 161, 255, 0.42);
+  bottom: 0;
+  content: "";
+  height: 1px;
+  left: 0;
+  position: absolute;
+  transition: background 320ms ease;
+  width: 100%;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .footer-glow-link:hover::before {
-    opacity: 1;
+  .footer-slate-links a:hover {
+    color: #f4f8fd;
   }
 
-  .footer-glow-link:hover {
-    color: var(--ink);
-  }
-
-  .footer-cta:hover {
-    color: #ff8ad2;
-  }
-
-  .footer-cta:hover svg {
-    transform: translate(2px, -2px);
+  .footer-slate-links a:hover::after {
+    background: rgba(146, 192, 255, 0.9);
   }
 }
 
-.footer-glow-link:focus-visible {
-  outline: 1px solid rgba(94, 161, 255, 0.7);
-  outline-offset: 2px;
+.footer-slate-links a:focus-visible,
+.footer-slate-copyright:focus-visible {
+  outline: 1px solid rgba(158, 199, 255, 0.8);
+  outline-offset: 3px;
+}
+
+/* Los grupos del medio y la derecha, separados por barras finitas. */
+.footer-slate-group {
+  border-left: 1px solid rgba(160, 186, 224, 0.13);
+  display: grid;
+  gap: 0.3rem;
+  justify-items: center;
+  min-width: 0;
+  padding-left: clamp(0.9rem, 2.2vw, 2.2rem);
+  text-align: center;
+}
+
+.footer-slate-place,
+.footer-slate-cut {
+  color: rgba(226, 234, 246, 0.86);
+  font-family: var(--font-editorial-ui);
+  font-size: clamp(0.6rem, 0.76vw, 0.75rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.footer-slate-cut {
+  font-family: var(--font-mono);
+  letter-spacing: 0.16em;
+}
+
+/* La linea tecnica y el timecode, en monoespaciada: es lo que las hace
+   leer como datos de laboratorio y no como un subtitulo mas. */
+.footer-slate-specs,
+.footer-slate-timecode {
+  color: rgba(122, 165, 224, 0.78);
+  font-family: var(--font-mono);
+  font-size: clamp(0.58rem, 0.72vw, 0.72rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.footer-slate-timecode {
+  color: rgba(112, 158, 222, 0.7);
+  letter-spacing: 0.22em;
+}
+
+.footer-slate-copyright {
+  border-left: 1px solid rgba(160, 186, 224, 0.13);
+  color: rgba(190, 203, 224, 0.55);
+  font-family: var(--font-editorial-ui);
+  font-size: clamp(0.58rem, 0.72vw, 0.72rem);
+  letter-spacing: 0.2em;
+  margin: 0;
+  padding-left: clamp(0.9rem, 2.2vw, 2.2rem);
+  text-align: right;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Sin movimiento: se conserva la estetica y se apaga todo lo que se
+   mueve solo. La escena 3D ademas se congela desde el componente. */
+@media (prefers-reduced-motion: reduce) {
+  .footer-atmos,
+  .footer-veil,
+  .footer-wordmark {
+    transition-duration: 1ms;
+  }
+
+  .footer-wordmark {
+    transform: none;
+  }
 }
 
 @media (max-width: 1180px) {
@@ -5723,148 +5833,174 @@ p {
 
 
 /* ------------------------------------------------------------------
-   PIE DE PAGINA EN CELULAR
-   Parado, todo pasa a una sola columna y el foco queda de fondo, con
-   menos peso, para no pelear con el texto. Acostado se mantienen las
-   dos columnas, que es lo que entra bien con tan poca altura.
+   EL ULTIMO PLANO EN PANTALLAS CHICAS
+   La chapa de datos se va desarmando en escalones: primero los enlaces
+   pasan a su propia fila, despues cada grupo baja a su renglon. El
+   BAJO FLOW sigue siendo grande, pero nunca se sale del ancho.
    ------------------------------------------------------------------ */
+
+/* Portatiles y tablets anchas: los enlaces se quedan con la fila de
+   arriba y los tres grupos de datos se reparten la de abajo. */
+@media (max-width: 1100px) {
+  .footer-slate {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    row-gap: clamp(0.65rem, 1.9svh, 1.1rem);
+  }
+
+  .footer-slate-links {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .footer-slate-group:first-of-type {
+    border-left: 0;
+    justify-items: start;
+    padding-left: 0;
+    text-align: left;
+  }
+}
+
 @media (max-width: 860px) {
   .scene.footer-scene {
     height: 100svh;
-    padding-bottom: clamp(0.9rem, 3svh, 1.8rem);
-    padding-top: calc(var(--header-h) + clamp(0.4rem, 1.8svh, 1.1rem));
   }
 
-  .footer-inner {
-    gap: clamp(0.7rem, 2.4svh, 1.6rem);
+  .footer-final {
+    gap: clamp(0.6rem, 2svh, 1.4rem);
   }
 
-  .footer-brand h2 {
-    font-size: clamp(1.35rem, 6vw, 2.3rem);
-    margin-top: clamp(0.3rem, 1.2svh, 0.8rem);
+  .footer-final-title {
+    font-size: clamp(1.35rem, 6.4vw, 2.2rem);
+    max-width: 17ch;
   }
 
-  .footer-contact-line {
-    font-size: clamp(0.8rem, 2.1svh, 0.98rem);
-    margin-top: clamp(0.2rem, 0.9svh, 0.5rem);
+  .footer-slate-tick {
+    width: min(15rem, 62vw);
   }
 
-  .footer-cta {
-    font-size: clamp(0.95rem, 2.5svh, 1.15rem);
-    margin-top: clamp(0.55rem, 1.8svh, 1.1rem);
+  .footer-final-cta {
+    font-size: clamp(0.6rem, 1.7svh, 0.72rem);
+    gap: 0.7rem;
+    letter-spacing: 0.2em;
+    padding: clamp(0.7rem, 1.7svh, 0.95rem) clamp(1.2rem, 5vw, 1.9rem);
+    text-indent: 0.2em;
   }
 
-  .footer-rows {
-    gap: clamp(0.3rem, 1.4svh, 0.8rem);
-    padding-top: clamp(0.5rem, 1.8svh, 1.1rem);
-  }
-
-  .footer-nav .footer-glow-link,
-  .footer-social .footer-glow-link {
-    font-size: clamp(0.72rem, 1.95svh, 0.9rem);
-    padding: 0.28rem 0.45rem;
-  }
-
-  .footer-legal {
-    font-size: clamp(0.6rem, 1.6svh, 0.72rem);
-    gap: 0.3rem 1rem;
-    letter-spacing: 0.06rem;
-    padding-top: clamp(0.45rem, 1.6svh, 1rem);
-  }
-
-  /* El foco queda de fondo: mas chico y con menos presencia. */
-  .footer-stage {
-    opacity: 0.62;
-  }
-
-  .footer-beam {
-    width: min(26rem, 76vw);
-  }
-
-  .footer-podium {
-    height: clamp(3rem, 9svh, 5rem);
-    top: 58%;
-    width: min(19rem, 62vw);
+  /* Un poco mas de vineta: en un celular el texto pelea con el haz. */
+  .footer-scene.is-active .footer-veil {
+    opacity: 0.46;
   }
 }
 
-/* Parado: una sola columna, y las redes debajo de las secciones. */
+/* Parado: la chapa se apila en renglones centrados, en el mismo orden
+   que se lee (redes, ciudad, ficha tecnica, copia final, copyright). */
 @media (max-width: 860px) and (orientation: portrait) {
-  .footer-top {
-    grid-template-columns: 1fr;
-    gap: clamp(0.6rem, 2.2svh, 1.4rem);
+  .footer-wordmark {
+    font-size: min(16.8vw, 24svh, 5.5rem);
   }
 
-  .footer-brand {
-    max-width: none;
+  .footer-slate {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    row-gap: clamp(0.45rem, 1.5svh, 0.85rem);
+    text-align: center;
   }
 
-  .footer-contact {
-    margin-top: 0;
-    min-width: 0;
+  .footer-slate-links {
+    gap: 0.3rem clamp(0.7rem, 4.2vw, 1.4rem);
+    justify-content: center;
   }
 
-  .footer-rows {
-    flex-direction: column;
-    align-items: flex-start;
+  .footer-slate-links a {
+    font-size: clamp(0.56rem, 1.5svh, 0.68rem);
+    letter-spacing: 0.16em;
+    padding-bottom: 0.26rem;
   }
 
-  .footer-social {
+  .footer-slate-group,
+  .footer-slate-group:first-of-type {
     border-left: 0;
-    border-top: 1px solid rgba(242, 242, 243, 0.1);
+    gap: 0.28rem;
+    justify-items: center;
     padding-left: 0;
-    padding-top: clamp(0.35rem, 1.4svh, 0.8rem);
-    width: 100%;
+    text-align: center;
   }
 
-  .footer-legal {
-    flex-direction: column;
+  .footer-slate-copyright {
+    border-left: 0;
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .footer-slate-place,
+  .footer-slate-cut,
+  .footer-slate-specs,
+  .footer-slate-timecode,
+  .footer-slate-copyright {
+    font-size: clamp(0.53rem, 1.4svh, 0.66rem);
+    letter-spacing: 0.14em;
+  }
+}
+
+/* Acostado hay ancho de sobra y falta altura: la chapa vuelve a una
+   sola fila para no comerse el alto que necesita el titulo. */
+@media (max-width: 860px) and (orientation: landscape) {
+  /* Acostado sobran pixeles de ancho y faltan de alto: el limite es svh. */
+  .footer-wordmark {
+    font-size: min(13vw, 17svh);
+  }
+
+  /* Ancho de sobra: el titulo entra en dos renglones en vez de tres. */
+  .footer-final-title {
+    font-size: min(2.6vw, 4.6svh);
+    margin-top: clamp(0.4rem, 1.8svh, 0.9rem);
+    max-width: 27ch;
+  }
+
+  .footer-slate-tick {
+    margin-top: clamp(0.35rem, 1.4svh, 0.7rem);
+    width: min(15rem, 34vw);
+  }
+
+  .footer-final-cta {
+    margin-top: clamp(0.6rem, 2.4svh, 1.1rem);
+  }
+
+  .footer-slate {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto auto;
+    row-gap: 0;
+  }
+
+  .footer-slate-links {
+    grid-column: auto;
     justify-content: flex-start;
   }
-}
 
-/* Acostado hay ancho de sobra: se mantienen las dos columnas. */
-@media (max-width: 860px) and (orientation: landscape) {
-  .footer-top {
-    gap: clamp(1rem, 3vw, 2.4rem);
-  }
-
-  .footer-brand h2 {
-    font-size: clamp(1.2rem, 3.4vw, 2rem);
-  }
-
-  .footer-contact {
-    margin-top: 0;
-    min-width: min(14rem, 38vw);
-  }
-
-  .footer-podium {
-    top: 52%;
-    width: min(15rem, 32vw);
+  .footer-slate-group:first-of-type {
+    border-left: 1px solid rgba(160, 186, 224, 0.13);
+    justify-items: center;
+    padding-left: clamp(0.7rem, 2vw, 1.4rem);
+    text-align: center;
   }
 }
 
-/* Pantallas parado muy bajas: se aprieta lo justo para que la ultima
-   linea del pie no quede cortada. */
-@media (max-width: 860px) and (max-height: 540px) and (orientation: portrait) {
-  .footer-inner {
-    gap: clamp(0.35rem, 1.5svh, 0.9rem);
+/* Celulares parados y muy bajos: se aprieta lo justo para que la ultima
+   linea no quede cortada. */
+@media (max-width: 860px) and (max-height: 620px) and (orientation: portrait) {
+  .footer-final {
+    gap: clamp(0.4rem, 1.4svh, 0.9rem);
   }
 
-  .footer-brand h2 {
-    font-size: clamp(1.18rem, 5.4vw, 1.7rem);
+  .footer-final-title {
+    font-size: clamp(1.15rem, 5.6vw, 1.6rem);
+    margin-top: clamp(0.45rem, 1.6svh, 0.9rem);
   }
 
-  .footer-contact-line {
-    margin-top: 0.12rem;
+  .footer-final-cta {
+    margin-top: clamp(0.55rem, 1.8svh, 1rem);
   }
 
-  .footer-cta {
-    margin-top: 0.45rem;
-  }
-
-  .footer-legal {
-    font-size: 0.57rem;
-    letter-spacing: 0.04rem;
+  .footer-wordmark {
+    font-size: clamp(2rem, 15vw, 4.4rem);
   }
 }

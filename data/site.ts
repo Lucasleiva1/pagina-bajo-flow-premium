@@ -6,10 +6,10 @@ export const languageOptions: Array<{ code: Language; label: string }> = [
   { code: "pt", label: "PT" },
 ];
 
-// DATOS DE CONTACTO DEL PIE. Los dos primeros son de relleno: hay que
-// reemplazarlos por los reales de Lucas antes de publicar.
+// DATOS DE CONTACTO DEL PIE. El telefono sigue siendo de relleno: hay que
+// reemplazarlo por el real antes de publicar.
 export const contactDetails = {
-  email: "hola@bajoflow.com", // PENDIENTE: correo real
+  email: "jaelleiva@gmail.com",
   phone: "+54 9 11 1234 5678", // PENDIENTE: telefono real
   phoneHref: "+5491112345678", // PENDIENTE: telefono real, sin espacios
   owner: "Lucas Leiva",
@@ -316,13 +316,15 @@ export const siteCopy = {
     },
     footer: {
       kicker: "Bajo Flow",
+      finalFrame: "Final Frame",
       title: "Tu próximo proyecto merece la mejor versión.",
-      contactKicker: "Hablemos",
       location: "Buenos Aires, Argentina",
+      specs: "24 fps · 4K · color · sound",
+      cut: "BF / Final Cut",
+      timecode: "00:02:47:21",
       cta: "Hablemos de tu proyecto",
-      navLabel: "Secciones",
+      emailLabel: "Email",
       socialLabel: "Redes",
-      tagline: "Hecho con intención. Editado con precisión.",
     },
   },
   en: {
@@ -597,13 +599,15 @@ export const siteCopy = {
     },
     footer: {
       kicker: "Bajo Flow",
+      finalFrame: "Final Frame",
       title: "Your next project deserves its best version.",
-      contactKicker: "Let's talk",
       location: "Buenos Aires, Argentina",
+      specs: "24 fps · 4K · color · sound",
+      cut: "BF / Final Cut",
+      timecode: "00:02:47:21",
       cta: "Let's talk about your project",
-      navLabel: "Sections",
+      emailLabel: "Email",
       socialLabel: "Social",
-      tagline: "Made with intent. Edited with precision.",
     },
   },
   pt: {
@@ -856,13 +860,15 @@ export const siteCopy = {
     },
     footer: {
       kicker: "Bajo Flow",
+      finalFrame: "Final Frame",
       title: "Seu próximo projeto merece a melhor versão.",
-      contactKicker: "Vamos conversar",
       location: "Buenos Aires, Argentina",
+      specs: "24 fps · 4K · color · sound",
+      cut: "BF / Final Cut",
+      timecode: "00:02:47:21",
       cta: "Vamos falar do seu projeto",
-      navLabel: "Seções",
+      emailLabel: "Email",
       socialLabel: "Redes",
-      tagline: "Feito com intenção. Editado com precisão.",
     },
   },
 } satisfies Record<Language, {
@@ -968,13 +974,15 @@ export const siteCopy = {
   };
   footer: {
     kicker: string;
+    finalFrame: string;
     title: string;
-    contactKicker: string;
     location: string;
+    specs: string;
+    cut: string;
+    timecode: string;
     cta: string;
-    navLabel: string;
+    emailLabel: string;
     socialLabel: string;
-    tagline: string;
   };
 }>;
 
