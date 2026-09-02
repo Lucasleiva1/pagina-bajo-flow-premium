@@ -17,6 +17,7 @@ import {
   Vector3,
   type Group,
   type Mesh,
+  type ShaderMaterial,
 } from "three";
 import {
   postprocesadoActivo,
@@ -34,6 +35,13 @@ import {
    vive lo que aporta profundidad. Geometrias simples, un shader corto
    por elemento, cero post-proceso y cero sombras.
    =================================================================== */
+
+/* IMPORTANTE PARA TOCAR ESTA ESCENA.
+   React Three Fiber COPIA el objeto de uniformes al crear el material, asi
+   que modificar el objeto memorizado no llega a la pantalla: hay que escribir
+   sobre los uniformes del material, tomandolo por referencia. Ese fue el
+   motivo real de que el control "Luz de la lente" no hiciera nada. Todos los
+   useFrame de abajo escriben por referencia justamente por eso. */
 
 /** Boca del proyector. Es el origen del haz y tambien la luz que bana la cinta. */
 const LENS = new Vector3(-3.2, 0.82, 0.3);
@@ -163,17 +171,22 @@ function Beam({ intensityRef }: { intensityRef: RefObject<number> }) {
   );
 
   const meshRef = useRef<Mesh>(null);
+  // Referencia al material REAL: el objeto de uniformes memorizado es una
+  // copia y escribir en el no llega a la pantalla.
+  const materialRef = useRef<ShaderMaterial>(null);
 
   useFrame((state) => {
     const time = state.clock.elapsedTime;
     // Se lee el estado sin suscribirse: asi mover un control del panel no
     // vuelve a montar la escena, solo cambia el valor del proximo cuadro.
+    const u = materialRef.current?.uniforms;
+    if (!u) return;
     const { luzHaz, luzApertura, luzParpadeo } = useFooterRenderStore.getState();
 
-    uniforms.uTime.value = time;
-    uniforms.uIntensity.value = MathUtils.lerp(uniforms.uIntensity.value, intensityRef.current, 0.045);
+    u.uTime.value = time;
+    u.uIntensity.value = MathUtils.lerp(u.uIntensity.value, intensityRef.current, 0.045);
     // Solo el brillo del HAZ: la lente tiene su propio control.
-    uniforms.uLamp.value = (1 + (lampBreath(time) - 1) * luzParpadeo) * luzHaz;
+    u.uLamp.value = (1 + (lampBreath(time) - 1) * luzParpadeo) * luzHaz;
 
     // El cono se abre y se cierra a lo ancho. El eje del haz es la Y local,
     // asi que se escala en X y Z y el largo queda intacto.
@@ -188,6 +201,7 @@ function Beam({ intensityRef }: { intensityRef: RefObject<number> }) {
     <mesh position={[0, BEAM_LENGTH / 2, 0]} ref={meshRef}>
       <cylinderGeometry args={[BEAM_END_RADIUS, BEAM_START_RADIUS, BEAM_LENGTH, 40, 1, true]} />
       <shaderMaterial
+        ref={materialRef}
         blending={AdditiveBlending}
         depthWrite={false}
         fragmentShader={beamFragmentShader}
@@ -245,14 +259,19 @@ function LensGlow({ intensityRef }: { intensityRef: RefObject<number> }) {
   );
 
   const meshRef = useRef<Mesh>(null);
+  // Referencia al material REAL: el objeto de uniformes memorizado es una
+  // copia y escribir en el no llega a la pantalla.
+  const materialRef = useRef<ShaderMaterial>(null);
 
   useFrame((state) => {
     const time = state.clock.elapsedTime;
+    const u = materialRef.current?.uniforms;
+    if (!u) return;
     const { luzLente, luzApertura, luzParpadeo } = useFooterRenderStore.getState();
 
-    uniforms.uIntensity.value = MathUtils.lerp(uniforms.uIntensity.value, intensityRef.current, 0.045);
+    u.uIntensity.value = MathUtils.lerp(u.uIntensity.value, intensityRef.current, 0.045);
     // Solo el brillo de la LENTE, independiente del haz.
-    uniforms.uLamp.value = (1 + (lampBreath(time) - 1) * luzParpadeo) * luzLente;
+    u.uLamp.value = (1 + (lampBreath(time) - 1) * luzParpadeo) * luzLente;
 
     // El circulo de luz late junto con el haz: si no, se despegan y se nota.
     const mesh = meshRef.current;
@@ -263,10 +282,17 @@ function LensGlow({ intensityRef }: { intensityRef: RefObject<number> }) {
   });
 
   return (
-    <mesh position={[LENS.x, LENS.y, LENS.z + 0.05]} ref={meshRef}>
+    // depthTest false y renderOrder alto: el cuerpo del proyector sobresale
+    // HACIA la camara y estaba tapando este circulo por completo. Por eso el
+    // control "Luz de la lente" no hacia absolutamente nada: movia un objeto
+    // que no se veia. Una lampara encendida se derrama por encima de su
+    // propia carcasa, asi que dibujarlo al frente ademas es lo correcto.
+    <mesh position={[LENS.x, LENS.y, LENS.z + 0.05]} ref={meshRef} renderOrder={10}>
       <planeGeometry args={[2.1, 2.1]} />
       <shaderMaterial
+        ref={materialRef}
         blending={AdditiveBlending}
+        depthTest={false}
         depthWrite={false}
         fragmentShader={glowFragmentShader}
         transparent
@@ -432,6 +458,7 @@ const dustFragmentShader = /* glsl */ `
 `;
 
 function Dust({ count, intensityRef }: { count: number; intensityRef: RefObject<number> }) {
+  const materialRef = useRef<ShaderMaterial>(null);
   const { positions, seeds, scales } = useMemo(() => {
     const positionValues = new Float32Array(count * 3);
     const seedValues = new Float32Array(count);
@@ -483,20 +510,22 @@ function Dust({ count, intensityRef }: { count: number; intensityRef: RefObject<
   );
 
   useFrame((state) => {
+    const u = materialRef.current?.uniforms;
+    if (!u) return;
     const { polvoVelocidad, polvoTamano, polvoBrillo, luzApertura } = useFooterRenderStore.getState();
 
-    uniforms.uTime.value = state.clock.elapsedTime;
+    u.uTime.value = state.clock.elapsedTime;
     // El polvo gana algo menos que el haz cuando el boton se ilumina.
     const target = 1 + (intensityRef.current - 1) * 0.7;
-    uniforms.uIntensity.value = MathUtils.lerp(uniforms.uIntensity.value, target, 0.045);
+    u.uIntensity.value = MathUtils.lerp(u.uIntensity.value, target, 0.045);
 
-    uniforms.uSize.value = VALORES_BASE.dustSize * polvoTamano;
-    uniforms.uOpacity.value = VALORES_BASE.dustOpacity * polvoBrillo;
-    uniforms.uRiseSpeed.value = VALORES_BASE.dustRiseSpeed * polvoVelocidad;
+    u.uSize.value = VALORES_BASE.dustSize * polvoTamano;
+    u.uOpacity.value = VALORES_BASE.dustOpacity * polvoBrillo;
+    u.uRiseSpeed.value = VALORES_BASE.dustRiseSpeed * polvoVelocidad;
     // En 0 el polvo queda suspendido y quieto, sin bamboleo ni centelleo.
-    uniforms.uMotion.value = Math.min(polvoVelocidad, 1);
+    u.uMotion.value = Math.min(polvoVelocidad, 1);
     // Si el cono se abre, la zona iluminada del polvo se abre con el.
-    uniforms.uBeamSpread.value = BEAM_SPREAD * luzApertura;
+    u.uBeamSpread.value = BEAM_SPREAD * luzApertura;
   });
 
   return (
@@ -507,6 +536,7 @@ function Dust({ count, intensityRef }: { count: number; intensityRef: RefObject<
         <bufferAttribute attach="attributes-aScale" args={[scales, 1]} />
       </bufferGeometry>
       <shaderMaterial
+        ref={materialRef}
         blending={AdditiveBlending}
         depthWrite={false}
         fragmentShader={dustFragmentShader}
@@ -685,6 +715,7 @@ const filmFragmentShader = /* glsl */ `
 function FilmStrip({ segments, opacity, animated }: { segments: number; opacity: number; animated: boolean }) {
   const geometry = useMemo(() => buildFilmRibbon(segments, 1.02), [segments]);
   const groupRef = useRef<Group>(null);
+  const materialRef = useRef<ShaderMaterial>(null);
 
   const uniforms = useMemo(
     () => ({
@@ -704,7 +735,8 @@ function FilmStrip({ segments, opacity, animated }: { segments: number; opacity:
 
   useFrame((state) => {
     const { cintaOpacidad, cintaBalanceo } = useFooterRenderStore.getState();
-    uniforms.uOpacity.value = opacity * cintaOpacidad;
+    const u = materialRef.current?.uniforms;
+    if (u) u.uOpacity.value = opacity * cintaOpacidad;
 
     const group = groupRef.current;
     if (!group) return;
@@ -723,6 +755,7 @@ function FilmStrip({ segments, opacity, animated }: { segments: number; opacity:
     <group ref={groupRef}>
       <mesh geometry={geometry}>
         <shaderMaterial
+          ref={materialRef}
           depthWrite={false}
           fragmentShader={filmFragmentShader}
           side={DoubleSide}
@@ -774,15 +807,15 @@ function CameraParallax({ enabled, depth }: { enabled: boolean; depth: number })
  * creado; hay que pedirselo al motor con setDpr. Sin esto el deslizador de
  * resolucion se movia y no pasaba absolutamente nada.
  */
-function ResolucionInterna({ compact, topeDispositivo }: { compact: boolean; topeDispositivo: number }) {
+function ResolucionInterna() {
   const setDpr = useThree((state) => state.setDpr);
   const resolucion = useFooterRenderStore((estado) => estado.resolucionInterna);
 
   useEffect(() => {
-    // En computadora se permite dibujar por encima de la pantalla (eso es el
-    // supersampling). En celular no: ahi el tope del dispositivo manda.
-    setDpr(compact ? Math.min(topeDispositivo, resolucion) : resolucion);
-  }, [compact, resolucion, setDpr, topeDispositivo]);
+    // Sin tope por dispositivo: el valor elegido manda tambien en celular y
+    // tablet. Antes el tope lo dejaba sin efecto ahi.
+    setDpr(resolucion);
+  }, [resolucion, setDpr]);
 
   return null;
 }
@@ -806,10 +839,9 @@ type FooterAtmosphereProps = {
 };
 
 export function FooterAtmosphere({ isActive, intensityRef }: FooterAtmosphereProps) {
-  const [profile, setProfile] = useState<{ compact: boolean; reduced: boolean; dpr: [number, number] }>({
+  const [profile, setProfile] = useState<{ compact: boolean; reduced: boolean }>({
     compact: false,
     reduced: false,
-    dpr: [1, 1.5],
   });
   const [pageVisible, setPageVisible] = useState(true);
 
@@ -819,12 +851,7 @@ export function FooterAtmosphere({ isActive, intensityRef }: FooterAtmospherePro
 
     const sync = () => {
       const compact = compactQuery.matches;
-      setProfile({
-        compact,
-        reduced: motionQuery.matches,
-        // Nunca por encima de 1.5: el pie no justifica renderizar al doble.
-        dpr: [1, compact ? 1.25 : 1.5],
-      });
+      setProfile({ compact, reduced: motionQuery.matches });
     };
 
     sync();
@@ -856,7 +883,7 @@ export function FooterAtmosphere({ isActive, intensityRef }: FooterAtmospherePro
   const polvoCantidad = useFooterRenderStore((estado) => estado.polvoCantidad);
   const parallax = useFooterRenderStore((estado) => estado.parallax);
 
-  const { compact, reduced, dpr } = profile;
+  const { compact, reduced } = profile;
   const animated = isActive && pageVisible && !reduced;
   const baseDust = compact ? VALORES_BASE.dustCountCompact : VALORES_BASE.dustCount;
   const dustCount = Math.max(0, Math.round(baseDust * polvoCantidad));
@@ -881,7 +908,10 @@ export function FooterAtmosphere({ isActive, intensityRef }: FooterAtmospherePro
   // y como nada lo hace subir se quedaba clavado en 1. Con esto puesto el
   // deslizador parecia funcionar (porque al moverlo se reasignaba a mano)
   // pero al abrir la pagina no se aplicaba nunca.
-  const dprFinal = compact ? Math.min(dpr[1], resolucionInterna) : resolucionInterna;
+  // El valor elegido manda en TODOS los aparatos, tambien en celular y
+  // tablet. Antes habia un tope por dispositivo que dejaba el control sin
+  // efecto ahi: 1,25 / 1,5 / 2 / 3 daban todos los mismos pixeles.
+  const dprFinal = resolucionInterna;
 
   const efectos: React.ReactElement[] = [];
   if (resplandor) {
@@ -912,7 +942,7 @@ export function FooterAtmosphere({ isActive, intensityRef }: FooterAtmospherePro
       }}
     >
       <DemandPainter active={isActive} />
-      <ResolucionInterna compact={compact} topeDispositivo={dpr[1]} />
+      <ResolucionInterna />
       <CameraParallax depth={cameraDepth} enabled={animated && !compact && parallax} />
 
       <group position={[LENS.x, LENS.y, LENS.z]} quaternion={BEAM_QUATERNION}>

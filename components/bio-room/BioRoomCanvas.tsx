@@ -29,6 +29,20 @@ import { bioRoomPreset } from "@/data/bioRoomPreset";
 import type { SiteCopy } from "@/data/site";
 import { useBioRoomPresetStore } from "@/lib/useBioRoomPresetStore";
 import { type BioRoomView, useBioRoomStore } from "@/lib/useBioRoomStore";
+import { useBioRenderStore } from "@/lib/useBioRenderStore";
+import { PANELES_DE_AJUSTE_VISIBLES } from "@/lib/panelesDeAjuste";
+import { RenderBio } from "@/lib/useBioRenderStore";
+import dynamic from "next/dynamic";
+
+/**
+ * PANEL GRAFICO DE LA SALA: solo en local, y ni siquiera viaja a produccion.
+ * Es OTRO panel, aparte del de movimiento que ya tiene la sala: ese sigue
+ * manejando posiciones y no se toca.
+ */
+const PanelGraficoBio =
+  process.env.NODE_ENV === "development" && PANELES_DE_AJUSTE_VISIBLES
+    ? dynamic(() => import("@/components/three/BioRenderPanel").then((m) => m.BioRenderPanel), { ssr: false })
+    : null;
 
 type BioRoomCanvasProps = {
   copy: SiteCopy["bio"];
@@ -468,6 +482,9 @@ function RoomShell({
   children?: (layout: BioRoomLayout) => ReactNode;
 }) {
   const activeRoomView = useBioRoomStore((state) => state.activeRoomView);
+  // Ajustes GRAFICOS de la sala: cuanta luz da cada foco y el alcance de la
+  // niebla. Van aparte del preset de posiciones, que maneja el otro panel.
+  const grafico = useBioRenderStore();
   const setPresetSection = useBioRoomPresetStore((state) => state.setSection);
   const softbox = SoftboxTexture();
 
@@ -610,17 +627,17 @@ function RoomShell({
       <color attach="background" args={["#03050a"]} />
       <fog
         attach="fog"
-        args={["#03050a", cinemaLightControls.fogNear, cinemaLightControls.fogFar]}
+        args={["#03050a", cinemaLightControls.fogNear, cinemaLightControls.fogFar * grafico.alcanceNiebla]}
       />
 
       {/* Ambient + directional lights */}
-      <ambientLight intensity={lightControls.ambientIntensity} />
+      <ambientLight intensity={lightControls.ambientIntensity * grafico.luzGeneral * grafico.luzAmbiente} />
 
       {/* Main key light – warm overhead */}
       <spotLight
         angle={0.52}
         color="#fff2dd"
-        intensity={lightControls.keyIntensity}
+        intensity={lightControls.keyIntensity * grafico.luzGeneral * grafico.luzPrincipal}
         penumbra={0.9}
         position={[lightControls.keyPosX, lightControls.keyPosY, lightControls.keyPosZ]}
         target-position={[0, 0, 0]}
@@ -629,7 +646,7 @@ function RoomShell({
       {/* Warm fill from behind-above for character rim */}
       <pointLight
         color="#8db6ff"
-        intensity={lightControls.rimIntensity}
+        intensity={lightControls.rimIntensity * grafico.luzGeneral * grafico.luzContorno}
         position={[lightControls.rimPosX, lightControls.rimPosY, lightControls.rimPosZ]}
         distance={6}
       />
@@ -637,7 +654,7 @@ function RoomShell({
       {/* Cool accent from the right side */}
       <pointLight
         color="#5ea1ff"
-        intensity={lightControls.coolIntensity}
+        intensity={lightControls.coolIntensity * grafico.luzGeneral * grafico.luzFria}
         position={[lightControls.coolPosX, lightControls.coolPosY, lightControls.coolPosZ]}
         distance={6}
       />
@@ -645,7 +662,7 @@ function RoomShell({
       {/* Front fill to brighten character */}
       <pointLight
         color="#e8dfd0"
-        intensity={lightControls.fillIntensity}
+        intensity={lightControls.fillIntensity * grafico.luzGeneral * grafico.luzRelleno}
         position={[lightControls.fillPosX, lightControls.fillPosY, lightControls.fillPosZ]}
         distance={7}
       />
@@ -653,28 +670,28 @@ function RoomShell({
       <pointLight
         color="#d69b55"
         distance={cinemaLightControls.wallWashDistance}
-        intensity={cinemaLightControls.wallWashIntensity}
+        intensity={cinemaLightControls.wallWashIntensity * grafico.luzGeneral * grafico.lucesDeSala}
         position={[0, cinemaLightControls.wallWashY, cinemaLightControls.wallWashZ]}
       />
 
       <pointLight
         color="#678fff"
         distance={cinemaLightControls.sideWashDistance}
-        intensity={cinemaLightControls.sideWashIntensity}
+        intensity={cinemaLightControls.sideWashIntensity * grafico.luzGeneral * grafico.lucesDeSala}
         position={[-W + 0.55, cinemaLightControls.sideWashY, cinemaLightControls.sideWashZ]}
       />
 
       <pointLight
         color="#9f72ff"
         distance={cinemaLightControls.sideWashDistance}
-        intensity={cinemaLightControls.sideWashIntensity * 0.65}
+        intensity={cinemaLightControls.sideWashIntensity * 0.65 * grafico.luzGeneral * grafico.lucesDeSala}
         position={[W - 0.55, cinemaLightControls.sideWashY, cinemaLightControls.sideWashZ]}
       />
 
       <pointLight
         color="#d7a368"
         distance={3.2}
-        intensity={cinemaLightControls.floorBounceIntensity}
+        intensity={cinemaLightControls.floorBounceIntensity * grafico.luzGeneral * grafico.lucesDeSala}
         position={[0, cinemaLightControls.floorBounceY, cinemaLightControls.floorBounceZ]}
       />
 
@@ -961,23 +978,40 @@ function BioRoomSaveButton() {
   );
 }
 
-function useBioRoomDpr(): [number, number] {
-  const [dpr, setDpr] = useState<[number, number]>([1, 1.5]);
+/**
+ * RESOLUCION INTERNA EN CALIENTE.
+ * Cambiar la prop "dpr" del Canvas no reasigna un lienzo ya creado; hay que
+ * pedirselo al motor con setDpr. En celular se respeta el tope del aparato,
+ * que es donde el supersampling se paga caro.
+ */
+function ResolucionInternaBio() {
+  const setDpr = useThree((state) => state.setDpr);
+  const resolucion = useBioRenderStore((estado) => estado.resolucionInterna);
 
   useEffect(() => {
-    const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
-    const isCompactViewport = window.matchMedia("(max-width: 768px)").matches;
-    const isTouchDevice = navigator.maxTouchPoints > 0;
-    const maxDpr = isCompactViewport ? 1.25 : isTouchDevice || deviceMemory <= 4 ? 1.5 : 2;
+    // Sin tope por dispositivo: el valor elegido manda tambien en celular y
+    // tablet. Antes el tope dejaba el control sin efecto ahi.
+    setDpr(resolucion);
+  }, [resolucion, setDpr]);
 
-    setDpr([1, maxDpr]);
-  }, []);
-
-  return dpr;
+  return null;
 }
 
+
 export function BioRoomCanvas({ copy, isActive = true }: BioRoomCanvasProps) {
-  const dpr = useBioRoomDpr();
+
+  // La imagen de la sala se puede manejar desde codigo aunque el panel este
+  // oculto: bajoFlowBio.set("luzPrincipal", 1.2) y compania. Solo en local.
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+    (window as unknown as { bajoFlowBio: typeof RenderBio }).bajoFlowBio = RenderBio;
+  }, []);
+  // UN numero, no un rango: un rango en React Three Fiber significa "arranca
+  // en el minimo y sube solo si el equipo da", y como nada lo hace subir se
+  // queda clavado en 1 y el suavizado no se aplica nunca al abrir.
+  // El tope de celular lo aplica ResolucionInternaBio, que si conoce el
+  // tamano real de la pantalla.
+  const dprBio = useBioRenderStore((estado) => estado.resolucionInterna);
   const isBioLevaDisabled = useBioRoomStore((state) => state.isBioLevaDisabled);
   const showBioRoomLevaPanel = bioRoomDevToolsEnabled && !isBioLevaDisabled;
   const levaPanelRef = useRef<HTMLDivElement>(null);
@@ -1055,8 +1089,9 @@ export function BioRoomCanvas({ copy, isActive = true }: BioRoomCanvasProps) {
         <Leva hidden />
       )}
       <BioRoomSaveButton />
+      {PanelGraficoBio && isActive ? <PanelGraficoBio /> : null}
       <Canvas
-        dpr={dpr}
+        dpr={dprBio}
         // Clave: el Canvas NUNCA se desmonta. Cuando la seccion no esta activa
         // solo se congela el motor ("demand"), conservando el contexto WebGL y
         // las texturas ya cargadas. Al volver retoma al instante, sin recargar.
@@ -1067,6 +1102,7 @@ export function BioRoomCanvas({ copy, isActive = true }: BioRoomCanvasProps) {
           powerPreference: "high-performance",
         }}
       >
+        <ResolucionInternaBio />
         <SceneContent copy={copy} />
       </Canvas>
     </div>

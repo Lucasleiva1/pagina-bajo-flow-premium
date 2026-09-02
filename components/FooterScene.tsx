@@ -1,10 +1,30 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { SceneShell } from "@/components/SceneShell";
 import { FooterAtmosphere } from "@/components/three/FooterAtmosphere";
-import { FooterRenderPanel, PANEL_RENDER_HABILITADO } from "@/components/three/FooterRenderPanel";
 import { contactDetails, type SiteCopy } from "@/data/site";
+import { PANELES_DE_AJUSTE_VISIBLES } from "@/lib/panelesDeAjuste";
+import { RenderPie } from "@/lib/useFooterRenderStore";
+
+/**
+ * PANEL DE TRABAJO: SOLO EN LOCAL, Y NI SIQUIERA VIAJA A PRODUCCION.
+ *
+ * La comparacion se resuelve al compilar (NODE_ENV queda escrito como texto
+ * fijo), asi que en la version publicada esta rama queda muerta y el
+ * empaquetador puede tirar el panel ENTERO, junto con la libreria Leva. No
+ * es solo que no se dibuje: no se descarga.
+ *
+ * Antes se importaba siempre y se escondia al dibujar. No se veia, pero el
+ * codigo y los textos de los controles igual le llegaban al visitante.
+ */
+const PanelDeRender =
+  process.env.NODE_ENV === "development" && PANELES_DE_AJUSTE_VISIBLES
+    ? dynamic(() => import("@/components/three/FooterRenderPanel").then((m) => m.FooterRenderPanel), {
+        ssr: false,
+      })
+    : null;
 
 type FooterSceneProps = {
   copy: SiteCopy["footer"];
@@ -36,6 +56,13 @@ export function FooterScene({ copy, socialLinks, onNavigate, isActive }: FooterS
     intensityRef.current = 1;
   }, []);
 
+  // La imagen se puede manejar desde codigo aunque el panel este oculto:
+  // bajoFlowRender.set("resolucionInterna", 2) y compania. Solo en local.
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+    (window as unknown as { bajoFlowRender: typeof RenderPie }).bajoFlowRender = RenderPie;
+  }, []);
+
   return (
     <SceneShell className="footer-scene" id="footer">
       {/* Decorativo puro: ni el lector de pantalla ni el puntero lo tocan. */}
@@ -43,10 +70,9 @@ export function FooterScene({ copy, socialLinks, onNavigate, isActive }: FooterS
         <FooterAtmosphere intensityRef={intensityRef} isActive={isActive} />
       </div>
 
-      {/* Panel de trabajo. Solo aparece en local; en la pagina publicada no
-          existe. Nada de la escena depende de el: si se saca, todo sigue
-          funcionando con los valores guardados en el centro de control. */}
-      {PANEL_RENDER_HABILITADO && isActive ? <FooterRenderPanel /> : null}
+      {/* Nada de la escena depende del panel: si se saca, todo sigue andando
+          con los valores guardados en data/footerRenderPreset.ts. */}
+      {PanelDeRender && isActive ? <PanelDeRender /> : null}
       {/* El fundido desde negro hacia la ultima escena. */}
       <div aria-hidden="true" className="footer-veil" />
 
