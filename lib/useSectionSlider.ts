@@ -3,7 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /** Duracion del difuminado entre secciones. Debe coincidir con globals.css. */
-export const SECTION_FADE_MS = 600;
+export const SECTION_FADE_MS = 560;
+
+/** Cuanto se bloquea la rueda. Menos que el fundido para que no se sienta
+    pegajoso: a mitad del cruce ya se puede pedir la siguiente seccion. */
+export const SECTION_LOCK_MS = 380;
+
+/** El instante en que se cambia de seccion, ya con el velo en negro. Cae
+    dentro del sosten del fotograma clave (28%-68% de 560 ms, o sea entre los
+    157 y los 381 ms) de .section-crossfade-veil en globals.css: si se mueve
+    uno hay que mover el otro, porque el cambio tiene que pasar tapado. */
+export const SECTION_SWAP_MS = 215;
 
 /** Mientras haya un modal abierto la rueda no debe cambiar de seccion. */
 function isBlockedByOverlay() {
@@ -16,21 +26,48 @@ function isBlockedByOverlay() {
 
 export function useSectionSlider(ids: string[]) {
   const [activeIndex, setActiveIndex] = useState(0);
+  // Sube de a uno en cada cambio de seccion. Sirve de llave para remontar el
+  // velo del cruce, que asi vuelve a reproducir su animacion desde cero.
+  const [transitionKey, setTransitionKey] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const activeIndexRef = useRef(0);
   const lockedUntilRef = useRef(0);
+  const veilTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const goTo = useCallback(
     (index: number) => {
       const next = Math.max(0, Math.min(ids.length - 1, index));
       if (next === activeIndexRef.current) return;
 
+      // SIN SONIDO AL CAMBIAR DE SECCION.
+      // Jael lo saco el 2/9/2026: ninguna de las versiones que probamos dio
+      // con el tono elegante que buscaba. La navegacion va muda hasta que
+      // aparezca un sonido que valga la pena.
+      //
+      // Para volver a ponerlo cuando lo haya: importar playSectionTransition
+      // desde ./soundEffects y llamarlo aca, ANTES de mover el indice, para
+      // que arranque junto con el velo y no despegado de la imagen:
+      //   playSectionTransition(next > activeIndexRef.current ? 1 : -1);
+      // El sonido en si sigue vivo en lib/soundEffects.ts y se puede escuchar
+      // y comparar en la pagina /sonidos.
+
       activeIndexRef.current = next;
-      lockedUntilRef.current = performance.now() + SECTION_FADE_MS;
+      lockedUntilRef.current = performance.now() + SECTION_LOCK_MS;
       setActiveIndex(next);
+      setTransitionKey((value) => value + 1);
+      setIsTransitioning(true);
+
+      if (veilTimerRef.current) clearTimeout(veilTimerRef.current);
+      veilTimerRef.current = setTimeout(() => setIsTransitioning(false), SECTION_FADE_MS);
+
       window.history.replaceState(null, "", `#${ids[next]}`);
     },
     [ids],
   );
+
+  useEffect(() => () => {
+    if (veilTimerRef.current) clearTimeout(veilTimerRef.current);
+  }, []);
 
   const goToId = useCallback(
     (id: string) => {
@@ -110,5 +147,12 @@ export function useSectionSlider(ids: string[]) {
     };
   }, [goTo, ids]);
 
-  return { activeIndex, activeId: ids[activeIndex] ?? ids[0], goTo, goToId };
+  return {
+    activeIndex,
+    activeId: ids[activeIndex] ?? ids[0],
+    goTo,
+    goToId,
+    isTransitioning,
+    transitionKey,
+  };
 }

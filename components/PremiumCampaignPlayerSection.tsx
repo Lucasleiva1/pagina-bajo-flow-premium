@@ -116,6 +116,7 @@ export function PremiumCampaignPlayerSection({
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [playbackProgress, setPlaybackProgress] = useState(0);
   const activeIndexRef = useRef(activeIndex);
+  const deckRef = useRef<HTMLDivElement | null>(null);
   const dragStateRef = useRef<DragState | null>(null);
   const fullscreenContainerRef = useRef<HTMLDivElement | null>(null);
   const fullscreenCloseFrameRef = useRef<number | null>(null);
@@ -150,6 +151,24 @@ export function PremiumCampaignPlayerSection({
     setPlaybackProgress(0);
     resumeTimeRef.current = 0;
   }, [activeIndex]);
+
+  // La rueda sobre el mazo de campanias no tiene que cambiar de seccion.
+  //
+  // Antes esto era un onWheel de React con preventDefault() y no servia por
+  // dos motivos: React registra la rueda como PASIVA, asi que el
+  // preventDefault nunca corria (y ensuciaba la consola con "Unable to
+  // preventDefault inside passive event listener"); y ademas preventDefault
+  // frena el scroll del navegador, no la propagacion hacia el listener de
+  // window que cambia de seccion. Lo que corta esa propagacion es
+  // stopPropagation, con escucha nativa y passive:false. Es el mismo patron
+  // que ya usa PanelFlotante.
+  useEffect(() => {
+    const mazo = deckRef.current;
+    if (!mazo) return;
+    const frenar = (evento: WheelEvent) => evento.stopPropagation();
+    mazo.addEventListener("wheel", frenar, { passive: false });
+    return () => mazo.removeEventListener("wheel", frenar);
+  }, []);
 
 
   useEffect(() => {
@@ -519,9 +538,7 @@ export function PremiumCampaignPlayerSection({
             onPointerDown={handleDeckPointerDown}
             onPointerMove={handleDeckPointerMove}
             onPointerUp={finishDeckDrag}
-            onWheel={(event) => {
-              event.preventDefault();
-            }}
+            ref={deckRef}
           >
             <div className="premium-campaign-deck-stack">
               {campaigns.map((campaign, index) => {

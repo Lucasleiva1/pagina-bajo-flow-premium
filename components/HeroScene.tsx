@@ -13,11 +13,12 @@ type HeroSceneProps = {
 };
 
 const HERO_VIDEOS = [
+  // Las cuatro portadas que entrego Jael. Cada una esta cortada alrededor de su
+  // momento de mayor accion y tiene un recorte vertical 9:16 para el celular.
   { id: "hero-portada-1", title: "Showreel 01" },
   { id: "hero-portada-2", title: "Showreel 02" },
   { id: "hero-portada-3", title: "Showreel 03" },
   { id: "hero-portada-4", title: "Showreel 04" },
-  { id: "hero-portada-5", title: "Showreel 05" },
 ];
 
 export function HeroScene({ copy, isActive }: HeroSceneProps) {
@@ -63,13 +64,12 @@ export function HeroScene({ copy, isActive }: HeroSceneProps) {
           onEnded={handleEnded}
           onTimeUpdate={handleTimeUpdate}
           preload="auto"
+          vertical
         />
         <div className="hero-video-vignette" aria-hidden="true" />
 
-        <div className="side-rail" aria-hidden="true">
-          <span>{copy.sideRail}</span>
-          <i />
-        </div>
+        {/* Rotulo lateral "scroll para explorar" retirado a pedido de Jael.
+            El texto sigue en data/site.ts (hero.sideRail) por si vuelve otra pieza en ese lugar. */}
 
         <div className="hero-layout">
           <div className="hero-copy" data-scene-copy>

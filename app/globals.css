@@ -92,14 +92,29 @@ canvas {
   display: block;
 }
 
-/* Todas las secciones apiladas en el mismo lugar. Ninguna se mueve nunca:
-   solo cambia la opacidad. Asi la sala 3D se monta una vez y no se destruye. */
+/* Todas las secciones apiladas en el mismo lugar. Ninguna se mueve ni se
+   desmonta nunca: solo se prende o se apaga la que corresponde. Asi la sala
+   3D se monta una sola vez y no se destruye. */
 .section-stack {
   inset: 0;
   position: fixed;
   z-index: 1;
 }
 
+/* El cruce entre secciones (560 ms, ver SECTION_FADE_MS en useSectionSlider).
+   -------------------------------------------------------------------------
+   Criterio de casa de alta gama, y a la vez la unica forma de que el video no
+   titile: NO SE CRUZAN DOS PLANOS DE IMAGEN.
+
+   Un cruce por opacidad obliga al navegador a aplanar la seccion entera en
+   una textura mientras dura, y un <video> no puede quedarse en su capa
+   acelerada mientras su antepasado esta a media opacidad: se redibuja cuadro
+   a cuadro y eso se ve como titileo.
+
+   Entonces: el velo baja a negro, la seccion se cambia POR DETRAS del velo
+   (de golpe, sin opacidades intermedias), y el velo se retira despacio. Las
+   secciones solo existen en dos estados, visible del todo o no visible.
+   Cero aplanado, cero titileo, y el gesto es el de un fundido de cine. */
 .scene {
   inset: 0;
   isolation: isolate;
@@ -108,11 +123,11 @@ canvas {
   padding: 7.5rem 7vw 4.5rem;
   pointer-events: none;
   position: absolute;
-  transition: opacity 600ms ease;
   visibility: hidden;
   z-index: 1;
 }
 
+/* Sin transicion de opacidad a proposito: el cambio ocurre tapado. */
 .scene.is-active {
   opacity: 1;
   pointer-events: auto;
@@ -120,15 +135,48 @@ canvas {
   z-index: 2;
 }
 
-/* La seccion que se va sigue visible mientras dura el cruce. */
-.scene:not(.is-active) {
-  transition: opacity 600ms ease, visibility 0s linear 600ms;
+/* El velo. Llega, sostiene el negro el tiempo justo para que el cambio pase
+   sin verse, y se retira con una cola larga. El difuminado acompana la
+   entrada y la salida, a 8 px: la mitad de antes. Pasado ese punto se lee
+   como efecto de plantilla y cansa la vista. */
+.section-crossfade-veil {
+  animation: section-crossfade-breath 560ms cubic-bezier(0.45, 0, 0.25, 1) both;
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 3;
+}
+
+@keyframes section-crossfade-breath {
+  0% {
+    -webkit-backdrop-filter: blur(0px);
+    backdrop-filter: blur(0px);
+    background-color: rgba(4, 6, 12, 0);
+  }
+  28% {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    background-color: rgba(4, 6, 12, 1);
+  }
+  /* El sosten (157 ms - 381 ms). Aca adentro se cambia de seccion, a oscuras.
+     Es ancho a proposito para absorber el atraso del temporizador: si el
+     cambio cayera fuera de esta ventana, se veria. */
+  68% {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    background-color: rgba(4, 6, 12, 1);
+  }
+  100% {
+    -webkit-backdrop-filter: blur(0px);
+    backdrop-filter: blur(0px);
+    background-color: rgba(4, 6, 12, 0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scene,
-  .scene:not(.is-active) {
-    transition: none;
+  .section-crossfade-veil {
+    animation: none;
+    opacity: 0;
   }
 }
 
@@ -819,12 +867,11 @@ p {
   transform-style: preserve-3d;
   transition:
     opacity 520ms ease,
-    filter 520ms ease,
     box-shadow 520ms ease,
     transform 640ms cubic-bezier(0.2, 0.72, 0.16, 1);
   user-select: none;
   width: clamp(21rem, 58vw, 58rem);
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 .work-card.center {
@@ -841,13 +888,14 @@ p {
   z-index: 4;
 }
 
+/* Las laterales se apagan bajando opacidad contra el fondo oscuro, no con
+   filter: el resultado a la vista es el mismo y el video queda intacto. */
 .work-card.left {
   --scale: 0.66;
   --x: clamp(-34rem, -43vw, -22rem);
   --z: -170px;
   --ry: 34deg;
-  filter: brightness(0.92) saturate(1.08);
-  opacity: 0.94;
+  opacity: 0.88;
   z-index: 2;
 }
 
@@ -856,15 +904,13 @@ p {
   --x: clamp(22rem, 43vw, 34rem);
   --z: -170px;
   --ry: -34deg;
-  filter: brightness(0.92) saturate(1.08);
-  opacity: 0.94;
+  opacity: 0.88;
   z-index: 2;
 }
 
 .work-card.hidden {
   --scale: 0.46;
   --z: -420px;
-  filter: brightness(0.35);
   opacity: 0;
   pointer-events: none;
   z-index: 0;
@@ -872,8 +918,7 @@ p {
 
 .work-card:hover:not(.center),
 .work-card:focus-visible:not(.center) {
-  filter: brightness(1) saturate(1.08);
-  opacity: 0.92;
+  opacity: 1;
 }
 
 .work-card:focus-visible {
@@ -886,10 +931,13 @@ p {
   position: absolute;
 }
 
+/* Sin filter aca. Un filtro sobre un <video> lo saca de su via acelerada:
+   Chrome tiene que redibujarlo en cada cuadro, y al cruzar de seccion (que
+   anima la opacidad de un antepasado) eso se ve como titileo. Ademas, subir
+   contraste sobre material ya comprimido resalta los bloques. */
 .work-card-media {
   -webkit-user-drag: none;
   -webkit-user-select: none;
-  filter: brightness(1.08) contrast(1.04) saturate(1.12);
   height: 100%;
   object-fit: cover;
   user-select: none;
