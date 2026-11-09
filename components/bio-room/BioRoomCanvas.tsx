@@ -67,8 +67,9 @@ const bioRoomDevToolsEnabled = false;
    rendered on that wall are fully readable (no extreme perspective). */
 const cameraStates = {
   home: {
-    position: new Vector3(0, 1.6, 6.2),
-    target: new Vector3(0, 1.6, -3.5),
+    /* Cerca para que los laterales casi no entren en cuadro (pedido de Lucas). */
+    position: new Vector3(0, 1.6, 5.45),
+    target: new Vector3(0, 1.1, -3.5),
   },
   bio: {
     /* Camera moves to face the LEFT wall (character-right-wall) head-on */
@@ -174,7 +175,10 @@ function CameraRig({ layout }: { layout: BioRoomLayout }) {
     desiredPosition.current.addScaledVector(localUp.current, currentY);
 
     const speed = 1 - Math.pow(0.025, delta);
-    if (prefersReducedMotion.current) {
+    /* En PC la camara SIEMPRE gira suave entre secciones, aunque Windows tenga
+       las animaciones apagadas (pedido de Lucas: es un cubo que gira, no un salto).
+       El salto directo queda solo para celular/tactil con movimiento reducido. */
+    if (prefersReducedMotion.current && isMobileOrTouch.current) {
       camera.position.copy(desiredPosition.current);
       target.current.copy(desiredTarget.current);
     } else {
